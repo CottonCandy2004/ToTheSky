@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "slices=0": { "model": "tothesky:block/pork_pizza" },
+    "slices=1": { "model": "tothesky:block/pork_pizza2" },
+    "slices=2": { "model": "tothesky:block/pork_pizza3" },
+    "slices=3": { "model": "tothesky:block/pork_pizza4" }
+  }
+}

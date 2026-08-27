@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "bites=0": {
+      "model": "tothesky:block/ramen_0"
+    },
+    "bites=1": {
+      "model": "tothesky:block/ramen_1"
+    },
+    "bites=2": {
+      "model": "tothesky:block/ramen_2"
+    },
+    "bites=3": {
+      "model": "tothesky:block/ramen_3"
+    },
+    "bites=4": {
+      "model": "tothesky:block/ramen_4"
+    }
+  }
+}

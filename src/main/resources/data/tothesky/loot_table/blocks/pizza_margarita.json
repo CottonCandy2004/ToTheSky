@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "tothesky:pizza_margarita" }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "tothesky:pizza_margarita",
+          "properties": { "slices": "0" }
+        }
+      ]
+    }
+  ]
+}

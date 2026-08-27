@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "tothesky:pork_pizza" }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "tothesky:pork_pizza",
+          "properties": { "slices": "0" }
+        }
+      ]
+    }
+  ]
+}

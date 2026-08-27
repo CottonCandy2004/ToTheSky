@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/cocktail/old_fashioned_glass"
+    },
+    "facing=east": {
+      "model": "tothesky:block/cocktail/old_fashioned_glass",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/cocktail/old_fashioned_glass",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/cocktail/old_fashioned_glass",
+      "y": 270
+    }
+  }
+}

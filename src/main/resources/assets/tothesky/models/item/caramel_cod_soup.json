@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "tothesky:item/caramel_cod_soup"
+  }
+}

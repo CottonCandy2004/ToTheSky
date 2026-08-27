@@ -1,0 +1,10 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    { "tag": "c:dough" }
+  ],
+  "tool": { "item": "minecraft:stick" },
+  "result": [
+    { "item": { "count": 8, "id": "tothesky:dumpling_wrapper" } }
+  ]
+}
