@@ -12,8 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
@@ -61,29 +59,6 @@ public final class SpecialFoodItems {
                     player.displayClientMessage(Component.literal("§c是错觉吗？似乎胃里有什么蹦跳了一下"), true);
                 }
                 player.hurt(player.damageSources().generic(), 2.0f);
-            }
-            return result;
-        }
-    }
-
-    /** 浆果麻婆豆腐：20% 概率引来五道天雷 */
-    public static class BerryBeanCurd extends TooltipItem {
-        public BerryBeanCurd(Properties properties) {
-            super(properties, "berry_bean_curd", 4);
-        }
-
-        @Override
-        public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-            ItemStack result = super.finishUsingItem(stack, level, entity);
-            if (level instanceof ServerLevel serverLevel && entity instanceof Player player
-                    && serverLevel.random.nextFloat() <= 0.2f) {
-                for (int i = 0; i < 5; i++) {
-                    LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
-                    if (bolt != null) {
-                        bolt.moveTo(player.getX(), player.getY(), player.getZ());
-                        serverLevel.addFreshEntity(bolt);
-                    }
-                }
             }
             return result;
         }

@@ -1,0 +1,13 @@
+{
+  "type": "create:compacting",
+  "heat_requirement": "superheated",
+  "ingredients": [
+    { "item": "ae2:singularity" },
+    { "item": "minecraft:netherite_scrap" },
+    { "item": "quark:soul_bead" },
+    { "type": "neoforge:single", "amount": 50, "fluid": "tothesky:netherite_liquar" }
+  ],
+  "results": [
+    { "id": "tothesky:witch_factor" }
+  ]
+}

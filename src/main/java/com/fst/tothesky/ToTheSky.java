@@ -7,6 +7,8 @@ import com.fst.tothesky.registry.ModCocktails;
 import com.fst.tothesky.registry.ModDataComponents;
 import com.fst.tothesky.registry.ModEffects;
 import com.fst.tothesky.registry.ModItems;
+import com.fst.tothesky.registry.ModFluids;
+import com.fst.tothesky.registry.ModFluidTypes;
 import com.fst.tothesky.registry.ModRecipes;
 import com.fst.tothesky.registry.ModTabs;
 import com.mojang.logging.LogUtils;
@@ -30,5 +32,8 @@ public class ToTheSky {
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModRecipes.RECIPE_SERIALIZERS.register(modEventBus);
         ModCocktails.COCKTAILS.register(modEventBus);
+        ModFluidTypes.FLUID_TYPES.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
+        ModFluids.BUCKETS.register(modEventBus);
     }
 }

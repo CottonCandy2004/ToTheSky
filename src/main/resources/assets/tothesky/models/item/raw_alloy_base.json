@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tothesky:item/bean_curd"
+    "layer0": "tothesky:item/raw_alloy_base"
   }
 }

@@ -100,6 +100,14 @@ dependencies {
     implementation "maven.modrinth:crabbers-delight:${crabbersdelight_version}"
     implementation "maven.modrinth:farmers-respite-unofficial-port:${farmersrespite_version}"
     implementation "maven.modrinth:create-confectionery:${create_confectionery_version}"
+
+    // 电力与附魔工业（下界合金/魔女因子链依赖）
+    implementation "maven.modrinth:createaddition:${createaddition_version}"
+    implementation "maven.modrinth:ae2:${ae2_version}"
+    implementation "maven.modrinth:guideme:${guideme_version}"
+    // 附魔工业（CEI 2.5.x，硬依赖 create-dragons-plus 1.11.x；Apotheosis 仅为可选联动非硬依赖）
+    implementation "maven.modrinth:create-enchantment-industry:${create_enchantment_industry_version}"
+    implementation "maven.modrinth:create-dragons-plus:${create_dragons_plus_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

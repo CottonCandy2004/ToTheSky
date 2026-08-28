@@ -1,0 +1,30 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": { "item": "tothesky:raw_alloy_base" },
+  "loops": 5,
+  "results": [
+    { "id": "minecraft:netherite_ingot" }
+  ],
+  "sequence": [
+    {
+      "type": "create:filling",
+      "ingredients": [
+        { "item": "tothesky:incomplete_netherite_ingot" },
+        { "type": "neoforge:single", "amount": 250, "fluid": "tothesky:netherite_liquar" }
+      ],
+      "results": [
+        { "id": "tothesky:incomplete_netherite_ingot" }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        { "item": "tothesky:incomplete_netherite_ingot" }
+      ],
+      "results": [
+        { "id": "tothesky:incomplete_netherite_ingot" }
+      ]
+    }
+  ],
+  "transitional_item": { "id": "tothesky:incomplete_netherite_ingot" }
+}

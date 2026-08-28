@@ -104,37 +104,6 @@ public final class ModItems {
             () -> new SpecialFoodItems.BombCodBurger(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(14).saturationModifier(14.0f)
                     .build())));
-    // 小块豆腐
-    public static final DeferredItem<Item> CUT_BEAN_CURD = ITEMS.register("cut_bean_curd",
-            () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(3).saturationModifier(0.0f)
-                    .build()), "cut_bean_curd", 2));
-    // 甜豆花
-    public static final DeferredItem<Item> SWEET_BEAN_CURD = ITEMS.register("sweet_bean_curd",
-            () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(8).saturationModifier(1.0f)
-                    .usingConvertsTo(Items.BOWL)
-                    .build()), "sweet_bean_curd", 4));
-    // 咸豆腐脑
-    public static final DeferredItem<Item> SALTY_BEAN_CURD = ITEMS.register("salty_bean_curd",
-            () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(8).saturationModifier(1.0f)
-                    .usingConvertsTo(Items.BOWL)
-                    .build()), "salty_bean_curd", 4));
-    // 麻婆豆腐
-    public static final DeferredItem<Item> SPICY_BEAN_CURD = ITEMS.register("spicy_bean_curd",
-            () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(8).saturationModifier(1.0f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT, 600, 0), 1.0f)
-                    .usingConvertsTo(Items.BOWL)
-                    .build()), "spicy_bean_curd", 4));
-    // 浆果麻婆豆腐
-    public static final DeferredItem<Item> BERRY_BEAN_CURD = ITEMS.register("berry_bean_curd",
-            () -> new SpecialFoodItems.BerryBeanCurd(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(10).saturationModifier(1.0f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT, 600, 0), 1.0f)
-                    .usingConvertsTo(Items.BOWL)
-                    .build())));
     // 幻翼虾仁
     public static final DeferredItem<Item> PHANTOM_SHRIMP = ITEMS.register("phantom_shrimp",
             () -> new SpecialFoodItems.PhantomShrimp(new Item.Properties().food(new FoodProperties.Builder()
@@ -185,7 +154,6 @@ public final class ModItems {
 
     // ---------------- 食材 ----------------
     public static final DeferredItem<Item> CHEESE = simple("cheese", 2);
-    public static final DeferredItem<Item> BEAN_CURD = simple("bean_curd", 2);
     public static final DeferredItem<Item> PIZZA_BASE = simple("pizza_base", 3);
     public static final DeferredItem<Item> RAW_PIZZA_MARGARITA = simple("raw_pizza_margarita", 2);
     public static final DeferredItem<Item> RAW_PORK_PIZZA = simple("raw_pork_pizza", 2);
@@ -196,6 +164,27 @@ public final class ModItems {
     public static final DeferredItem<Item> RAW_DUMPLING = simple("raw_dumpling", 1);
     public static final DeferredItem<Item> RAW_DUMPLING_PLATE = ITEMS.register("raw_dumpling_plate",
             () -> new TooltipItem(new Item.Properties().stacksTo(1), "raw_dumpling_plate", 1));
+
+    // ---------------- 下界合金产线材料 ----------------
+    /** 血瓶：下界溶液原料（移植自 kjs，maxStackSize 1，用完返还玻璃瓶） */
+    public static final DeferredItem<Item> BLOOD_BOTTLE = ITEMS.register("blood_bottle",
+            () -> new Item(new Item.Properties().stacksTo(1).craftRemainder(net.minecraft.world.item.Items.GLASS_BOTTLE)));
+    /** 不纯合金坯：钻石+铁+金 超高温混合 */
+    public static final DeferredItem<Item> IMPURE_ALLOY_BASE = simple("impure_alloy_base", 0);
+    /** 粗制合金坯：不纯合金坯+岩浆 压实 */
+    public static final DeferredItem<Item> RAW_ALLOY_BASE = simple("raw_alloy_base", 0);
+    /** 半成品合金：下界合金序列组装的中间品 */
+    public static final DeferredItem<Item> INCOMPLETE_NETHERITE_INGOT = simple("incomplete_netherite_ingot", 0);
+    /** 魔女因子：AE2 奇点 + 下界合金碎片 + 灵魂珠 + 下界溶液 超高温压实 */
+    public static final DeferredItem<Item> WITCH_FACTOR = simple("witch_factor", 0);
+    /** 活化的魔女因子：魔女因子经 createaddition 充电活化（饮品659 原料） */
+    public static final DeferredItem<Item> ACTIVATED_WITCH_FACTOR = simple("activated_witch_factor", 0);
+    /** 三角尘：三角币掰碎的粉末（饮品659 原料；上游来自三角币经济系统） */
+    public static final DeferredItem<Item> DELTA_DUST = simple("delta_dust", 0);
+    /** 三角币：经济系统货币（生晴天鳕鱼原料；上游来自 sell&roll 经济系统） */
+    public static final DeferredItem<Item> DELTA_COIN = simple("delta_coin", 0);
+    /** 三角片：三角币掰碎（三角粥原料；上游来自经济系统） */
+    public static final DeferredItem<Item> DELTA_COIN_CHIP = simple("delta_coin_chip", 0);
 
     private static DeferredItem<Item> simple(String name, int tooltipLines) {
         return ITEMS.register(name, () -> tooltipLines > 0

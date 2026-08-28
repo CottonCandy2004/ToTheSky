@@ -16,8 +16,12 @@ public final class ModTabs {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup." + ToTheSky.MODID))
                     .icon(() -> new ItemStack(ModItems.SUNSHINE_COD.get()))
-                    .displayItems((parameters, output) ->
-                            ModItems.ITEMS.getEntries().forEach(holder -> output.accept(holder.get())))
+                    .displayItems((parameters, output) -> {
+                        ModItems.ITEMS.getEntries().forEach(holder -> output.accept(holder.get()));
+                        // 流体桶单独注册在 ModFluids.BUCKETS，加入主创造栏
+                        output.accept(ModFluids.NETHERITE_LIQUAR_BUCKET.get());
+                        output.accept(ModFluids.UNSTABLE_NETHERITE_LIQUAR_BUCKET.get());
+                    })
                     .build());
 
     private ModTabs() {

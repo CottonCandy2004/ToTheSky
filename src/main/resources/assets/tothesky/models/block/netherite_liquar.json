@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/water",
+  "textures": {
+    "particle": "tothesky:block/netherite_liquar_still"
+  }
+}

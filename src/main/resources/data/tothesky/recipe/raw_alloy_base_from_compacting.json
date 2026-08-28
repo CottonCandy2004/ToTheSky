@@ -1,0 +1,10 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    { "item": "tothesky:impure_alloy_base" },
+    { "type": "neoforge:single", "amount": 250, "fluid": "minecraft:lava" }
+  ],
+  "results": [
+    { "id": "tothesky:raw_alloy_base" }
+  ]
+}

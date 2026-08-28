@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tothesky:item/cut_bean_curd"
+    "layer0": "tothesky:item/unstable_netherite_liquar_bucket"
   }
 }

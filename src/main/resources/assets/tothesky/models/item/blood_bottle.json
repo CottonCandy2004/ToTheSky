@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tothesky:item/sweet_bean_curd"
+    "layer0": "tothesky:item/blood_bottle"
   }
 }
