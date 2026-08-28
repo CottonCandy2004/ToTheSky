@@ -1,7 +1,7 @@
 # 仓库指南（Repository Guidelines）
 
 ## 项目概述
-ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模组，基于 Minecraft 1.21.1 的 NeoForge（NeoForge 21.1.248，Java 21）——「一点点混沌，很多的乐趣」。目前仍处于脚手架阶段：尚无功能、注册表、mixin 或数据生成内容。许可证：保留所有权利（`TEMPLATE_LICENSE.txt` 中的 MIT 许可证仅覆盖 NeoForged MDK 模板本身，不适用于模组本体）。
+ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模组，基于 Minecraft 1.21.1 的 NeoForge（NeoForge 21.1.248，Java 21）——「一点点混沌，很多的乐趣」。正在将旧版 KubeJS 脚本迁移为原生 NeoForge 实现，已迁移鸡尾酒、饺子、食物配方、下界合金产线/魔女因子链、售货机/扭蛋机等。许可证：保留所有权利（`TEMPLATE_LICENSE.txt` 中的 MIT 许可证仅覆盖 NeoForged MDK 模板本身，不适用于模组本体）。
 
 **当前阶段最重要的工作：把现有 KubeJS 逻辑与注册迁移到本 mod。** 参考源位于 `D:\Minecraft\Client\.minecraft\versions\RIAFst 3\kubejs`（注意路径含空格），迁移和开发时应优先从该路径寻找参考。详见下文「当前开发重点」。
 
@@ -57,15 +57,22 @@ Gradle 9.2.1 wrapper——POSIX 用 `./gradlew`，Windows 用 `gradlew.bat`。
 
 ## 运行时/工具偏好
 - 需要 JDK 21（toolchain 21；foojay resolver 缺 JDK 时自动下载）。IntelliJ 项目已锁定 JDK 21。
-- NeoForge 21.1.248，经 `net.neoforged.moddev` 2.0.144 引入。`repositories {}` 与 `dependencies {}` 有意留空——目前没有外部模组依赖。
+- NeoForge 21.1.248，经 `net.neoforged.moddev` 2.0.144 引入。`repositories {}` 与 `dependencies {}` 已接入 Create、Farmers Delight、KitchenKarrot、AE2、CEI 等生活/工业模组依赖（详见 `gradle.properties`）。
 - `runtimeClasspath.extendsFrom localRuntime` — 可选的仅运行时模组放入 `localRuntime` 配置。
 - Gradle daemon、并行构建、构建缓存、配置缓存均已启用（`gradle.properties`）；1 GB 堆内存。
 - CI：Ubuntu + Temurin 21；push 和 PR 时触发。
-- 注意：仓库目前没有 `.git` 目录——本地无法使用 git 命令；CI 配置已为将来推送备好。
+- 仓库已有 `.git` 目录，远端 `origin` 指向 `https://github.com/RIA-AED/ToTheSky`；可正常使用 git 命令。
 - IDE：已启用源码与 Javadoc 下载；默认代码风格。
 
 ## 测试与 QA
 - 无单元测试：没有 `src/test` 源码，也没有 JUnit 依赖——Gradle 的 `test` 任务是空操作。
-- NeoForge 游戏测试：`client`、`server`、`gameTestServer` 三个 run 均启用了 `tothesky` 命名空间（`neoforge.enabledGameTestNamespaces`）。目前还没有任何游戏测试。
-- 用 `gradlew runGameTestServer` 运行游戏测试。新增的游戏测试必须位于 `tothesky` 命名空间内。
+- NeoForge 游戏测试：`client`、`server`、gameTestServer 三个 run 均启用了 `tothesky` 命名空间（`neoforge.enabledGameTestNamespaces`）。
+- **游戏内测试由用户手动进行**——助手只确保 `gradlew build` 编译通过。测试清单维护在 `docs/serverTest_todo.md`。
+- 用 `gradlew runGameTestServer` 可运行游戏测试，但非必需（用户进游戏手测为准）。
 - CI 只执行 `./gradlew build`；没有独立的测试任务或覆盖率门槛。
+
+## Git 提交规范
+- 提交标题**必须**以 `feat:`/`fix:`/`refactor:`/`docs:`/`chore:`/`style:`/`test:`/`build:` 等 [Conventional Commits](https://www.conventionalcommits.org/) 前缀开头。
+  - 示例：`feat: 移植售货机与扭蛋机`、`fix: 修正模组名编码`、`docs: 更新测试待办`。
+- 标题用中文描述，简洁清晰。
+- 远端：`origin` → `https://github.com/RIA-AED/ToTheSky`。
