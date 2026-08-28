@@ -1,0 +1,26 @@
+{
+  "type": "kitchenkarrot:cocktail",
+  "cocktail_property": "fstwines:call_of_tahiti",
+  "content": {
+    "craftingtime": 80,
+    "hunger": 1,
+    "saturation": 2.0,
+    "recipe": [
+      {
+        "item": "minecraft:stick"
+      },
+      {
+        "item": "culturaldelights:corn_cob"
+      },
+      {
+        "item": "minecraft:flowering_azalea_leaves"
+      },
+      {
+        "item": "minecraft:yellow_dye"
+      },
+      {
+        "item": "kitchenkarrot:water"
+      }
+    ]
+  }
+}

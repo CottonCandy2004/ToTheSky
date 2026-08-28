@@ -1,5 +1,5 @@
 {
-  "itemGroup.tothesky": "ToTheSky",
+  "itemGroup.tothesky": "翱翔天际",
   "item.tothesky.pasta_with_chocolate": "巧克力意面",
   "item.tothesky.caramel_cod_soup": "焦糖鳕鱼羹",
   "item.tothesky.digestion_pellow": "健胃消食片",
@@ -55,6 +55,7 @@
   "effect.tothesky.fair_play": "绿玩",
   "effect.tothesky.rewind": "死亡回溯",
   "effect.tothesky.madness": "谵妄",
+  "effect.tothesky.hot_potato": "击鼓传花",
   "tooltip.tothesky.pasta_with_chocolate.0": "覆盖着厚厚的巧克力",
   "tooltip.tothesky.pasta_with_chocolate.1": "面条黏成一团",
   "tooltip.tothesky.pasta_with_chocolate.2": "甜到令人发腻的程度.",

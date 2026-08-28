@@ -3,6 +3,7 @@ package com.fst.tothesky;
 import com.fst.tothesky.registry.ModAttachments;
 import com.fst.tothesky.registry.ModBlockEntities;
 import com.fst.tothesky.registry.ModBlocks;
+import com.fst.tothesky.registry.ModCocktails;
 import com.fst.tothesky.registry.ModDataComponents;
 import com.fst.tothesky.registry.ModEffects;
 import com.fst.tothesky.registry.ModItems;
@@ -28,5 +29,6 @@ public class ToTheSky {
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModRecipes.RECIPE_SERIALIZERS.register(modEventBus);
+        ModCocktails.COCKTAILS.register(modEventBus);
     }
 }

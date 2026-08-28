@@ -1,0 +1,26 @@
+{
+  "type": "kitchenkarrot:cocktail",
+  "cocktail_property": "fstwines:lago_de_texcoco",
+  "content": {
+    "craftingtime": 100,
+    "hunger": 6,
+    "saturation": 0.0,
+    "recipe": [
+      {
+        "item": "kitchenkarrot:rum_base"
+      },
+      {
+        "item": "minecraft:bamboo"
+      },
+      {
+        "item": "minecraft:cactus"
+      },
+      {
+        "item": "minecraft:pumpkin"
+      },
+      {
+        "tag": "c:vegetables"
+      }
+    ]
+  }
+}

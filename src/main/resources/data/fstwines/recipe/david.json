@@ -1,0 +1,26 @@
+{
+  "type": "kitchenkarrot:cocktail",
+  "cocktail_property": "fstwines:david",
+  "content": {
+    "craftingtime": 80,
+    "hunger": 1,
+    "saturation": 2.0,
+    "recipe": [
+      {
+        "item": "kitchenkarrot:vodka_base"
+      },
+      {
+        "item": "kitchenkarrot:vodka_base"
+      },
+      {
+        "item": "kitchenkarrot:ice_cubes"
+      },
+      {
+        "item": "minecraft:light_blue_dye"
+      },
+      {
+        "item": "kitchenkarrot:dragon_breath_coke"
+      }
+    ]
+  }
+}

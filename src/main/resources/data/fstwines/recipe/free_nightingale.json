@@ -1,0 +1,26 @@
+{
+  "type": "kitchenkarrot:cocktail",
+  "cocktail_property": "fstwines:free_nightingale",
+  "content": {
+    "craftingtime": 80,
+    "hunger": 1,
+    "saturation": 2.0,
+    "recipe": [
+      {
+        "item": "kitchenkarrot:rum_base"
+      },
+      {
+        "item": "kitchenkarrot:rum_base"
+      },
+      {
+        "item": "kitchenkarrot:rum_base"
+      },
+      {
+        "item": "kitchenkarrot:coral_coke"
+      },
+      {
+        "item": "kitchenkarrot:ice_cubes"
+      }
+    ]
+  }
+}

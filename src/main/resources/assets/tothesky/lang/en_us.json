@@ -1,5 +1,5 @@
 {
-  "itemGroup.tothesky": "ToTheSky",
+  "itemGroup.tothesky": "To The Sky",
   "item.tothesky.pasta_with_chocolate": "巧克力意面",
   "item.tothesky.caramel_cod_soup": "焦糖鳕鱼羹",
   "item.tothesky.digestion_pellow": "健胃消食片",
@@ -154,5 +154,6 @@
   "tooltip.tothesky.dumpling_wrapper.0": "副手持馅料，长按右键包制",
   "tooltip.tothesky.raw_dumpling.0": "需要合成为一盘生饺子",
   "tooltip.tothesky.raw_dumpling_plate.0": "右键厨锅烹饪",
-  "block.tothesky.cooked_dumpling_plate": "一盘熟饺子"
+  "block.tothesky.cooked_dumpling_plate": "一盘熟饺子",
+  "effect.tothesky.hot_potato": "击鼓传花"
 }

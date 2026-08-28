@@ -1,0 +1,26 @@
+{
+  "type": "kitchenkarrot:cocktail",
+  "cocktail_property": "fstwines:shoal_in_dream",
+  "content": {
+    "craftingtime": 80,
+    "hunger": 1,
+    "saturation": 2.0,
+    "recipe": [
+      {
+        "item": "kitchenkarrot:water"
+      },
+      {
+        "item": "kitchenkarrot:mead_base"
+      },
+      {
+        "item": "minecraft:glow_ink_sac"
+      },
+      {
+        "item": "farmersdelight:milk_bottle"
+      },
+      {
+        "item": "minecraft:blue_wool"
+      }
+    ]
+  }
+}

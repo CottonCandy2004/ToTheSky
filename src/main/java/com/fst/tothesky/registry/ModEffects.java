@@ -2,6 +2,7 @@ package com.fst.tothesky.registry;
 
 import com.fst.tothesky.ToTheSky;
 import com.fst.tothesky.effect.FairPlayEffect;
+import com.fst.tothesky.effect.HotPotatoEffect;
 import com.fst.tothesky.effect.MadnessEffect;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
@@ -21,6 +22,9 @@ public final class ModEffects {
     /** 谵妄：无法发言，并不由自主地说胡话（肥虫汤） */
     public static final DeferredHolder<MobEffect, MobEffect> MADNESS =
             EFFECTS.register("madness", MadnessEffect::new);
+    /** 击鼓传花：危险派对。自驱动，效果存续即一场游戏进行中（详见 HotPotatoEffect） */
+    public static final DeferredHolder<MobEffect, MobEffect> HOT_POTATO =
+            EFFECTS.register("hot_potato", HotPotatoEffect::new);
 
     private ModEffects() {
     }
