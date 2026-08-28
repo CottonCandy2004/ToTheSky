@@ -1,0 +1,9 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    { "item": "tothesky:delta_coin" },
+    { "item": "minecraft:cod" },
+    { "item": "minecraft:blaze_powder" }
+  ],
+  "results": [ { "id": "tothesky:raw_sunshine_cod" } ]
+}

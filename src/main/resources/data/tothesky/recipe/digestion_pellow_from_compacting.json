@@ -1,0 +1,11 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    { "item": "minecraft:wheat" },
+    { "item": "minecraft:wheat" },
+    { "item": "minecraft:bone" },
+    { "item": "minecraft:slime_ball" },
+    { "type": "neoforge:single", "amount": 250, "fluid": "minecraft:milk" }
+  ],
+  "results": [ { "id": "tothesky:digestion_pellow", "count": 3 } ]
+}

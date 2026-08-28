@@ -1,0 +1,1 @@
+{ "type": "minecraft:smoking", "ingredient": { "item": "tothesky:raw_apple_pizza" }, "result": { "id": "tothesky:apple_pizza" } }

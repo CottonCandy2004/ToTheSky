@@ -1,0 +1,15 @@
+{
+  "type": "farmersdelight:cooking",
+  "recipe_book_tab": "meals",
+  "experience": 1.5,
+  "ingredients": [
+    { "tag": "c:foods/cooked_pork" },
+    { "tag": "c:foods/cooked_pork" },
+    { "tag": "c:foods/cooked_egg" },
+    { "item": "minecraft:dried_kelp" },
+    { "item": "farmersdelight:raw_pasta" },
+    { "item": "farmersdelight:raw_pasta" }
+  ],
+  "container": { "count": 1, "id": "minecraft:bowl" },
+  "result": { "count": 1, "id": "tothesky:ramen" }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": { "item": "tothesky:pizza_base" },
+  "loops": 1,
+  "results": [ { "id": "tothesky:raw_pizza_margarita" } ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [ { "item": "tothesky:raw_pizza_margarita" }, { "item": "farmersdelight:tomato_sauce" } ],
+      "results": [ { "id": "tothesky:raw_pizza_margarita" } ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [ { "item": "tothesky:raw_pizza_margarita" }, { "item": "tothesky:cut_cheese" } ],
+      "results": [ { "id": "tothesky:raw_pizza_margarita" } ]
+    }
+  ],
+  "transitional_item": { "id": "tothesky:raw_pizza_margarita" }
+}

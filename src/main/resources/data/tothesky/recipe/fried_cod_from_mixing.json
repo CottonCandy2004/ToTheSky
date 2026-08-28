@@ -1,0 +1,9 @@
+{
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    { "item": "kaleidoscope_cookery:oil" },
+    { "tag": "c:foods/raw_cod" }
+  ],
+  "results": [ { "id": "tothesky:fried_cod" } ]
+}

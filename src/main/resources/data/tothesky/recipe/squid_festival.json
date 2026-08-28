@@ -1,0 +1,13 @@
+{
+  "type": "farmersdelight:cooking",
+  "recipe_book_tab": "meals",
+  "experience": 1.5,
+  "ingredients": [
+    { "item": "culturaldelights:raw_calamari" },
+    { "item": "culturaldelights:raw_calamari" },
+    { "item": "culturaldelights:raw_calamari" },
+    { "item": "culturaldelights:raw_calamari" }
+  ],
+  "container": { "count": 1, "id": "minecraft:bowl" },
+  "result": { "count": 1, "id": "tothesky:squid_festival" }
+}
