@@ -186,6 +186,16 @@ public final class ModItems {
     /** 三角片：三角币掰碎（三角粥原料；上游来自经济系统） */
     public static final DeferredItem<Item> DELTA_COIN_CHIP = simple("delta_coin_chip", 0);
 
+    // ---------------- 售货机 / 扭蛋机 ----------------
+    /** 抽奖券：右键扭蛋机绑定 key，消费时需手持匹配的券 */
+    public static final DeferredItem<Item> ROLLER_TICKET = simple("roller_ticket", 0);
+    /** 售货机方块物品 */
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> SELLER_ITEM =
+            ITEMS.register("seller", () -> new net.minecraft.world.item.BlockItem(ModBlocks.SELLER.get(), new Item.Properties()));
+    /** 扭蛋机方块物品 */
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> ROLLER_ITEM =
+            ITEMS.register("roller", () -> new net.minecraft.world.item.BlockItem(ModBlocks.ROLLER.get(), new Item.Properties()));
+
     private static DeferredItem<Item> simple(String name, int tooltipLines) {
         return ITEMS.register(name, () -> tooltipLines > 0
                 ? new TooltipItem(new Item.Properties(), name, tooltipLines)

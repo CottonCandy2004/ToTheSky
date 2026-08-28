@@ -5,6 +5,8 @@ import com.fst.tothesky.block.CookedDumplingPlateBlock;
 import com.fst.tothesky.block.DrinkGlassBlock;
 import com.fst.tothesky.block.EmptyGlassBlock;
 import com.fst.tothesky.block.PizzaBlock;
+import com.fst.tothesky.block.RollerBlock;
+import com.fst.tothesky.block.SellerBlock;
 import com.fst.tothesky.block.RamenBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -85,6 +87,12 @@ public final class ModBlocks {
             JULY_21_BLOCK, TSUNDERE_HEROINE_BLOCK, SWEET_BERRY_MARTINI_BLOCK, BIRCH_SAP_VODKA_BLOCK,
             RED_LIZARD_BLOCK, SECOND_GUESS_BLOCK, LIGHT_YELLOW_FIREFLY_BLOCK, SHOOTING_STAR_BLOCK,
             TWILIGHT_FOREST_BLOCK, JACKS_STORY_BLOCK, SHANGHAI_BEACH_BLOCK, BANE_OF_ARTHROPODS_BLOCK);
+
+    // ---------------- 售货机 / 扭蛋机 ----------------
+    public static final DeferredBlock<SellerBlock> SELLER =
+            BLOCKS.register("seller", SellerBlock::new);
+    public static final DeferredBlock<RollerBlock> ROLLER =
+            BLOCKS.register("roller", RollerBlock::new);
 
     @Nullable
     public static DrinkGlassBlock drinkBlockFor(ResourceLocation cocktailId) {

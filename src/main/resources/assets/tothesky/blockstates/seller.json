@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east":  { "model": "tothesky:block/seller" },
+    "facing=north": { "model": "tothesky:block/seller", "y": 270 },
+    "facing=south": { "model": "tothesky:block/seller", "y": 90 },
+    "facing=west":  { "model": "tothesky:block/seller", "y": 180 }
+  }
+}

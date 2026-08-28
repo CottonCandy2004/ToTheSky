@@ -142,5 +142,10 @@
   "item.tothesky.activated_witch_factor": "活化的魔女因子",
   "item.tothesky.delta_dust": "§e❖§7三角尘",
   "item.tothesky.delta_coin": "§e▲§7三角币",
-  "item.tothesky.delta_coin_chip": "§e△§7三角片"
+  "item.tothesky.delta_coin_chip": "§e△§7三角片",
+  "block.tothesky.seller": "售货机",
+  "block.tothesky.roller": "扭蛋机",
+  "item.tothesky.roller_ticket": "抽奖券",
+  "item.tothesky.seller": "售货机",
+  "item.tothesky.roller": "扭蛋机"
 }

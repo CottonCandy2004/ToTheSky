@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east":  { "model": "tothesky:block/roller" },
+    "facing=north": { "model": "tothesky:block/roller", "y": 270 },
+    "facing=south": { "model": "tothesky:block/roller", "y": 90 },
+    "facing=west":  { "model": "tothesky:block/roller", "y": 180 }
+  }
+}
