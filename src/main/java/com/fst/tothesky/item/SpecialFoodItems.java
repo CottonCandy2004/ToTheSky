@@ -10,8 +10,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -131,7 +129,7 @@ public final class SpecialFoodItems {
         }
     }
 
-    /** 劲爆鳕鱼堡：入口即爆，残血时直接致命 */
+    /** 劲爆鳕鱼堡：入口即爆。在玩家头上方一格生成强度 4.0 的真实爆炸 */
     public static class BombCodBurger extends TooltipItem {
         public BombCodBurger(Properties properties) {
             super(properties, "bomb_cod_burger", 6);
@@ -140,16 +138,14 @@ public final class SpecialFoodItems {
         @Override
         public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
             ItemStack result = super.finishUsingItem(stack, level, entity);
-            if (entity instanceof ServerPlayer player) {
-                level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0f, 1.0f);
-                if (player.getHealth() <= 8.0f) {
-                    broadcast(player, player.getGameProfile().getName() + "服用劲爆鳕鱼堡时爆炸了");
-                    player.hurt(player.damageSources().generic(), 20.0f);
-                } else {
-                    player.displayClientMessage(Component.literal("砰！"), false);
-                }
-                player.hurt(player.damageSources().generic(), 8.0f);
+            if (entity instanceof ServerPlayer player && level instanceof ServerLevel serverLevel) {
+                // 真正的爆炸：在玩家头上方一格生成强度 4.0 的爆炸。
+                // 声音、粒子、实体伤害/击退、以及原版爆炸死亡信息全部由 Explosion 生成；
+                // NONE 不破坏方块（与饺子 TNT 馅一致）。
+                // 注意 source 传 null：getEntities(source, ...) 会排除 source 本身，
+                // 若传 player，吃下汉堡的玩家反而不会受到爆炸伤害。
+                serverLevel.explode(null, player.getX(), player.getY() + 1, player.getZ(),
+                        4.0f, Level.ExplosionInteraction.NONE);
             }
             return result;
         }
