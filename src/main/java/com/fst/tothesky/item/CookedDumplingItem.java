@@ -39,8 +39,12 @@ public class CookedDumplingItem extends TooltipItem {
         }
         FoodProperties food = filling.get(DataComponents.FOOD);
         if (food != null) {
-            // 应用馅料自身的食物属性（数值、效果）
-            player.eat(serverLevel, filling.copy(), food);
+            // 伪装成玩家直接吃下馅料：调用馅料自己的 finishUsingItem，
+            // 数值/效果(含概率)/进食进度/打嗝/容器返还乃至紫颂果传送等自定义逻辑全按原版执行
+            ItemStack leftover = filling.getItem().finishUsingItem(filling.copy(), level, player);
+            if (!leftover.isEmpty()) {
+                player.getInventory().placeItemBackInInventory(leftover);
+            }
         } else if (filling.is(Items.TNT)) {
             spawnFakeTnt(serverLevel, player);
         } else {
