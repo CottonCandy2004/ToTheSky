@@ -15,7 +15,7 @@ public final class ModTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN = TABS.register("main",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup." + ToTheSky.MODID))
-                    .icon(() -> new ItemStack(ModItems.BOMB_COD_BURGER.get()))
+                    .icon(() -> new ItemStack(ModItems.SUNSHINE_COD.get()))
                     .displayItems((parameters, output) ->
                             ModItems.ITEMS.getEntries().forEach(holder -> output.accept(holder.get())))
                     .build());
