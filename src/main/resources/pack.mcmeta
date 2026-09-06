@@ -1,0 +1,8 @@
+{
+    "pack": {
+        "description": {
+            "translate": "pack.tothesky.description"
+        },
+        "pack_format": 15
+    }
+}
