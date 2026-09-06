@@ -1,6 +1,5 @@
 package com.fst.tothesky.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -25,11 +24,6 @@ public class EmptyGlassBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    protected MapCodec<? extends EmptyGlassBlock> codec() {
-        return simpleCodec(props -> new EmptyGlassBlock(props, height));
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
@@ -40,7 +34,7 @@ public class EmptyGlassBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return shape;
     }
 }

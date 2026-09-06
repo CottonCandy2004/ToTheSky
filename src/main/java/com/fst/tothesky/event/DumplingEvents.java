@@ -5,8 +5,7 @@ import com.fst.tothesky.dumpling.DumplingCookingManager;
 import com.fst.tothesky.dumpling.DumplingFactory;
 import com.fst.tothesky.dumpling.DumplingNamer;
 import com.fst.tothesky.dumpling.DumplingPlateContents;
-import com.fst.tothesky.dumpling.ItemStackSnapshot;
-import com.fst.tothesky.registry.ModDataComponents;
+import com.fst.tothesky.registry.ModNbt;
 import com.fst.tothesky.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,9 +16,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import vectorwing.farmersdelight.common.block.entity.CookingPotBlockEntity;
 
 /**
@@ -28,7 +27,7 @@ import vectorwing.farmersdelight.common.block.entity.CookingPotBlockEntity;
  * 包制为手持长按（见 {@link com.fst.tothesky.item.DumplingWrapperItem}），不再走砧板。
  * 森罗物语汤锅的饺子烹饪已移除（不做兼容）。
  */
-@EventBusSubscriber(modid = ToTheSky.MODID)
+@Mod.EventBusSubscriber(modid = ToTheSky.MODID)
 public final class DumplingEvents {
     private DumplingEvents() {
     }
@@ -61,7 +60,7 @@ public final class DumplingEvents {
         int ticks;
         String message;
         if (single) {
-            ItemStack filling = ItemStackSnapshot.unwrap(hand.get(ModDataComponents.DUMPLING_FILLING));
+            ItemStack filling = ModNbt.getFilling(hand);
             if (filling.isEmpty()) {
                 status(player, "这个生饺子好像没有馅呢……");
                 event.setCanceled(true);
@@ -73,12 +72,14 @@ public final class DumplingEvents {
                 event.setCanceled(true);
                 return;
             }
-            String author = hand.getOrDefault(ModDataComponents.DUMPLING_AUTHOR, "Unknown");
-            result = DumplingFactory.cookedDumpling(filling, author);
+            String author = hand.getOrCreateTag().getString(ModNbt.DUMPLING_AUTHOR);
+            result = DumplingFactory.cookedDumpling(filling, author.isEmpty() ? "Unknown" : author);
             ticks = profile.processTicks();
             message = "饺子已入锅，预计需要 %s 秒来煮熟！";
         } else {
-            DumplingPlateContents contents = hand.get(ModDataComponents.DUMPLING_PLATE);
+            var tag = hand.getTag();
+            DumplingPlateContents contents = tag != null && tag.contains(ModNbt.DUMPLING_PLATE)
+                    ? DumplingPlateContents.load(tag.getCompound(ModNbt.DUMPLING_PLATE)) : null;
             if (contents == null || !contents.hasAnyFilling()) {
                 status(player, "这盘生饺子好像没有馅呢……");
                 event.setCanceled(true);
@@ -107,7 +108,7 @@ public final class DumplingEvents {
             return;
         }
         ItemStack input = hand.copyWithCount(1);
-        if (!player.hasInfiniteMaterials()) {
+        if (!player.getAbilities().instabuild) {
             hand.shrink(1);
         }
         DumplingCookingManager.startPotSession(serverLevel, pos, pot, input, result, ticks);

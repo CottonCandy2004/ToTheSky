@@ -1,7 +1,7 @@
 package com.fst.tothesky.item;
 
 import com.fst.tothesky.blockentity.DumplingPlateBlockEntity;
-import com.fst.tothesky.registry.ModDataComponents;
+import com.fst.tothesky.registry.ModNbt;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
@@ -19,7 +19,11 @@ public class CookedDumplingPlateItem extends TooltipBlockItem {
         if (result.consumesAction() && !context.getLevel().isClientSide) {
             BlockEntity blockEntity = context.getLevel().getBlockEntity(context.getClickedPos());
             if (blockEntity instanceof DumplingPlateBlockEntity plate) {
-                plate.setContents(context.getItemInHand().get(ModDataComponents.DUMPLING_PLATE));
+                var tag = context.getItemInHand().getTag();
+                if (tag != null && tag.contains(ModNbt.DUMPLING_PLATE)) {
+                    plate.setContents(com.fst.tothesky.dumpling.DumplingPlateContents
+                            .load(tag.getCompound(ModNbt.DUMPLING_PLATE)));
+                }
             }
         }
         return result;

@@ -1,7 +1,6 @@
 package com.fst.tothesky.block;
 
 import com.fst.tothesky.cocktail.CocktailHelper;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -9,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,8 +22,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.function.Supplier;
-
 /**
  * 可放置的鸡尾酒（无物品形态）：
  * <ul>
@@ -36,6 +32,9 @@ import java.util.function.Supplier;
  *     <li>非创造破坏 → 按份数掉落鸡尾酒</li>
  * </ul>
  * stacks 属性的上限因杯型而异，故拆成三个子类（方块状态属性必须在超类构造期可用）。
+ *
+ * 1.20.1 适配：useItemOn/useWithoutItem 合并为单一 use()，
+ * 逻辑按「手持物 → 潜行 → 空手」的顺序在方法内分流。
  */
 public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
     public static final IntegerProperty STACKS_2 = IntegerProperty.create("stacks", 1, 2);
@@ -44,10 +43,10 @@ public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
 
     private final ResourceLocation cocktailId;
     private final int maxStacks;
-    private final Supplier<? extends Block> emptyGlass;
+    private final java.util.function.Supplier<? extends Block> emptyGlass;
     private final VoxelShape shape;
 
-    private DrinkGlassBlock(ResourceLocation cocktailId, int maxStacks, Supplier<? extends Block> emptyGlass,
+    private DrinkGlassBlock(ResourceLocation cocktailId, int maxStacks, java.util.function.Supplier<? extends Block> emptyGlass,
                             Properties properties, int height) {
         super(properties);
         this.cocktailId = cocktailId;
@@ -66,13 +65,13 @@ public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
         return cocktailId;
     }
 
-    protected Supplier<? extends Block> emptyGlass() {
+    protected java.util.function.Supplier<? extends Block> emptyGlass() {
         return emptyGlass;
     }
 
     /** 马天尼杯，最多 2 份 */
     public static class Martini extends DrinkGlassBlock {
-        public Martini(ResourceLocation cocktailId, Supplier<? extends Block> emptyGlass, Properties properties) {
+        public Martini(ResourceLocation cocktailId, java.util.function.Supplier<? extends Block> emptyGlass, Properties properties) {
             super(cocktailId, 2, emptyGlass, properties, 10);
         }
 
@@ -80,16 +79,11 @@ public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
         protected IntegerProperty stacksProperty() {
             return STACKS_2;
         }
-
-        @Override
-        protected MapCodec<? extends Martini> codec() {
-            return simpleCodec(props -> new Martini(cocktailId(), emptyGlass(), props));
-        }
     }
 
     /** 飓风杯，最多 3 份 */
     public static class Hurricane extends DrinkGlassBlock {
-        public Hurricane(ResourceLocation cocktailId, Supplier<? extends Block> emptyGlass, Properties properties) {
+        public Hurricane(ResourceLocation cocktailId, java.util.function.Supplier<? extends Block> emptyGlass, Properties properties) {
             super(cocktailId, 3, emptyGlass, properties, 11);
         }
 
@@ -97,27 +91,17 @@ public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
         protected IntegerProperty stacksProperty() {
             return STACKS_3;
         }
-
-        @Override
-        protected MapCodec<? extends Hurricane> codec() {
-            return simpleCodec(props -> new Hurricane(cocktailId(), emptyGlass(), props));
-        }
     }
 
     /** 古典杯，最多 4 份 */
     public static class OldFashioned extends DrinkGlassBlock {
-        public OldFashioned(ResourceLocation cocktailId, Supplier<? extends Block> emptyGlass, Properties properties) {
+        public OldFashioned(ResourceLocation cocktailId, java.util.function.Supplier<? extends Block> emptyGlass, Properties properties) {
             super(cocktailId, 4, emptyGlass, properties, 7);
         }
 
         @Override
         protected IntegerProperty stacksProperty() {
             return STACKS_4;
-        }
-
-        @Override
-        protected MapCodec<? extends OldFashioned> codec() {
-            return simpleCodec(props -> new OldFashioned(cocktailId(), emptyGlass(), props));
         }
     }
 
@@ -132,39 +116,37 @@ public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return shape;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hitResult) {
-        ResourceLocation held = CocktailHelper.cocktailId(stack);
-        if (!cocktailId.equals(held)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        }
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
         int stacks = state.getValue(stacksProperty());
-        if (stacks >= maxStacks) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        }
-        if (!level.isClientSide) {
-            level.setBlock(pos, state.setValue(stacksProperty(), stacks + 1), 3);
-            if (!player.hasInfiniteMaterials()) {
-                stack.shrink(1);
-            }
-            player.swing(hand, true);
-        }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
-    }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
-                                               BlockHitResult hitResult) {
-        int stacks = state.getValue(stacksProperty());
+        // 1. 手持对应鸡尾酒 → 叠一份（至上限）
+        if (!stack.isEmpty()) {
+            ResourceLocation held = CocktailHelper.cocktailId(stack);
+            if (cocktailId.equals(held) && stacks < maxStacks) {
+                if (!level.isClientSide) {
+                    level.setBlock(pos, state.setValue(stacksProperty(), stacks + 1), 3);
+                    if (!player.getAbilities().instabuild) {
+                        stack.shrink(1);
+                    }
+                    player.swing(hand, true);
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide);
+            }
+            return InteractionResult.PASS;
+        }
+
+        // 2. 空手
         if (player.isShiftKeyDown()) {
             // 取回一份；取完最后一份时整杯消失（不留空杯）
             if (!level.isClientSide) {
-                if (!player.hasInfiniteMaterials()) {
+                if (!player.getAbilities().instabuild) {
                     ItemStack cocktail = CocktailHelper.createCocktail(cocktailId);
                     if (!cocktail.isEmpty() && !player.addItem(cocktail)) {
                         player.drop(cocktail, false);
@@ -198,15 +180,15 @@ public abstract class DrinkGlassBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         // 无 loot table；破坏时按份数手动掉落鸡尾酒
-        if (!level.isClientSide && !player.hasInfiniteMaterials()) {
+        if (!level.isClientSide && !player.getAbilities().instabuild) {
             ItemStack drop = CocktailHelper.createCocktail(cocktailId);
             if (!drop.isEmpty()) {
                 drop.setCount(state.getValue(stacksProperty()));
                 popResource(level, pos, drop);
             }
         }
-        return super.playerWillDestroy(level, pos, state, player);
+        super.playerWillDestroy(level, pos, state, player);
     }
 }

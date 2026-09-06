@@ -1,10 +1,8 @@
 package com.fst.tothesky.item;
 
-import com.fst.tothesky.registry.ModDataComponents;
-import com.fst.tothesky.dumpling.ItemStackSnapshot;
+import com.fst.tothesky.registry.ModNbt;
 import com.fst.tothesky.util.DelayedTasks;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +10,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -21,6 +18,9 @@ import net.minecraft.world.level.Level;
  * 熟饺子：吃下后根据馅料产生效果——
  * 可食用的馅料会叠加上其食物属性；TNT 会原地引爆（不破坏方块）；
  * 不可食用的馅料会原样还给玩家。
+ *
+ * 1.20.1 适配：馅料走 ModNbt（1.21 是 DUMPLING_FILLING 数据组件），
+ * 食物判定走 Item.getFoodProperties()（1.21 是 DataComponents.FOOD）。
  */
 public class CookedDumplingItem extends TooltipItem {
     public CookedDumplingItem(Properties properties) {
@@ -33,12 +33,11 @@ public class CookedDumplingItem extends TooltipItem {
         if (!(level instanceof ServerLevel serverLevel) || !(entity instanceof ServerPlayer player)) {
             return result;
         }
-        ItemStack filling = ItemStackSnapshot.unwrap(stack.get(ModDataComponents.DUMPLING_FILLING));
+        ItemStack filling = ModNbt.getFilling(stack);
         if (filling.isEmpty()) {
             return result;
         }
-        FoodProperties food = filling.get(DataComponents.FOOD);
-        if (food != null) {
+        if (filling.getItem().getFoodProperties() != null) {
             // 伪装成玩家直接吃下馅料：调用馅料自己的 finishUsingItem，
             // 数值/效果(含概率)/进食进度/打嗝/容器返还乃至紫颂果传送等自定义逻辑全按原版执行
             ItemStack leftover = filling.getItem().finishUsingItem(filling.copy(), level, player);

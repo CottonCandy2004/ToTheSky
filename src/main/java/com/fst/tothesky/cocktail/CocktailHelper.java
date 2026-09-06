@@ -1,15 +1,24 @@
 package com.fst.tothesky.cocktail;
 
-import io.github.tt432.kitchenkarrot.cocktail.CocktailProperty;
+import com.fst.tothesky.registry.ModNbt;
 import io.github.tt432.kitchenkarrot.item.CocktailItem;
-import io.github.tt432.kitchenkarrot.registries.ModCocktails;
 import io.github.tt432.kitchenkarrot.registries.ModItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-/** kitchenkarrot 鸡尾酒物品的读写辅助 */
+/**
+ * kitchenkarrot 鸡尾酒物品的读写辅助（1.20.1 NBT 版）。
+ *
+ * kk 1.20.1 的鸡尾酒身份是物品 NBT 里的 "cocktail" 字符串（非注册表对象），
+ * 效果存于 kitchenkarrot:cocktail 配方 JSON 的 content.effect，由 CocktailItem 自行应用。
+ */
 public final class CocktailHelper {
+    /** fstwines 命名空间 */
+    private static final String NS_FSTWINES = "fstwines";
+    /** kitchenkarrot 命名空间 */
+    private static final String NS_KK = "kitchenkarrot";
+
     private CocktailHelper() {
     }
 
@@ -19,21 +28,17 @@ public final class CocktailHelper {
         if (!(stack.getItem() instanceof CocktailItem)) {
             return null;
         }
-        CocktailProperty property = CocktailItem.getCocktail(stack);
-        if (property == null || CocktailItem.UNKNOWN_COCKTAIL.equals(property.id())) {
+        ResourceLocation id = CocktailItem.getCocktail(stack);
+        if (id == null || CocktailItem.UNKNOWN_COCKTAIL.equals(id)) {
             return null;
         }
-        return property.id();
+        return id;
     }
 
     /** 创建一份指定 id 的鸡尾酒；id 无效时返回 EMPTY */
     public static ItemStack createCocktail(ResourceLocation id) {
-        CocktailProperty property = ModCocktails.COCKTAILS_REGISTRY.get(id);
-        if (property == null) {
-            return ItemStack.EMPTY;
-        }
         ItemStack stack = new ItemStack(ModItems.COCKTAIL.get());
-        CocktailItem.setCocktail(stack, property);
+        CocktailItem.setCocktail(stack, id);
         return stack;
     }
 }

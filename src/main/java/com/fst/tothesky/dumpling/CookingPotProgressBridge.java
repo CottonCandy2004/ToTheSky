@@ -9,9 +9,8 @@ import java.lang.reflect.Field;
  * 把本模组饺子烹饪会话的进度写进农夫乐事厨锅，驱动其 GUI 进度箭头
  * （cookTime 在 data[0]、cookTimeTotal 在 data[1]，见 FD createIntArray）。
  *
- * <p>FD 未提供公开的煮制进度 setter。原本想用"跨包同包访问 protected 字段"，但 NeoForge
- * 模块化启动器禁止 split package（tothesky 与 farmersdelight 同时导出 FD 包 → ResolutionException），
- * 只能反射。FD 是无 module-info 的 automatic module（包全量 opens），setAccessible 可用。
+ * <p>FD 未提供公开的煮制进度 setter，只能反射。
+ * FD 的 cookingPotData 是 protected 字段（javap 已确认类型 ContainerData），自动模块包全量 opens，setAccessible 可用。
  * 字段按类型扫描（ContainerData）而非硬编码名字，改名不易静默失效。</p>
  */
 public final class CookingPotProgressBridge {

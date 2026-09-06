@@ -1,32 +1,36 @@
 package com.fst.tothesky.item;
 
-import com.fst.tothesky.registry.ModAttachments;
 import com.fst.tothesky.registry.ModEffects;
+import com.fst.tothesky.registry.ModNbt;
 import com.fst.tothesky.util.DelayedTasks;
-import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.component.FireworkExplosion;
-import net.minecraft.world.item.component.Fireworks;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 /**
  * 食用后有特殊行为的特色食品。行为移植自
  * kubejs/server_scripts/feature/food_events.js，去掉了命令拼装，全部改为原生调用。
+ *
+ * 1.20.1 适配：烟花数据直接写 NBT（1.21 是 Fireworks 数据组件）；
+ * 死亡回溯点存玩家 persistentData（1.21 是 AttachmentType）。
  */
 public final class SpecialFoodItems {
     private SpecialFoodItems() {
@@ -36,16 +40,25 @@ public final class SpecialFoodItems {
         player.server.getPlayerList().broadcastSystemMessage(Component.literal(message), false);
     }
 
-    private static void giveOrDrop(Player player, ItemStack stack) {
+    private static void giveOrDrop(net.minecraft.world.entity.player.Player player, ItemStack stack) {
         if (!player.addItem(stack)) {
             player.drop(stack, false);
         }
     }
 
-    /** 焦糖鳕鱼羹：吃掉自己 1 颗心，残血时直接致命 */
-    public static class CaramelCodSoup extends TooltipItem {
+    /** 焦糖鳕鱼羹：吃掉自己 1 颗心，残血时直接致命。碗装食物，吃完返碗（BowlFoodItem） */
+    public static class CaramelCodSoup extends net.minecraft.world.item.BowlFoodItem {
         public CaramelCodSoup(Properties properties) {
-            super(properties, "caramel_cod_soup", 5);
+            super(properties);
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, net.minecraft.world.level.Level level,
+                java.util.List<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+            for (int i = 0; i < 5; i++) {
+                tooltip.add(Component.translatable("tooltip.tothesky.caramel_cod_soup." + i)
+                        .withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
         }
 
         @Override
@@ -61,6 +74,22 @@ public final class SpecialFoodItems {
                 player.hurt(player.damageSources().generic(), 2.0f);
             }
             return result;
+        }
+    }
+
+    /** 鱿鱼狂欢节：碗装食物，吃完返碗（BowlFoodItem） */
+    public static class SquidFestival extends net.minecraft.world.item.BowlFoodItem {
+        public SquidFestival(Properties properties) {
+            super(properties);
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, net.minecraft.world.level.Level level,
+                java.util.List<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+            for (int i = 0; i < 8; i++) {
+                tooltip.add(Component.translatable("tooltip.tothesky.squid_festival." + i)
+                        .withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
         }
     }
 
@@ -86,14 +115,27 @@ public final class SpecialFoodItems {
             return result;
         }
 
-        private static void spawnFirework(ServerLevel level, Player player, int color) {
+        private static void spawnFirework(ServerLevel level, net.minecraft.world.entity.player.Player player, int color) {
             if (player.isRemoved()) {
                 return;
             }
             ItemStack rocket = new ItemStack(Items.FIREWORK_ROCKET);
-            FireworkExplosion explosion = new FireworkExplosion(FireworkExplosion.Shape.SMALL_BALL,
-                    IntList.of(color), IntList.of(color), true, false);
-            rocket.set(DataComponents.FIREWORKS, new Fireworks((byte) 1, List.of(explosion)));
+            // 1.20.1 烟花 NBT：Fireworks{Flight,Explosions:[{Type,Colors,FadeColors,Trail,Flicker}]}
+            CompoundTag explosion = new CompoundTag();
+            explosion.putInt("Type", 0); // SMALL_BALL
+            ListTag colors = new ListTag();
+            colors.add(IntTag.valueOf(color));
+            explosion.put("Colors", colors);
+            explosion.put("FadeColors", colors.copy());
+            explosion.putBoolean("Trail", true);
+            explosion.putBoolean("Flicker", false);
+            ListTag explosions = new ListTag();
+            explosions.add(explosion);
+            CompoundTag fireworks = new CompoundTag();
+            fireworks.putByte("Flight", (byte) 1);
+            fireworks.put("Explosions", explosions);
+            rocket.getOrCreateTag().put("Fireworks", fireworks);
+
             FireworkRocketEntity firework = new FireworkRocketEntity(level,
                     player.getX(), player.getY() + 2, player.getZ(), rocket);
             firework.setDeltaMovement(
@@ -143,7 +185,7 @@ public final class SpecialFoodItems {
             if (entity instanceof ServerPlayer player) {
                 player.getCooldowns().addCooldown(this, 1200);
                 giveOrDrop(player, new ItemStack(Items.BOWL));
-                player.addEffect(new MobEffectInstance(ModEffects.FAIR_PLAY, 1200, 0));
+                player.addEffect(new MobEffectInstance(ModEffects.FAIR_PLAY.get(), 1200, 0));
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1));
                 player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1200, 0));
                 player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1200, 0));
@@ -167,11 +209,11 @@ public final class SpecialFoodItems {
         public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
             ItemStack result = super.finishUsingItem(stack, level, entity);
             if (entity instanceof ServerPlayer player) {
-                player.setData(ModAttachments.REWIND_POS,
+                ModNbt.setRewindPos(player,
                         GlobalPos.of(level.dimension(), BlockPos.containing(player.position())));
-                MobEffectInstance existing = player.getEffect(ModEffects.REWIND);
+                MobEffectInstance existing = player.getEffect(ModEffects.REWIND.get());
                 int duration = 6000 + (existing != null ? existing.getDuration() : 0);
-                player.addEffect(new MobEffectInstance(ModEffects.REWIND, duration, 0));
+                player.addEffect(new MobEffectInstance(ModEffects.REWIND.get(), duration, 0));
             }
             return result;
         }
@@ -187,9 +229,9 @@ public final class SpecialFoodItems {
         public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
             ItemStack result = super.finishUsingItem(stack, level, entity);
             if (entity instanceof ServerPlayer player) {
-                MobEffectInstance existing = player.getEffect(ModEffects.MADNESS);
+                MobEffectInstance existing = player.getEffect(ModEffects.MADNESS.get());
                 int duration = 2400 + (existing != null ? existing.getDuration() : 0);
-                player.addEffect(new MobEffectInstance(ModEffects.MADNESS, duration, 0));
+                player.addEffect(new MobEffectInstance(ModEffects.MADNESS.get(), duration, 0));
             }
             return result;
         }

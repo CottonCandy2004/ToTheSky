@@ -3,9 +3,7 @@ package com.fst.tothesky.blockentity;
 import com.fst.tothesky.dumpling.DumplingPlateContents;
 import com.fst.tothesky.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -32,21 +30,18 @@ public class DumplingPlateBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         if (contents != null) {
-            DumplingPlateContents.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), contents)
-                    .ifSuccess(serialized -> tag.put(TAG_CONTENTS, serialized));
+            tag.put(TAG_CONTENTS, contents.save());
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.contains(TAG_CONTENTS)) {
-            contents = DumplingPlateContents.CODEC
-                    .parse(registries.createSerializationContext(NbtOps.INSTANCE), tag.get(TAG_CONTENTS))
-                    .result().orElse(null);
+            contents = DumplingPlateContents.load(tag.getCompound(TAG_CONTENTS));
         } else {
             contents = null;
         }

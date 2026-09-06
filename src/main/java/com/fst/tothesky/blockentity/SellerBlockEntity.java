@@ -1,11 +1,7 @@
 package com.fst.tothesky.blockentity;
 
-import com.fst.tothesky.ToTheSky;
-import com.fst.tothesky.registry.ModBlockEntities;
-import com.fst.tothesky.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,8 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -45,7 +40,7 @@ public class SellerBlockEntity extends BlockEntity {
     private int price2 = 0; // 小数部分 (0-9)
 
     public SellerBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.SELLER.get(), pos, state);
+        super(com.fst.tothesky.registry.ModBlockEntities.SELLER.get(), pos, state);
     }
 
     // ---- owner 管理 ----
@@ -186,7 +181,7 @@ public class SellerBlockEntity extends BlockEntity {
         refundCurrency(player, change);
 
         // 7. 给店主打款（经济系统命令占位）
-        ToTheSky.LOGGER.info("[售货机] 玩家 {} 购买商品，应打款 {}.{}Δ 给店主 {}（经济系统未接入，需手动 money give）",
+        com.fst.tothesky.ToTheSky.LOGGER.info("[售货机] 玩家 {} 购买商品，应打款 {}.{}Δ 给店主 {}（经济系统未接入，需手动 money give）",
                 player.getName().getString(), price1, price2, ownerName);
         var source = player.getServer().createCommandSourceStack();
         player.getServer().getCommands().performPrefixedCommand(
@@ -201,9 +196,9 @@ public class SellerBlockEntity extends BlockEntity {
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             ItemStack stack = player.getInventory().getItem(i);
             if (stack.isEmpty()) continue;
-            if (stack.getItem() == ModItems.DELTA_COIN.get()) {
+            if (stack.getItem() == com.fst.tothesky.registry.ModItems.DELTA_COIN.get()) {
                 balance += stack.getCount() * 10;
-            } else if (stack.getItem() == ModItems.DELTA_COIN_CHIP.get()) {
+            } else if (stack.getItem() == com.fst.tothesky.registry.ModItems.DELTA_COIN_CHIP.get()) {
                 balance += stack.getCount();
             }
         }
@@ -219,7 +214,7 @@ public class SellerBlockEntity extends BlockEntity {
         // 先扣三角片（1Δ 每个）
         for (int i = 0; i < player.getInventory().getContainerSize() && remaining > 0; i++) {
             ItemStack stack = player.getInventory().getItem(i);
-            if (stack.isEmpty() || stack.getItem() != ModItems.DELTA_COIN_CHIP.get()) continue;
+            if (stack.isEmpty() || stack.getItem() != com.fst.tothesky.registry.ModItems.DELTA_COIN_CHIP.get()) continue;
             int take = Math.min(stack.getCount(), remaining);
             stack.shrink(take);
             remaining -= take;
@@ -228,7 +223,7 @@ public class SellerBlockEntity extends BlockEntity {
         // 再扣三角币（10Δ 每个）
         for (int i = 0; i < player.getInventory().getContainerSize() && remaining > 0; i++) {
             ItemStack stack = player.getInventory().getItem(i);
-            if (stack.isEmpty() || stack.getItem() != ModItems.DELTA_COIN.get()) continue;
+            if (stack.isEmpty() || stack.getItem() != com.fst.tothesky.registry.ModItems.DELTA_COIN.get()) continue;
             int take = Math.min(stack.getCount(), (remaining + 9) / 10); // 需要的币数（向上取整）
             take = Math.min(take, stack.getCount());
             stack.shrink(take);
@@ -246,8 +241,8 @@ public class SellerBlockEntity extends BlockEntity {
         if (amount <= 0) return;
         int coins = amount / 10;
         int chips = amount % 10;
-        if (coins > 0) giveItemToPlayer(player, new ItemStack(ModItems.DELTA_COIN.get(), coins));
-        if (chips > 0) giveItemToPlayer(player, new ItemStack(ModItems.DELTA_COIN_CHIP.get(), chips));
+        if (coins > 0) giveItemToPlayer(player, new ItemStack(com.fst.tothesky.registry.ModItems.DELTA_COIN.get(), coins));
+        if (chips > 0) giveItemToPlayer(player, new ItemStack(com.fst.tothesky.registry.ModItems.DELTA_COIN_CHIP.get(), chips));
     }
 
     private void giveItemToPlayer(ServerPlayer player, ItemStack stack) {
@@ -262,7 +257,7 @@ public class SellerBlockEntity extends BlockEntity {
     /** 在 IItemHandler 中找到与 stack 相同物品的槽位 */
     private int findSlotOf(IItemHandler handler, ItemStack stack) {
         for (int i = 0; i < handler.getSlots(); i++) {
-            if (ItemStack.isSameItemSameComponents(handler.getStackInSlot(i), stack)) {
+            if (ItemStack.isSameItemSameTags(handler.getStackInSlot(i), stack)) {
                 return i;
             }
         }
@@ -272,8 +267,8 @@ public class SellerBlockEntity extends BlockEntity {
     // ---- NBT 持久化 ----
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         if (ownerUuid != null) {
             tag.putUUID(TAG_OWNER_UUID, ownerUuid);
         }
@@ -283,8 +278,8 @@ public class SellerBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.hasUUID(TAG_OWNER_UUID)) {
             ownerUuid = tag.getUUID(TAG_OWNER_UUID);
         }

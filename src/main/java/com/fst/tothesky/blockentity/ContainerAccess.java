@@ -4,14 +4,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 容器交互工具：通过 Capability 系统统一访问上方/下方容器，兼容所有实现了 IItemHandler 的方块实体。
+ * 容器交互工具：通过 Forge Capability 系统统一访问上方/下方容器，兼容所有实现了 IItemHandler 的方块实体。
  * 替代 kjs 的 {@code event.block.getInventory()} 抽象——后者依赖 KubeJS 的 Inventory 包装，且用 try/catch 兜底。
+ *
+ * 1.20.1 适配：能力查询用 ForgeCapabilities.ItemHandler.BLOCK
+ * （1.21 NeoForge 是 Capabilities.ItemHandler.BLOCK + level.getCapability(pos, side)）。
+ * 1.20.1 的 Level.getCapability 无 pos 重载，需经 BlockEntity 获取。
  */
 public final class ContainerAccess {
 
@@ -22,7 +25,13 @@ public final class ContainerAccess {
      */
     @Nullable
     public static IItemHandler getItemHandler(Level level, BlockPos pos, Direction side) {
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, pos.relative(side), side.getOpposite());
+        BlockPos target = pos.relative(side);
+        var blockEntity = level.getBlockEntity(target);
+        if (blockEntity == null) {
+            return null;
+        }
+        return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side.getOpposite())
+                .orElse(null);
     }
 
     /**

@@ -1,13 +1,13 @@
 package com.fst.tothesky.effect;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+
+import java.util.Optional;
 
 /**
  * 击鼓传花：自驱动的 mob effect。
@@ -22,9 +22,8 @@ import net.minecraft.world.entity.LivingEntity;
  * - 每 200 tick（10s）广播一次剩余秒数。
  * - 效果到期（剩余时长即将耗尽）：击杀持有者，本场结束。
  *
- * 注意：务必用 BuiltInRegistries.MOB_EFFECT.wrapAsHolder(this) 查询 activeEffects——
- * 它返回注册表里的 reference holder，与 addEffect 存入的 key 按 equals 匹配；
- * 用 Holder.direct(this) 会因 kind=Direct 而永远查不到实例（无广播、无击杀）。
+ * 1.20.1 适配：applyEffectTick 返回 void（1.21 返回 boolean）；
+ * getEffect(MobEffect) 直接按注册表身份匹配实例，无需 Holder 包装。
  */
 public class HotPotatoEffect extends MobEffect {
     /** 一场击鼓传花的时长（tick），与 KubeJS 的 1200 一致 */
@@ -37,12 +36,12 @@ public class HotPotatoEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (entity instanceof ServerPlayer player) {
-            Holder<MobEffect> self = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(this);
-            MobEffectInstance instance = player.getEffect(self);
+            // 1.20.1 getEffect(MobEffect) 按注册表身份匹配实例，无需 Holder 包装
+            MobEffectInstance instance = player.getEffect(this);
             if (instance == null) {
-                return true;
+                return;
             }
             // getDuration() 是递减前的剩余时长
             int remaining = instance.getDuration();
@@ -61,11 +60,10 @@ public class HotPotatoEffect extends MobEffect {
                 player.kill();
             }
         }
-        return true;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         // 每 tick 都进来检查到期，才能捕捉"最后一 tick"击杀持有者
         return true;
     }

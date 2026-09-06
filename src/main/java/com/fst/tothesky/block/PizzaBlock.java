@@ -1,10 +1,8 @@
 package com.fst.tothesky.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,37 +37,20 @@ public class PizzaBlock extends Block {
     }
 
     @Override
-    protected MapCodec<? extends PizzaBlock> codec() {
-        return simpleCodec(props -> new PizzaBlock(props, sliceItem));
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(SLICES);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return takeSlice(state, level, pos, player) ? ItemInteractionResult.sidedSuccess(level.isClientSide)
-                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
-                                               BlockHitResult hitResult) {
-        return takeSlice(state, level, pos, player) ? InteractionResult.sidedSuccess(level.isClientSide)
-                : InteractionResult.PASS;
-    }
-
-    private boolean takeSlice(BlockState state, Level level, BlockPos pos, Player player) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hitResult) {
         if (player.isShiftKeyDown()) {
-            return false;
+            return InteractionResult.PASS;
         }
         if (!level.isClientSide) {
             ItemStack slice = new ItemStack(sliceItem.get());
@@ -83,6 +64,6 @@ public class PizzaBlock extends Block {
                 level.setBlock(pos, state.setValue(SLICES, taken + 1), 3);
             }
         }
-        return true;
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 }

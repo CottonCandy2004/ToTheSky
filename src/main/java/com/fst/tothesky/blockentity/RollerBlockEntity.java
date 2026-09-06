@@ -4,7 +4,6 @@ import com.fst.tothesky.registry.ModBlockEntities;
 import com.fst.tothesky.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,7 +13,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -41,6 +40,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *   <li>无下方容器时：先验证券 → simulate 提取 → 实际提取 → 消耗券 → 给玩家物品</li>
  *   <li>随机选奖品时遍历所有非空槽位，用有效索引而非原始 slot（避免跳过空槽位导致越界）</li>
  * </ul>
+ *
+ * 1.20.1 适配：抽奖券的绑定 key 直接存物品 NBT 根 tag（1.21 走 CUSTOM_DATA 组件）。
  */
 public class RollerBlockEntity extends BlockEntity {
 
@@ -79,18 +80,18 @@ public class RollerBlockEntity extends BlockEntity {
 
         // 店主持抽奖券：绑定
         if (isOwner(player) && mainHand.getItem() == ModItems.ROLLER_TICKET.get()) {
-            if (mainHand.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+            if (mainHand.hasTag() && mainHand.getTag().contains(TAG_KEY)) {
                 player.sendSystemMessage(Component.literal("无法覆盖已绑定的抽奖券"));
                 return InteractionResult.PASS;
             }
             // 写入 NBT key
-            CompoundTag nbt = mainHand.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                    net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
-            nbt.putLong("key", key);
-            mainHand.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                    net.minecraft.world.item.component.CustomData.of(nbt));
-            // 附魔光效（kjs: enchanted = true）
-            mainHand.set(net.minecraft.core.component.DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+            mainHand.getOrCreateTag().putLong(TAG_KEY, key);
+
+            // 附魔光效（kjs: enchanted = true）——1.20.1 NBT：Enchantments 列表 + 隐藏附魔 flag 显示光效
+            CompoundTag enchantTag = new CompoundTag();
+            enchantTag.putString("id", "minecraft:unbreaking");
+            enchantTag.putShort("lvl", (short) 1);
+            mainHand.getOrCreateTag().getList("Enchantments", net.minecraft.nbt.Tag.TAG_COMPOUND).add(enchantTag);
             player.sendSystemMessage(Component.literal("抽奖券已绑定！"));
             return InteractionResult.CONSUME;
         }
@@ -124,9 +125,9 @@ public class RollerBlockEntity extends BlockEntity {
                 return InteractionResult.PASS;
             }
             // 检查券的 key
-            var customData = mainHand.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-            if (customData == null || !customData.copyTag().contains("key")
-                    || customData.copyTag().getLong("key") != key) {
+            CompoundTag ticketTag = mainHand.getTag();
+            if (ticketTag == null || !ticketTag.contains(TAG_KEY)
+                    || ticketTag.getLong(TAG_KEY) != key) {
                 player.sendSystemMessage(Component.literal("抽奖券与扭蛋机不匹配"));
                 return InteractionResult.PASS;
             }
@@ -185,8 +186,8 @@ public class RollerBlockEntity extends BlockEntity {
     // ---- NBT 持久化 ----
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         if (ownerUuid != null) {
             tag.putUUID(TAG_OWNER_UUID, ownerUuid);
         }
@@ -195,8 +196,8 @@ public class RollerBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         if (tag.hasUUID(TAG_OWNER_UUID)) {
             ownerUuid = tag.getUUID(TAG_OWNER_UUID);
         }

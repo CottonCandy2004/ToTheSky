@@ -3,12 +3,11 @@ package com.fst.tothesky.block;
 import com.fst.tothesky.blockentity.DumplingPlateBlockEntity;
 import com.fst.tothesky.dumpling.DumplingFactory;
 import com.fst.tothesky.dumpling.DumplingPlateContents;
-import com.mojang.serialization.MapCodec;
+import com.fst.tothesky.item.CookedDumplingPlateItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,11 +44,6 @@ public class CookedDumplingPlateBlock extends BaseEntityBlock {
                 .setValue(BITE, 0));
     }
 
-    @Override
-    protected MapCodec<? extends CookedDumplingPlateBlock> codec() {
-        return simpleCodec(CookedDumplingPlateBlock::new);
-    }
-
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -67,30 +61,23 @@ public class CookedDumplingPlateBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     /** BaseEntityBlock 默认返回 INVISIBLE，必须覆写为 MODEL 否则方块模型不渲染 */
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hitResult) {
         // 手持另一盘饺子时放行，以便正常放置
-        if (stack.getItem() instanceof com.fst.tothesky.item.CookedDumplingPlateItem) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (player.getItemInHand(hand).getItem() instanceof CookedDumplingPlateItem) {
+            return InteractionResult.PASS;
         }
-        takeOne(state, level, pos, player);
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
-                                               BlockHitResult hitResult) {
         takeOne(state, level, pos, player);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

@@ -21,17 +21,16 @@ public class FairPlayEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
         AABB area = entity.getBoundingBox().inflate(20.0);
         for (LivingEntity other : entity.level().getEntitiesOfClass(LivingEntity.class, area,
                 e -> e != entity && e.distanceTo(entity) >= 1.0f)) {
             other.addEffect(new MobEffectInstance(MobEffects.GLOWING, GLOWING_DURATION, 0, false, false));
         }
-        return true;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return duration % PULSE_INTERVAL == 0;
     }
 }

@@ -5,15 +5,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import vectorwing.farmersdelight.common.block.entity.CookingPotBlockEntity;
 
 import java.util.HashMap;
@@ -26,12 +28,12 @@ import java.util.Map;
  * 完成时先校验输入仍在原处，先核销输入再产出；
  * 容器被破坏时内容物由其自身掉落逻辑处理，会话直接作废。</p>
  */
-@EventBusSubscriber(modid = ToTheSky.MODID)
+@Mod.EventBusSubscriber(modid = ToTheSky.MODID)
 public final class DumplingCookingManager {
     public static final SoundEvent MIXING_SOUND =
-            SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("create", "mixing"));
+            SoundEvent.createVariableRangeEvent(new ResourceLocation("create", "mixing"));
     public static final SoundEvent FINISH_SOUND =
-            SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("create", "schematicannon_finish"));
+            SoundEvent.createVariableRangeEvent(new ResourceLocation("create", "schematicannon_finish"));
 
     private enum TickResult {RUNNING, PAUSED, FINISHED, CANCELLED}
 
@@ -60,20 +62,24 @@ public final class DumplingCookingManager {
     }
 
     @SubscribeEvent
-    public static void onServerTick(ServerTickEvent.Post event) {
-        if (SESSIONS.isEmpty()) {
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || SESSIONS.isEmpty()) {
+            return;
+        }
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
             return;
         }
         for (Map.Entry<GlobalPos, Session> entry : SESSIONS.entrySet()) {
             GlobalPos key = entry.getKey();
-            entry.setValue(tick(event, key, entry.getValue()));
+            entry.setValue(tick(server, key, entry.getValue()));
         }
         SESSIONS.values().removeIf(session -> session == null);
     }
 
     /** @return 新会话状态；返回 null 表示会话结束 */
-    private static Session tick(ServerTickEvent.Post event, GlobalPos key, Session session) {
-        if (!(event.getServer().getLevel(key.dimension()) instanceof ServerLevel level)
+    private static Session tick(MinecraftServer server, GlobalPos key, Session session) {
+        if (!(server.getLevel(key.dimension()) instanceof ServerLevel level)
                 || !level.isLoaded(key.pos())) {
             return session; // 维度/区块未加载：原地等待
         }

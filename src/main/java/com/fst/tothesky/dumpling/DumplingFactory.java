@@ -1,62 +1,62 @@
 package com.fst.tothesky.dumpling;
 
-import com.fst.tothesky.registry.ModDataComponents;
-import com.fst.tothesky.registry.ModItems;
+import com.fst.tothesky.registry.ModNbt;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemLore;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/** 生成带馅料/作者组件与命名、lore 的饺子物品栈 */
+/** 生成带馅料/作者 NBT 与命名、lore 的饺子物品栈 */
 public final class DumplingFactory {
     private DumplingFactory() {
     }
 
     /** 包好的生饺子：馅料 + 作者 + 两行灰色 lore */
     public static ItemStack rawDumpling(ItemStack filling, String author) {
-        ItemStack stack = new ItemStack(ModItems.RAW_DUMPLING.get());
-        stack.set(ModDataComponents.DUMPLING_FILLING, new ItemStackSnapshot(filling.copyWithCount(1)));
-        stack.set(ModDataComponents.DUMPLING_AUTHOR, author);
-        stack.set(DataComponents.LORE, new ItemLore(List.of(
+        return rawDumpling0(new ItemStack(com.fst.tothesky.registry.ModItems.RAW_DUMPLING.get()), filling, author);
+    }
+
+    private static ItemStack rawDumpling0(ItemStack stack, ItemStack filling, String author) {
+        ModNbt.setFilling(stack, filling);
+        ModNbt.setAuthor(stack, author);
+        ModNbt.setLore(stack, List.of(
                 Component.literal("馅料: " + filling.getHoverName().getString()).withStyle(ChatFormatting.GRAY),
-                Component.literal("厨师: " + author).withStyle(ChatFormatting.GRAY))));
+                Component.literal("厨师: " + author).withStyle(ChatFormatting.GRAY)));
         return stack;
     }
 
     /** 煮熟的饺子：确定性命名 + 评语 + 厨师名 */
     public static ItemStack cookedDumpling(ItemStack filling, String author) {
-        ItemStack stack = new ItemStack(ModItems.COOKED_DUMPLING.get());
+        ItemStack stack = new ItemStack(com.fst.tothesky.registry.ModItems.COOKED_DUMPLING.get());
         if (!filling.isEmpty()) {
-            stack.set(ModDataComponents.DUMPLING_FILLING, new ItemStackSnapshot(filling.copyWithCount(1)));
+            ModNbt.setFilling(stack, filling);
         }
-        stack.set(ModDataComponents.DUMPLING_AUTHOR, author);
+        ModNbt.setAuthor(stack, author);
 
         DumplingNamer.Profile profile = DumplingNamer.profileFor(filling);
         if (profile != null) {
-            stack.set(DataComponents.CUSTOM_NAME, Component.literal(profile.prefix() + " 饺子")
+            ModNbt.setCustomName(stack, Component.literal(profile.prefix() + " 饺子")
                     .setStyle(Style.EMPTY.withColor(profile.color()).withItalic(false)));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.literal(profile.trait()).withStyle(ChatFormatting.GOLD));
             lore.add(Component.literal("厨师: " + author).withStyle(ChatFormatting.GRAY));
-            stack.set(DataComponents.LORE, new ItemLore(lore));
+            ModNbt.setLore(stack, lore);
         }
         return stack;
     }
 
     /** 煮熟的一盘饺子：内容物 + 命名 + 评语 */
     public static ItemStack cookedPlate(DumplingPlateContents contents, DumplingNamer.Profile profile) {
-        ItemStack stack = new ItemStack(ModItems.COOKED_DUMPLING_PLATE_ITEM.get());
-        stack.set(ModDataComponents.DUMPLING_PLATE, contents);
+        ItemStack stack = new ItemStack(com.fst.tothesky.registry.ModItems.COOKED_DUMPLING_PLATE_ITEM.get());
+        stack.getOrCreateTag().put(ModNbt.DUMPLING_PLATE, contents.save());
         if (profile != null) {
-            stack.set(DataComponents.CUSTOM_NAME, Component.literal(profile.prefix() + " 一盘熟饺子")
+            ModNbt.setCustomName(stack, Component.literal(profile.prefix() + " 一盘熟饺子")
                     .setStyle(Style.EMPTY.withColor(profile.color()).withItalic(false)));
-            stack.set(DataComponents.LORE, new ItemLore(List.of(
-                    Component.literal(profile.trait()).withStyle(ChatFormatting.GOLD))));
+            ModNbt.setLore(stack, List.of(
+                    Component.literal(profile.trait()).withStyle(ChatFormatting.GOLD)));
         }
         return stack;
     }
@@ -66,9 +66,9 @@ public final class DumplingFactory {
         List<ItemStack> fillings = new ArrayList<>(rawDumplings.size());
         List<String> authors = new ArrayList<>(rawDumplings.size());
         for (ItemStack dumpling : rawDumplings) {
-            ItemStack filling = ItemStackSnapshot.unwrap(dumpling.get(ModDataComponents.DUMPLING_FILLING));
+            ItemStack filling = ModNbt.getFilling(dumpling);
             fillings.add(filling.isEmpty() ? ItemStack.EMPTY : filling.copyWithCount(1));
-            String author = dumpling.get(ModDataComponents.DUMPLING_AUTHOR);
+            String author = ModNbt.getAuthor(dumpling);
             authors.add(author != null ? author : "Unknown");
         }
         return new DumplingPlateContents(fillings, authors);

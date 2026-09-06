@@ -2,10 +2,11 @@ package com.fst.tothesky.util;
 
 import com.fst.tothesky.ToTheSky;
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,11 @@ import java.util.List;
  * （如危险派对的每 tick 击鼓传花），否则 ArrayList 迭代器会抛
  * ConcurrentModificationException。这里把「取出到期任务」与「执行」分成两步，
  * 执行阶段新增的任务只会追加到 TASKS（其 runAt 在未来），不影响本轮处理。
+ *
+ * 1.20.1 适配：TickEvent.ServerTickEvent 无 server 引用，
+ * 用 ServerLifecycleHooks.getCurrentServer() 获取。
  */
-@EventBusSubscriber(modid = ToTheSky.MODID)
+@Mod.EventBusSubscriber(modid = ToTheSky.MODID)
 public final class DelayedTasks {
     private record Task(long runAt, Runnable action) {
     }
@@ -35,11 +39,15 @@ public final class DelayedTasks {
     }
 
     @SubscribeEvent
-    public static void onServerTick(ServerTickEvent.Post event) {
-        if (TASKS.isEmpty()) {
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || TASKS.isEmpty()) {
             return;
         }
-        long now = event.getServer().getTickCount();
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            return;
+        }
+        long now = server.getTickCount();
         // 先把本轮到期任务搬到 due，避免在执行阶段迭代 TASKS 时被 schedule 并发修改
         List<Task> due = new ArrayList<>();
         for (int i = TASKS.size() - 1; i >= 0; i--) {

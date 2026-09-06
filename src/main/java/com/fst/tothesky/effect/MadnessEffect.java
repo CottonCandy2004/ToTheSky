@@ -23,7 +23,7 @@ public class MadnessEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (entity instanceof ServerPlayer player) {
             RandomSource random = entity.getRandom();
             if (random.nextInt(TALK_CHANCE_INTERVAL) == 0) {
@@ -36,11 +36,10 @@ public class MadnessEffect extends MobEffect {
                 player.server.getPlayerList().broadcastSystemMessage(message, false);
             }
         }
-        return true;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

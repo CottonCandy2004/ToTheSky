@@ -1,6 +1,5 @@
 package com.fst.tothesky.dumpling;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
@@ -14,6 +13,9 @@ import java.util.Random;
  * 饺子命名器：根据馅料内容确定性地生成前缀、评语、颜色与烹饪时长。
  * 移植自 dumpling_making.js 的 dumpling$processNBT / dumpling$processPlateNBT，
  * 随机序列与旧脚本一致（同一馅料永远得到同一个名字）。
+ *
+ * 1.20.1 适配：食物属性走 Item.getFoodProperties()（1.21 是 DataComponents.FOOD），
+ * 种子用 ForgeRegistries.ITEMS.getKey + stack.getTag()（1.21 是 getComponentsPatch）。
  */
 public final class DumplingNamer {
     private DumplingNamer() {
@@ -34,10 +36,11 @@ public final class DumplingNamer {
         if (filling.isEmpty()) {
             return null;
         }
-        boolean isFood = filling.has(DataComponents.FOOD);
-        boolean negative = isFood && hasNegativeEffect(filling.get(DataComponents.FOOD));
+        boolean isFood = filling.getItem().getFoodProperties() != null;
+        boolean negative = isFood && hasNegativeEffect(filling.getItem().getFoodProperties());
 
-        int seed = (BuiltInRegistries.ITEM.getKey(filling.getItem()) + " " + filling.getComponentsPatch()).hashCode();
+        int seed = (BuiltInRegistries.ITEM.getKey(filling.getItem()) + " " + filling.getTag()).hashCode();
+
         Random random = new Random(seed);
 
         String[] prefixPool;
@@ -66,7 +69,7 @@ public final class DumplingNamer {
         }
         int seed = fillings.stream()
                 .mapToInt(s -> s.isEmpty() ? 0
-                        : (BuiltInRegistries.ITEM.getKey(s.getItem()) + " " + s.getComponentsPatch()).hashCode())
+                        : (BuiltInRegistries.ITEM.getKey(s.getItem()) + " " + s.getTag()).hashCode())
                 .reduce(1, (a, b) -> 31 * a + b);
         Random random = new Random(seed);
 
@@ -89,14 +92,14 @@ public final class DumplingNamer {
         return new Profile(nameSource.prefix, nameSource.trait, nameSource.color, processTicks);
     }
 
-    /** 食物是否带负面效果（无法检测药水、谜之炖菜等） */
+    /** 食物是否带负面效果（无法检测药水、谜之炖菜等）；1.20.1 Forge FoodProperties.getEffects() 返回 Pair 列表 */
     public static boolean hasNegativeEffect(@Nullable FoodProperties food) {
         if (food == null) {
             return false;
         }
-        for (FoodProperties.PossibleEffect possible : food.effects()) {
-            MobEffectInstance instance = possible.effect();
-            if (!instance.getEffect().value().isBeneficial()) {
+        for (var pair : food.getEffects()) {
+            MobEffectInstance instance = pair.getFirst();
+            if (!instance.getEffect().isBeneficial()) {
                 return true;
             }
         }

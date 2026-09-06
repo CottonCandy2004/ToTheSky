@@ -3,21 +3,22 @@ package com.fst.tothesky.event;
 import com.fst.tothesky.ToTheSky;
 import com.fst.tothesky.block.RollerBlock;
 import com.fst.tothesky.block.SellerBlock;
+import com.fst.tothesky.blockentity.ContainerAccess;
 import com.fst.tothesky.blockentity.RollerBlockEntity;
 import com.fst.tothesky.blockentity.SellerBlockEntity;
-import com.fst.tothesky.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 /**
  * 售货机/扭蛋机相关事件：放置时记录 owner + 容器保护。
@@ -30,7 +31,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
  * </ul>
  * 不向第三方容器 BE 写任何 NBT，不污染其它模组数据。
  */
-@EventBusSubscriber(modid = ToTheSky.MODID)
+@Mod.EventBusSubscriber(modid = ToTheSky.MODID)
 public final class VendingEvents {
     /**
      * 放置售货机/扭蛋机时：设置 owner，继承朝向。
@@ -95,7 +96,7 @@ public final class VendingEvents {
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().isClientSide()) return;
-        if (event.getHand() != net.minecraft.world.InteractionHand.MAIN_HAND) return;
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
 
         BlockPos containerPos = event.getPos();
         BlockPos belowPos = containerPos.below();
@@ -124,7 +125,7 @@ public final class VendingEvents {
     }
 
     private static boolean hasItemsAbove(Level level, BlockPos machinePos) {
-        var handler = com.fst.tothesky.blockentity.ContainerAccess.getItemHandler(level, machinePos, Direction.UP);
-        return com.fst.tothesky.blockentity.ContainerAccess.hasItems(handler);
+        var handler = ContainerAccess.getItemHandler(level, machinePos, Direction.UP);
+        return ContainerAccess.hasItems(handler);
     }
 }

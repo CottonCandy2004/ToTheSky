@@ -6,6 +6,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class TooltipItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipAdder, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipAdder, TooltipFlag flag) {
         for (int i = 0; i < tooltipLines; i++) {
             tooltipAdder.add(Component.translatable(tooltipKey + "." + i).withStyle(ChatFormatting.GRAY));
         }

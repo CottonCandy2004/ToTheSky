@@ -1,12 +1,10 @@
 package com.fst.tothesky.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -26,7 +24,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public class RamenBlock extends Block {
     public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, 4);
-    public static final MapCodec<RamenBlock> CODEC = simpleCodec(RamenBlock::new);
     private static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 6, 14);
 
     public RamenBlock(Properties properties) {
@@ -35,30 +32,18 @@ public class RamenBlock extends Block {
     }
 
     @Override
-    protected MapCodec<? extends RamenBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(BITES);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hitResult) {
-        eat(state, level, pos, player);
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
-                                               BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hitResult) {
         eat(state, level, pos, player);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
