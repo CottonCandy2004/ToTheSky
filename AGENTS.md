@@ -5,6 +5,13 @@ ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模�
 
 **当前阶段最重要的工作：把现有 KubeJS 逻辑与注册迁移到本 mod。** 参考源位于 `D:\Minecraft\Client\.minecraft\versions\RIAFst 3\kubejs`（注意路径含空格），迁移和开发时应优先从该路径寻找参考。详见下文「当前开发重点」。
 
+## 1.20.1 Forge 分支（分支名：`1.20.1`）
+本分支是主分支（NeoForge 1.21.1）的 **Forge 1.20.1 移植版**，面向旧版 RiaFST 客户端实例（`D:\Minecraft\Client\.minecraft\versions\RIAFst 3`，Forge 47.4.0）。与 main 的关键差异：
+- **构建**：ForgeGradle 6 + Gradle 8.4 wrapper（FG 不支持 Gradle 9）、官方映射、Java 17。`mods.toml` 为静态文件（`src/main/resources/META-INF/mods.toml`），`${}` 占位符由 `processResources` 展开，无 `src/main/templates`。
+- **依赖**：编译期依赖放 `libs/`（git 忽略）：从参考实例 mods 目录复制 `create-1.20.1-0.5.1.j.jar`、`FarmersDelight-1.20.1-1.2.4.jar`、`kitchenkarrot-1.20.1-0.6.4b.jar`。`gradle.properties` 内置 `systemProp.*.proxyPort=7890` 本地代理。
+- **API 形态**：无数据组件/AttachmentType → 一律物品 NBT（`registry/ModNbt` 工具类与玩家 `persistentData`）；kk 1.20.1 鸡尾酒是 NBT 驱动 + 数据驱动（`CocktailItem.getCocktail/setCocktail`，效果在配方 JSON `content.effect`，模型/创造栏由 kk 自动扫 `assets/<ns>/cocktail/list.json`）——故无 ModCocktails 注册类；方块交互是单一 `use()`；`MobEffect.applyEffectTick` 返回 void。
+- **资源**：`data/<ns>/recipes|loot_tables`（复数）、shaped result 用 `"item"`、tag 前缀 `forge:`、Create 配方字段 `heatRequirement`/`transitionalItem`（驼峰）、流体 ingredient 为扁平 `{fluid, amount}`。
+
 ## 当前开发重点：KubeJS 迁移
 - 参考源：`D:\Minecraft\Client\.minecraft\versions\RIAFst 3\kubejs`（路径含空格，脚本/命令中请加引号或转义）。此目录是旧版客户端 KubeJS 脚本集，其中大量内容（注册、配方、功能、资源）将被迁移进 ToTheSky，以原生 NeoForge 方式实现。
 - 目录结构速览（迁移时逐项对照）：
