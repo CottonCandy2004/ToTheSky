@@ -97,16 +97,12 @@ public class DumplingWrapperItem extends TooltipItem implements CustomUseEffects
         return UseAnim.EAT;
     }
 
-    @Override
-    public int getUseDuration(ItemStack stack) {
-        return WRAP_TICKS;
-    }
-
     /** 抑制原版吃食粒子与音效，仅保留 EAT 手部动作（Create 的 CustomItemUseEffectsMixin 消费此值） */
     @Override
-    public Boolean shouldTriggerUseEffects(ItemStack stack, LivingEntity entity) {
-        return false;
+    public net.createmod.catnip.data.TriState shouldTriggerUseEffects(ItemStack stack, LivingEntity entity) {
+        return net.createmod.catnip.data.TriState.FALSE;
     }
+
 
     @Override
     public boolean triggerUseEffects(ItemStack stack, LivingEntity entity, int count, net.minecraft.util.RandomSource random) {

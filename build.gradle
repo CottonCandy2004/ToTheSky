@@ -60,10 +60,12 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:1.20.1-47.4.0"
+    minecraft "net.minecraftforge:forge:1.20.1-${forge_version}"
 
-    // 编译期依赖：从参考实例 RIAFst 3 mods 目录复制的 1.20.1 jar（见 AGENTS.md）
-    compileOnly files('libs/create-1.20.1-0.5.1.j.jar')
+    // 编译期依赖：从参考实例 RiaFST 4 mods 目录复制的 1.20.1 jar（见 AGENTS.md）
+    // Create 6.0.8 内嵌 Ponder(catnip)/Flywheel/Registrate 于 jarjar，需解包 Ponder 才能引用 catnip 类
+    compileOnly files('libs/create-1.20.1-6.0.8.jar')
+    compileOnly files('libs/ponder-forge-1.20.1-1.0.91.jar')
     compileOnly files('libs/FarmersDelight-1.20.1-1.2.4.jar')
     compileOnly files('libs/kitchenkarrot-1.20.1-0.6.4b.jar')
 }
