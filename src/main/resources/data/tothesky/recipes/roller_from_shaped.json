@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " SO",
+    "IAH",
+    " L "
+  ],
+  "key": {
+    "O": {
+      "item": "quark:redstone_randomizer"
+    },
+    "I": {
+      "item": "minecraft:lever"
+    },
+    "A": {
+      "item": "create:andesite_alloy_block"
+    },
+    "H": {
+      "item": "create:andesite_funnel"
+    },
+    "S": {
+      "item": "create:chute"
+    },
+    "L": {
+      "item": "minecraft:lapis_block"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "tothesky:roller"
+  }
+}

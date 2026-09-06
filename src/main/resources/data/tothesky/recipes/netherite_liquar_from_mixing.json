@@ -1,0 +1,39 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "tag": "forge:ingots/gold"
+    },
+    {
+      "item": "tothesky:blood_bottle"
+    },
+    {
+      "fluid": "tothesky:unstable_netherite_liquar",
+      "amount": 1000
+    },
+    {
+      "tag": "forge:ingots/gold"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1000,
+      "item": "tothesky:netherite_liquar"
+    }
+  ]
+}

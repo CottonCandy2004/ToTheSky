@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "tothesky:raw_pork_pizza"
+  },
+  "result": {
+    "item": "tothesky:pork_pizza"
+  }
+}

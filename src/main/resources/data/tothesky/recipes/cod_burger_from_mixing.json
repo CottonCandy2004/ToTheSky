@@ -1,0 +1,22 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "minecraft:bread"
+    },
+    {
+      "item": "tothesky:fried_cod"
+    },
+    {
+      "item": "culturaldelights:cut_pickle"
+    },
+    {
+      "item": "farmersdelight:milk_bottle"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:cod_burger"
+    }
+  ]
+}

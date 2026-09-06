@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "IAH",
+    " L "
+  ],
+  "key": {
+    "I": {
+      "item": "create:content_observer"
+    },
+    "A": {
+      "item": "create:andesite_alloy_block"
+    },
+    "H": {
+      "item": "create:andesite_funnel"
+    },
+    "S": {
+      "item": "create:smart_chute"
+    },
+    "L": {
+      "item": "create:brass_casing"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "tothesky:seller"
+  }
+}

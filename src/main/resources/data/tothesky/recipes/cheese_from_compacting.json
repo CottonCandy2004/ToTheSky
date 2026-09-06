@@ -1,0 +1,14 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "fluid": "minecraft:milk",
+      "amount": 1000
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:cheese"
+    }
+  ]
+}

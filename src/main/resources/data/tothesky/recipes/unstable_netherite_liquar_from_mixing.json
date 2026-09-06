@@ -1,0 +1,36 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "quark:soul_bead"
+    },
+    {
+      "item": "quark:soul_bead"
+    },
+    {
+      "item": "quark:soul_bead"
+    },
+    {
+      "item": "quark:soul_bead"
+    },
+    {
+      "item": "quark:soul_bead"
+    },
+    {
+      "item": "minecraft:crimson_nylium"
+    },
+    {
+      "item": "minecraft:warped_nylium"
+    },
+    {
+      "item": "minecraft:basalt"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1000,
+      "item": "tothesky:unstable_netherite_liquar"
+    }
+  ],
+  "heatRequirement": "heated"
+}

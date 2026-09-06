@@ -1,0 +1,13 @@
+{
+  "type": "create:pressing",
+  "ingredients": [
+    {
+      "tag": "forge:foods/dough"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:pizza_base"
+    }
+  ]
+}

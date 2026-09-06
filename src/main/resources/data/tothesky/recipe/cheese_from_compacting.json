@@ -1,5 +1,0 @@
-{
-  "type": "create:compacting",
-  "ingredients": [ { "type": "neoforge:single", "amount": 1000, "fluid": "minecraft:milk" } ],
-  "results": [ { "id": "tothesky:cheese" } ]
-}

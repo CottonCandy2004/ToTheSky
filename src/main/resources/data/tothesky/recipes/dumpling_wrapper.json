@@ -1,0 +1,19 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    {
+      "tag": "forge:dough"
+    }
+  ],
+  "tool": {
+    "item": "minecraft:stick"
+  },
+  "result": [
+    {
+      "item": {
+        "count": 8,
+        "item": "tothesky:dumpling_wrapper"
+      }
+    }
+  ]
+}

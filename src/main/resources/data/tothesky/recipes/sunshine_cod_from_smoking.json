@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "tothesky:raw_sunshine_cod"
+  },
+  "result": {
+    "item": "tothesky:sunshine_cod"
+  }
+}

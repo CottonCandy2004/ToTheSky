@@ -1,0 +1,15 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:netherite_block"
+    }
+  ],
+  "processing_time": 250,
+  "results": [
+    {
+      "count": 9,
+      "item": "minecraft:netherite_ingot"
+    }
+  ]
+}

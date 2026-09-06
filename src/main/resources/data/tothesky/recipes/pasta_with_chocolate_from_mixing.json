@@ -1,0 +1,24 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "farmersdelight:milk_bottle"
+    },
+    {
+      "item": "farmersdelight:raw_pasta"
+    },
+    {
+      "fluid": "create_confectionery:black_chocolate",
+      "amount": 250
+    },
+    {
+      "item": "minecraft:bowl"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:pasta_with_chocolate"
+    }
+  ],
+  "heatRequirement": "heated"
+}

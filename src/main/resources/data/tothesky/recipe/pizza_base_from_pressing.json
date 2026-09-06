@@ -1,5 +1,0 @@
-{
-  "type": "create:pressing",
-  "ingredients": [ { "tag": "c:foods/dough" } ],
-  "results": [ { "id": "tothesky:pizza_base" } ]
-}

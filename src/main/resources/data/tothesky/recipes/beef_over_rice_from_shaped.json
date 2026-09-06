@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EBO",
+    " R ",
+    "   "
+  ],
+  "key": {
+    "E": {
+      "tag": "forge:eggs"
+    },
+    "B": {
+      "tag": "forge:foods/cooked_beef"
+    },
+    "O": {
+      "tag": "forge:foods/onion"
+    },
+    "R": {
+      "item": "farmersdelight:cooked_rice"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "tothesky:beef_over_rice"
+  }
+}

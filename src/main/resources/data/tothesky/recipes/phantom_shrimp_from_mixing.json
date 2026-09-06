@@ -1,0 +1,28 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "minecraft:gunpowder"
+    },
+    {
+      "item": "crabbersdelight:cooked_shrimp"
+    },
+    {
+      "item": "crabbersdelight:cooked_shrimp"
+    },
+    {
+      "item": "crabbersdelight:cooked_shrimp"
+    },
+    {
+      "item": "crabbersdelight:cooked_shrimp"
+    },
+    {
+      "item": "minecraft:phantom_membrane"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:phantom_shrimp"
+    }
+  ]
+}

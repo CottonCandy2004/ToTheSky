@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    " TC",
+    " P "
+  ],
+  "key": {
+    "P": {
+      "item": "tothesky:pizza_base"
+    },
+    "C": {
+      "item": "tothesky:cut_cheese"
+    },
+    "T": {
+      "item": "farmersdelight:tomato_sauce"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "tothesky:raw_pizza_margarita"
+  }
+}

@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shaped",
-  "pattern": [ "EBO", " R ", "   " ],
-  "key": { "E": { "tag": "c:eggs" }, "B": { "tag": "c:foods/cooked_beef" }, "O": { "tag": "c:foods/onion" }, "R": { "item": "farmersdelight:cooked_rice" } },
-  "result": { "count": 1, "id": "tothesky:beef_over_rice" }
-}

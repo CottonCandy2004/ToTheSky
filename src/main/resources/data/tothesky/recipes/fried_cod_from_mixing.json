@@ -1,0 +1,17 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "kaleidoscope_cookery:oil"
+    },
+    {
+      "tag": "forge:foods/raw_cod"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:fried_cod"
+    }
+  ],
+  "heatRequirement": "heated"
+}
