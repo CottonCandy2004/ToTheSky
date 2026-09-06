@@ -196,6 +196,148 @@ public final class ModItems {
     public static final RegistryObject<BlockItem> ROLLER_ITEM =
             ITEMS.register("roller", () -> new BlockItem(ModBlocks.ROLLER.get(), new Item.Properties()));
 
+    // ---------------- 医疗/工具 ----------------
+    /** 采血套装：无功能占位（plus 版才有抽血逻辑） */
+    public static final RegistryObject<Item> HEMOSTIX = ITEMS.register("hemostix",
+            () -> new Item(new Item.Properties().stacksTo(16)));
+    /** 采血套装plus：右键抽血换血瓶（耐久 13） */
+    public static final RegistryObject<Item> HEMOSTIX_PLUS = ITEMS.register("hemostix_plus",
+            () -> new com.fst.tothesky.item.HemostixPlusItem(new Item.Properties().durability(13)));
+    /** 收割黑夜：右键肃清 150 格内普通幻翼（耐久 200，发光） */
+    public static final RegistryObject<Item> HARVEST_THE_NIGHT = ITEMS.register("harvest_the_night",
+            () -> new com.fst.tothesky.item.HarvestTheNightItem(new Item.Properties().stacksTo(1).durability(200)));
+    /** 竹蜻蜓：右键获得漂浮 III（耐久 20） */
+    public static final RegistryObject<Item> COPTER = ITEMS.register("copter",
+            () -> new com.fst.tothesky.item.CopterItem(new Item.Properties().stacksTo(1).durability(20)));
+    /** 机械手润滑剂：右键机械手注入公共 Owner（耐久 100） */
+    public static final RegistryObject<Item> DEPLOYER_LUBRICANT = ITEMS.register("deployer_lubricant",
+            () -> new Item(new Item.Properties().stacksTo(1).durability(100)));
+
+    // ---------------- 图腾/钻石/石墨产线 ----------------
+    public static final RegistryObject<Item> EMERALD_NUGGET = simple("emerald_nugget", 0);
+    public static final RegistryObject<Item> RAW_TOTEM = simple("raw_totem", 0);
+    public static final RegistryObject<Item> INCOMPLETE_TOTEM = simple("incomplete_totem", 0);
+    public static final RegistryObject<Item> FIBER_MIXTURE = simple("fiber_mixture", 0);
+    public static final RegistryObject<Item> FROTHER_MIXTURE = simple("frother_mixture", 0);
+    public static final RegistryObject<Item> INCOMPLETE_TORTILLA = simple("incomplete_tortilla", 0);
+    public static final RegistryObject<Item> HE_GRAPHITE = simple("he_graphite", 0);
+    public static final RegistryObject<Item> SMALL_CRYSTAL = simple("small_crystal", 0);
+    public static final RegistryObject<Item> FADED_SMALL_CRYSTAL = simple("faded_small_crystal", 0);
+    public static final RegistryObject<Item> DIAMOND_CORE = simple("diamond_core", 0);
+    public static final RegistryObject<Item> UNCOMPLETE_DIAMOND = simple("uncomplete_diamond", 0);
+
+    // ---------------- 豆腐链 ----------------
+    public static final RegistryObject<Item> BEAN_CURD = simple("bean_curd", 0);
+    public static final RegistryObject<Item> CUT_BEAN_CURD = ITEMS.register("cut_bean_curd",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(3).saturationMod(0f).build())));
+    public static final RegistryObject<Item> SWEET_BEAN_CURD = ITEMS.register("sweet_bean_curd",
+            () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(8).saturationMod(1f).build()), false));
+    public static final RegistryObject<Item> SALTY_BEAN_CURD = ITEMS.register("salty_bean_curd",
+            () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(8).saturationMod(1f).build()), false));
+    public static final RegistryObject<Item> SPICY_BEAN_CURD = ITEMS.register("spicy_bean_curd",
+            () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(8).saturationMod(1f)
+                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 600, 0), 1.0f).build()), false));
+    public static final RegistryObject<Item> BERRY_BEAN_CURD = ITEMS.register("berry_bean_curd",
+            () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(10).saturationMod(1f)
+                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 600, 0), 1.0f).build()), true));
+    /** 酱油瓶 */
+    public static final RegistryObject<Item> SOY_SAUSE_BOTTLE = ITEMS.register("soy_sause_bottle",
+            () -> new Item(new Item.Properties().stacksTo(16)));
+    /** 大豆油（瓶装，可作烹饪油） */
+    public static final RegistryObject<Item> SOY_BEAN_OIL = ITEMS.register("soy_bean_oil",
+            () -> new Item(new Item.Properties().stacksTo(16)));
+
+    // ---------------- 乐器 ----------------
+    public static final RegistryObject<Item> GUITAR = ITEMS.register("guitar",
+            () -> new com.fst.tothesky.item.InstrumentItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> PIANO = ITEMS.register("piano",
+            () -> new com.fst.tothesky.item.InstrumentItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> DRUM_808 = ITEMS.register("drum_808",
+            () -> new com.fst.tothesky.item.InstrumentItem(new Item.Properties().stacksTo(1)));
+    /** 空白乐谱：右键 + 副手成书 → 转为乐谱 */
+    public static final RegistryObject<Item> EMPTY_MUSIC_SHEET = ITEMS.register("empty_music_sheet",
+            () -> new com.fst.tothesky.item.EmptyMusicSheetItem(new Item.Properties().stacksTo(16)));
+    /** 乐谱：右键学习（写入 config/musicSheets/<玩家>/） */
+    public static final RegistryObject<Item> MUSIC_SHEET = ITEMS.register("music_sheet",
+            () -> new com.fst.tothesky.item.MusicSheetItem(new Item.Properties().stacksTo(1)));
+
+    // ---------------- 魔法照片 ----------------
+    public static final RegistryObject<Item> BLUE_MAGIC_STONE = simple("blue_magic_stone", 0);
+    public static final RegistryObject<Item> RED_MAGIC_STONE = simple("red_magic_stone", 0);
+    public static final RegistryObject<Item> YELLOW_MAGIC_STONE = simple("yellow_magic_stone", 0);
+    public static final RegistryObject<Item> GREEN_MAGIC_STONE = simple("green_magic_stone", 0);
+
+    // ---------------- 春节 ----------------
+    public static final RegistryObject<Item> FIRECRACKER = simple("firecracker", 0);
+    public static final RegistryObject<Item> SPARKLER = ITEMS.register("sparkler",
+            () -> new com.fst.tothesky.item.SparklerItem(new Item.Properties()));
+
+    // ---------------- 索拉里斯勋章 ----------------
+    public static final RegistryObject<Item> SOLARIS0 = ITEMS.register("solaris0",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SOLARIS1 = ITEMS.register("solaris1",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SOLARIS2 = ITEMS.register("solaris2",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+
+    // ---------------- 酿酒方块物品（仅方块，逻辑不迁移） ----------------
+    public static final RegistryObject<BlockItem> DISTILLER_ITEM =
+            ITEMS.register("distiller", () -> new BlockItem(ModBlocks.DISTILLER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> FERMENT_CONTAINER_ITEM =
+            ITEMS.register("ferment_container", () -> new BlockItem(ModBlocks.FERMENT_CONTAINER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> AGING_CONTAINER_ITEM =
+            ITEMS.register("aging_container", () -> new BlockItem(ModBlocks.AGING_CONTAINER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> WINE_CRAFTING_TABLE_ITEM =
+            ITEMS.register("wine_crafting_table", () -> new BlockItem(ModBlocks.WINE_CRAFTING_TABLE.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> LABLE_PRINTER_ITEM =
+            ITEMS.register("lable_printer", () -> new BlockItem(ModBlocks.LABLE_PRINTER.get(), new Item.Properties()));
+    /** 你不该拿到的酒（酿酒逻辑未迁移，仅占位） */
+    public static final RegistryObject<Item> WINE_BOTTLE = ITEMS.register("wine_bottle",
+            () -> new Item(new Item.Properties().stacksTo(1).food(new FoodProperties.Builder()
+                    .nutrition(0).alwaysEat().build())));
+    public static final RegistryObject<Item> INCOMPLETE_WINE_BOTTLE = ITEMS.register("incomplete_wine_bottle",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+
+    // ---------------- 装饰方块物品 ----------------
+    public static final RegistryObject<BlockItem> CANDLE_STICK_ITEM =
+            ITEMS.register("candle_stick", () -> new BlockItem(ModBlocks.CANDLE_STICK.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> BURGER_ITEM =
+            ITEMS.register("burger", () -> new BlockItem(ModBlocks.BURGER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> NANAKO_SCULPTURE_ITEM =
+            ITEMS.register("nanako_sculpture", () -> new BlockItem(ModBlocks.NANAKO_SCULPTURE.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> GOLDEN_COOKING_POT_ITEM =
+            ITEMS.register("golden_cooking_pot", () -> new BlockItem(ModBlocks.GOLDEN_COOKING_POT.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> GOLDEN_SKILLET_ITEM =
+            ITEMS.register("golden_skillet", () -> new BlockItem(ModBlocks.GOLDEN_SKILLET.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> SILVER_COOKING_POT_ITEM =
+            ITEMS.register("silver_cooking_pot", () -> new BlockItem(ModBlocks.SILVER_COOKING_POT.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> COPPER_COOKING_POT_ITEM =
+            ITEMS.register("copper_cooking_pot", () -> new BlockItem(ModBlocks.COPPER_COOKING_POT.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EVENT_BLOCK_1_ITEM =
+            ITEMS.register("event_block_1", () -> new BlockItem(ModBlocks.EVENT_BLOCK_1.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EVENT_BLOCK_2_ITEM =
+            ITEMS.register("event_block_2", () -> new BlockItem(ModBlocks.EVENT_BLOCK_2.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> EVENT_BLOCK_3_ITEM =
+            ITEMS.register("event_block_3", () -> new BlockItem(ModBlocks.EVENT_BLOCK_3.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> HE_GRAPHITE_BLOCK_ITEM =
+            ITEMS.register("he_graphite_block", () -> new BlockItem(ModBlocks.HE_GRAPHITE_BLOCK.get(), new Item.Properties()));
+    /** 检查站方块物品 */
+    public static final RegistryObject<BlockItem> CHECKER_ITEM =
+            ITEMS.register("checker", () -> new BlockItem(ModBlocks.CHECKER.get(), new Item.Properties()));
+
+    // ---------------- 春节方块物品 ----------------
+    public static final RegistryObject<BlockItem> MULTIPLE_FIREWORKS_ITEM =
+            ITEMS.register("multiple_fireworks", () -> new BlockItem(ModBlocks.MULTIPLE_FIREWORKS.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> FIREWORKS_BOX_ITEM =
+            ITEMS.register("fireworks_box", () -> new BlockItem(ModBlocks.FIREWORKS_BOX.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> MULTIPLE_FIRECRACKERS_ITEM =
+            ITEMS.register("multiple_firecrackers", () -> new BlockItem(ModBlocks.MULTIPLE_FIRECRACKERS.get(), new Item.Properties()));
+
     private static RegistryObject<Item> simple(String name, int tooltipLines) {
         return ITEMS.register(name, () -> tooltipLines > 0
                 ? new TooltipItem(new Item.Properties(), name, tooltipLines)

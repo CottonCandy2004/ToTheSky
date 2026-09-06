@@ -29,6 +29,18 @@ public final class ModFluidTypes {
     public static final RegistryObject<FluidType> UNSTABLE_NETHERITE_LIQUAR =
             FLUID_TYPES.register("unstable_netherite_liquar",
                     () -> new TexturedFluidType("tothesky", "unstable_netherite_liquar"));
+    /** 豆浆：豆腐链上游（大豆混合产出） */
+    public static final RegistryObject<FluidType> BEAN_SAUSE =
+            FLUID_TYPES.register("bean_sause", () -> new TexturedFluidType("tothesky", "bean_sause"));
+    /** 大豆油：油炸鳕鱼用油（大豆压实产出） */
+    public static final RegistryObject<FluidType> BEAN_OIL =
+            FLUID_TYPES.register("bean_oil", () -> new TexturedFluidType("tothesky", "bean_oil"));
+    /** 酱油：豆浆+下界疣混合 */
+    public static final RegistryObject<FluidType> SOY_SAUSE =
+            FLUID_TYPES.register("soy_sause", () -> new TexturedFluidType("tothesky", "soy_sause"));
+    /** 恶魂之泪：灵魂珠/哭泣黑曜石链中间流体 */
+    public static final RegistryObject<FluidType> GHAST_TEAR =
+            FLUID_TYPES.register("ghast_tear", () -> new TexturedFluidType("tothesky", "ghast_tear"));
 
     private ModFluidTypes() {
     }

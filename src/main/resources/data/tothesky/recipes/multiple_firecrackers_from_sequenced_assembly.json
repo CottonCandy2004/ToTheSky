@@ -1,0 +1,33 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "minecraft:string"
+  },
+  "loops": 8,
+  "results": [
+    {
+      "item": "tothesky:multiple_firecrackers"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "minecraft:string"
+        },
+        {
+          "item": "tothesky:firecracker"
+        }
+      ],
+      "results": [
+        {
+          "item": "minecraft:string"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "minecraft:string"
+  }
+}

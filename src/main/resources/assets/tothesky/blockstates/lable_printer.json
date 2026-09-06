@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/lable_printer"
+    },
+    "facing=east": {
+      "model": "tothesky:block/lable_printer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/lable_printer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/lable_printer",
+      "y": 270
+    }
+  }
+}

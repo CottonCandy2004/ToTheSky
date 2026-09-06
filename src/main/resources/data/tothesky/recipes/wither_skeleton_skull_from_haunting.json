@@ -1,0 +1,13 @@
+{
+  "type": "create:haunting",
+  "ingredients": [
+    {
+      "item": "tothesky:uncomplete_diamond"
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:wither_skeleton_skull"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AC",
+    "BA"
+  ],
+  "key": {
+    "A": {
+      "item": "create:iron_sheet"
+    },
+    "B": {
+      "item": "minecraft:iron_nugget"
+    },
+    "C": {
+      "item": "tothesky:soy_bean_oil"
+    }
+  },
+  "result": {
+    "item": "tothesky:deployer_lubricant",
+    "nbt": "{Damage:0}"
+  }
+}

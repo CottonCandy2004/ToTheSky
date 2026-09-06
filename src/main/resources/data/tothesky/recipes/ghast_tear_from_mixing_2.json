@@ -1,0 +1,14 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "minecraft:ghast_tear"
+    }
+  ],
+  "results": [
+    {
+      "fluid": "tothesky:ghast_tear",
+      "amount": 80
+    }
+  ]
+}

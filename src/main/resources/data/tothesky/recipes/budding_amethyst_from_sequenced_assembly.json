@@ -1,0 +1,50 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "minecraft:amethyst_block"
+  },
+  "loops": 20,
+  "results": [
+    {
+      "item": "minecraft:budding_amethyst"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "minecraft:amethyst_block"
+        },
+        {
+          "item": "tothesky:small_crystal"
+        }
+      ],
+      "results": [
+        {
+          "item": "minecraft:amethyst_block"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "minecraft:amethyst_block"
+        },
+        {
+          "tag": "minecraft:pickaxes"
+        }
+      ],
+      "keepHeldItem": true,
+      "results": [
+        {
+          "item": "minecraft:amethyst_block"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "minecraft:amethyst_block"
+  }
+}

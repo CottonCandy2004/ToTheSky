@@ -1,0 +1,46 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "tothesky:uncomplete_diamond"
+  },
+  "loops": 15,
+  "results": [
+    {
+      "item": "minecraft:diamond"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "tothesky:uncomplete_diamond"
+        },
+        {
+          "item": "tothesky:he_graphite"
+        }
+      ],
+      "results": [
+        {
+          "item": "tothesky:uncomplete_diamond"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "tothesky:uncomplete_diamond"
+        }
+      ],
+      "results": [
+        {
+          "item": "tothesky:uncomplete_diamond"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "tothesky:uncomplete_diamond"
+  }
+}

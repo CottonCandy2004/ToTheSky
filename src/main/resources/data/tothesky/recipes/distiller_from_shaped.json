@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " IG",
+    "GSM",
+    " B "
+  ],
+  "key": {
+    "B": {
+      "item": "create:brass_casing"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "I": {
+      "item": "create:brass_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass_bottle"
+    },
+    "M": {
+      "item": "minecraft:magma_block"
+    }
+  },
+  "result": {
+    "item": "tothesky:distiller"
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "parent": "block/cube",
+    "textures": {
+        "particle": "tothesky:block/checkerboard",
+        "down": "tothesky:block/checkerboard2",
+        "up": "tothesky:block/checkerboard2",
+        "north": "tothesky:block/checkerboard",
+        "east": "tothesky:block/checkerboard2",
+        "south": "tothesky:block/checkerboard",
+        "west": "tothesky:block/checkerboard2"
+    }
+}

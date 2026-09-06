@@ -1,0 +1,14 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "fluid": "tothesky:bean_sause",
+      "amount": 500
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:bean_curd"
+    }
+  ]
+}

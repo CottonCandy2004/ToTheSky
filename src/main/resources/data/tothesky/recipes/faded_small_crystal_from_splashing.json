@@ -1,0 +1,13 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "tothesky:small_crystal"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:faded_small_crystal"
+    }
+  ]
+}

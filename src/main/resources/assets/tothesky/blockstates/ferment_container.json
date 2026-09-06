@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/ferment_container"
+    },
+    "facing=east": {
+      "model": "tothesky:block/ferment_container",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/ferment_container",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/ferment_container",
+      "y": 270
+    }
+  }
+}

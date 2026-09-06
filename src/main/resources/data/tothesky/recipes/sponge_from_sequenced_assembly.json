@@ -1,0 +1,46 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "tothesky:fiber_mixture"
+  },
+  "loops": 3,
+  "results": [
+    {
+      "item": "minecraft:sponge"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "tothesky:frother_mixture"
+        },
+        {
+          "item": "minecraft:slime_ball"
+        }
+      ],
+      "results": [
+        {
+          "item": "tothesky:frother_mixture"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "tothesky:frother_mixture"
+        }
+      ],
+      "results": [
+        {
+          "item": "tothesky:frother_mixture"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "tothesky:frother_mixture"
+  }
+}

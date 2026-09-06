@@ -10,10 +10,8 @@
   },
   "result": [
     {
-      "item": {
-        "count": 8,
-        "item": "tothesky:dumpling_wrapper"
-      }
+      "item": "tothesky:dumpling_wrapper",
+      "count": 8
     }
   ]
 }

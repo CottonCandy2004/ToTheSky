@@ -1,0 +1,34 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "crabbersdelight:pearl"
+  },
+  "loops": 3,
+  "results": [
+    {
+      "item": "quark:soul_bead"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:filling",
+      "ingredients": [
+        {
+          "item": "crabbersdelight:pearl"
+        },
+        {
+          "fluid": "tothesky:ghast_tear",
+          "amount": 5
+        }
+      ],
+      "results": [
+        {
+          "item": "crabbersdelight:pearl"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "crabbersdelight:pearl"
+  }
+}

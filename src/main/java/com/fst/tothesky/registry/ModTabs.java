@@ -21,6 +21,10 @@ public final class ModTabs {
                         // 流体桶单独注册在 ModFluids.BUCKETS，加入主创造栏
                         output.accept(ModFluids.NETHERITE_LIQUAR_BUCKET.get());
                         output.accept(ModFluids.UNSTABLE_NETHERITE_LIQUAR_BUCKET.get());
+                        output.accept(ModFluids.BEAN_SAUSE_BUCKET.get());
+                        output.accept(ModFluids.BEAN_OIL_BUCKET.get());
+                        output.accept(ModFluids.SOY_SAUSE_BUCKET.get());
+                        output.accept(ModFluids.GHAST_TEAR_BUCKET.get());
                     })
                     .build());
 

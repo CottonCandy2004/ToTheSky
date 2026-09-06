@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DAD",
+    "IFI",
+    " B "
+  ],
+  "key": {
+    "D": {
+      "item": "tothesky:delta_coin"
+    },
+    "B": {
+      "item": "create:brass_casing"
+    },
+    "A": {
+      "item": "minecraft:barrel"
+    },
+    "I": {
+      "item": "create:brass_ingot"
+    },
+    "F": {
+      "item": "supplementaries:faucet"
+    }
+  },
+  "result": {
+    "item": "tothesky:aging_container"
+  }
+}

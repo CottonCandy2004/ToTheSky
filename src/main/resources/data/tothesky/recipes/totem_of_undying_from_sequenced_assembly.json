@@ -1,0 +1,50 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "tothesky:raw_totem"
+  },
+  "loops": 2,
+  "results": [
+    {
+      "item": "minecraft:totem_of_undying"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:filling",
+      "ingredients": [
+        {
+          "item": "tothesky:incomplete_totem"
+        },
+        {
+          "fluid": "create_enchantment_industry:hyper_experience",
+          "amount": 25
+        }
+      ],
+      "results": [
+        {
+          "item": "tothesky:incomplete_totem"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "tothesky:incomplete_totem"
+        },
+        {
+          "item": "tothesky:emerald_nugget"
+        }
+      ],
+      "results": [
+        {
+          "item": "tothesky:incomplete_totem"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "tothesky:incomplete_totem"
+  }
+}

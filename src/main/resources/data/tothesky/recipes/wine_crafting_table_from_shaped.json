@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    "AHG",
+    " B "
+  ],
+  "key": {
+    "B": {
+      "item": "create:brass_casing"
+    },
+    "A": {
+      "item": "minecraft:polished_andesite"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "G": {
+      "item": "minecraft:glass_bottle"
+    }
+  },
+  "result": {
+    "item": "tothesky:wine_crafting_table"
+  }
+}

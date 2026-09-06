@@ -1,0 +1,24 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "tag": "forge:vegetables/pepper"
+    },
+    {
+      "tag": "forge:vegetables/garlic"
+    },
+    {
+      "tag": "forge:vegetables/onion"
+    },
+    {
+      "item": "quark:soul_bead"
+    }
+  ],
+  "results": [
+    {
+      "fluid": "tothesky:ghast_tear",
+      "amount": 80
+    }
+  ],
+  "heatRequirement": "superheated"
+}

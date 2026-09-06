@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    },
+    {
+      "item": "tothesky:he_graphite"
+    }
+  ],
+  "result": {
+    "item": "tothesky:he_graphite_block"
+  }
+}

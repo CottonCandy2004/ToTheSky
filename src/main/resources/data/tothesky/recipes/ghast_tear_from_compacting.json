@@ -1,0 +1,14 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "fluid": "tothesky:ghast_tear",
+      "amount": 80
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:ghast_tear"
+    }
+  ]
+}

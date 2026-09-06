@@ -31,5 +31,6 @@ public class ToTheSky {
         ModFluidTypes.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);
         ModFluids.BUCKETS.register(modEventBus);
+        com.fst.tothesky.registry.ModSounds.SOUNDS.register(modEventBus);
     }
 }

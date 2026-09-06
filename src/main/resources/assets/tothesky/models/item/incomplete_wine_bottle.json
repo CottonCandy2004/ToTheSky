@@ -1,0 +1,12 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "tothesky:item/beer_bottle"
+    },
+    "overrides": [
+        { "predicate": { "custom_model_data": 1 }, "model": "tothesky:item/beer_bottle" },
+        { "predicate": { "custom_model_data": 2 }, "model": "tothesky:item/milk_wine_bottle" },
+        { "predicate": { "custom_model_data": 3 }, "model": "tothesky:item/apple_wine_bottle" },
+        { "predicate": { "custom_model_data": 4 }, "model": "tothesky:item/white_wine_bottle" }
+    ]
+}

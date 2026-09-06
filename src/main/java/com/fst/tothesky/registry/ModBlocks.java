@@ -96,6 +96,90 @@ public final class ModBlocks {
     public static final RegistryObject<RollerBlock> ROLLER =
             BLOCKS.register("roller", RollerBlock::new);
 
+    // ---------------- 酿酒（仅方块，逻辑不迁移） ----------------
+    public static final RegistryObject<Block> DISTILLER =
+            BLOCKS.register("distiller", () -> new com.fst.tothesky.block.FacingBlock(BlockBehaviour.Properties.of()
+                    .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
+    public static final RegistryObject<Block> FERMENT_CONTAINER =
+            BLOCKS.register("ferment_container", () -> new com.fst.tothesky.block.FacingBlock(BlockBehaviour.Properties.of()
+                    .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
+    public static final RegistryObject<Block> AGING_CONTAINER =
+            BLOCKS.register("aging_container", () -> new com.fst.tothesky.block.FacingBlock(BlockBehaviour.Properties.of()
+                    .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
+    public static final RegistryObject<Block> WINE_CRAFTING_TABLE =
+            BLOCKS.register("wine_crafting_table", () -> new com.fst.tothesky.block.WineCraftingTableBlock(BlockBehaviour.Properties.of()
+                    .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
+    public static final RegistryObject<Block> LABLE_PRINTER =
+            BLOCKS.register("lable_printer", () -> new com.fst.tothesky.block.FacingBlock(BlockBehaviour.Properties.of()
+                    .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
+
+    // ---------------- 装饰 ----------------
+    public static final RegistryObject<Block> CANDLE_STICK =
+            BLOCKS.register("candle_stick", () -> new com.fst.tothesky.block.SimpleShapeBlock(
+                    Block.box(6, 0, 6, 10, 12, 10),
+                    BlockBehaviour.Properties.of().strength(1.0f).noOcclusion().lightLevel(s -> 14)));
+    /** 汉堡模型：右键彩蛋（你的嘴巴似乎被什么粘住了） */
+    public static final RegistryObject<Block> BURGER =
+            BLOCKS.register("burger", () -> new com.fst.tothesky.block.BurgerBlock(
+                    Block.box(3, 0, 3, 13, 8, 13),
+                    BlockBehaviour.Properties.of().strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> NANAKO_SCULPTURE =
+            BLOCKS.register("nanako_sculpture", () -> new com.fst.tothesky.block.FacingShapeBlock(
+                    Block.box(2, 0, 2, 14, 14, 14),
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion().lightLevel(s -> 8)));
+    public static final RegistryObject<Block> GOLDEN_COOKING_POT =
+            BLOCKS.register("golden_cooking_pot", () -> new com.fst.tothesky.block.SimpleShapeBlock(
+                    Block.box(2, 0, 2, 14, 10, 14),
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> GOLDEN_SKILLET =
+            BLOCKS.register("golden_skillet", () -> new com.fst.tothesky.block.SimpleShapeBlock(
+                    Block.box(2, 0, 2, 14, 4, 14),
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> SILVER_COOKING_POT =
+            BLOCKS.register("silver_cooking_pot", () -> new com.fst.tothesky.block.SimpleShapeBlock(
+                    Block.box(2, 0, 2, 14, 10, 14),
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> COPPER_COOKING_POT =
+            BLOCKS.register("copper_cooking_pot", () -> new com.fst.tothesky.block.SimpleShapeBlock(
+                    Block.box(2, 0, 2, 14, 10, 14),
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> EVENT_BLOCK_1 =
+            BLOCKS.register("event_block_1", () -> new Block(
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> EVENT_BLOCK_2 =
+            BLOCKS.register("event_block_2", () -> new Block(
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> EVENT_BLOCK_3 =
+            BLOCKS.register("event_block_3", () -> new Block(
+                    BlockBehaviour.Properties.of().sound(SoundType.LANTERN).strength(0f).noOcclusion()));
+    public static final RegistryObject<Block> HE_GRAPHITE_BLOCK =
+            BLOCKS.register("he_graphite_block", () -> new Block(
+                    BlockBehaviour.Properties.of().strength(1.0f).requiresCorrectToolForDrops()));
+
+    // ---------------- 检查点 ----------------
+    public static final RegistryObject<Block> CHECKER =
+            BLOCKS.register("checker", () -> new com.fst.tothesky.block.CheckerBlock(
+                    BlockBehaviour.Properties.of().strength(1.0f)));
+
+    // ---------------- 春节 ----------------
+    /** 礼炮：打火石右键点燃，依次发射 9 发烟花后变回纸壳 */
+    public static final RegistryObject<Block> MULTIPLE_FIREWORKS =
+            BLOCKS.register("multiple_fireworks", () -> new com.fst.tothesky.block.MultipleFireworksBlock(
+                    BlockBehaviour.Properties.of().strength(1.0f).noOcclusion()));
+    /** 燃放的礼炮：临时态，无物品不掉落 */
+    public static final RegistryObject<Block> FIRING_MULTIPLE_FIREWORKS =
+            BLOCKS.register("firing_multiple_fireworks", () -> new Block(
+                    BlockBehaviour.Properties.of().strength(60.0f).noOcclusion().noLootTable()));
+    /** 礼炮纸壳：礼炮燃尽后的残骸，不掉落 */
+    public static final RegistryObject<Block> FIREWORKS_BOX =
+            BLOCKS.register("fireworks_box", () -> new Block(
+                    BlockBehaviour.Properties.of().strength(0.3f).noOcclusion().noLootTable()));
+    /** 鞭炮：打火石右键点燃，爆响后消失并连锁引爆周围鞭炮 */
+    public static final RegistryObject<Block> MULTIPLE_FIRECRACKERS =
+            BLOCKS.register("multiple_firecrackers", () -> new com.fst.tothesky.block.MultipleFirecrackersBlock(
+                    Block.box(2, 0, 2, 14, 2, 14),
+                    BlockBehaviour.Properties.of().strength(1.0f).noOcclusion()));
+
     @Nullable
     public static DrinkGlassBlock drinkBlockFor(ResourceLocation cocktailId) {
         for (RegistryObject<DrinkGlassBlock> holder : COCKTAIL_BLOCKS) {

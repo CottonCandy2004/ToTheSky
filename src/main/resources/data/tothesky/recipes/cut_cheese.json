@@ -16,10 +16,8 @@
   ],
   "result": [
     {
-      "item": {
-        "count": 4,
-        "item": "tothesky:cut_cheese"
-      }
+      "item": "tothesky:cut_cheese",
+      "count": 4
     }
   ]
 }

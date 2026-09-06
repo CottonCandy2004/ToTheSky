@@ -17,8 +17,7 @@
     }
   ],
   "container": {
-    "count": 1,
-    "id": "minecraft:bowl"
+    "item": "minecraft:bowl"
   },
   "result": {
     "count": 1,

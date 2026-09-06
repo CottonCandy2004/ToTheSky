@@ -1,0 +1,169 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"1": "tothesky:block/burger",
+		"particle": "tothesky:block/burger"
+	},
+	"elements": [
+		{
+			"name": "面包底",
+			"from": [3.5, 0, 3.5],
+			"to": [12.5, 2, 12.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
+			"faces": {
+				"north": {"uv": [4.5, 0.5, 9, 1.5], "texture": "#1"},
+				"east": {"uv": [4.5, 0.5, 9, 1.5], "texture": "#1"},
+				"south": {"uv": [4.5, 0.5, 9, 1.5], "texture": "#1"},
+				"west": {"uv": [4.5, 0.5, 9, 1.5], "texture": "#1"},
+				"up": {"uv": [0, 0, 4.5, 4.5], "texture": "#1"},
+				"down": {"uv": [9, 0, 13.5, 4.5], "texture": "#1"}
+			}
+		},
+		{
+			"name": "牛肉",
+			"from": [4, 2, 4],
+			"to": [12, 3.5, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 3, 8]},
+			"faces": {
+				"north": {"uv": [3, 10.5, 7.5, 11.75], "texture": "#1"},
+				"east": {"uv": [3, 10.5, 7.5, 11.75], "texture": "#1"},
+				"south": {"uv": [3, 10.5, 7.5, 11.75], "texture": "#1"},
+				"west": {"uv": [3, 10.5, 7.5, 11.75], "texture": "#1"},
+				"up": {"uv": [7, 12, 11, 16], "texture": "#1"},
+				"down": {"uv": [3, 12, 7, 16], "texture": "#1"}
+			}
+		},
+		{
+			"name": "番茄",
+			"from": [1.5, 3.7, 7.5],
+			"to": [7.5, 5.2, 13.5],
+			"rotation": {"angle": 22.5, "axis": "y", "origin": [0, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 15, 3, 15.75], "texture": "#1"},
+				"east": {"uv": [0, 15, 3, 15.75], "texture": "#1"},
+				"south": {"uv": [0, 15, 3, 15.75], "texture": "#1"},
+				"west": {"uv": [0, 15, 3, 15.75], "texture": "#1"},
+				"up": {"uv": [0, 12, 3, 15], "texture": "#1"},
+				"down": {"uv": [0, 9, 3, 12], "texture": "#1"}
+			}
+		},
+		{
+			"from": [10, -1, 4],
+			"to": [15, -1, 12],
+			"rotation": {"angle": 22.5, "axis": "z", "origin": [0, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"east": {"uv": [0, 0, 4, 0], "texture": "#1"},
+				"south": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"west": {"uv": [0, 0, 4, 0], "texture": "#1"},
+				"up": {"uv": [4.5, 10.5, 8.5, 8], "rotation": 270, "texture": "#1"},
+				"down": {"uv": [4.5, 8, 8.5, 10.5], "rotation": 90, "texture": "#1"}
+			}
+		},
+		{
+			"from": [0, 5, 4],
+			"to": [5, 5, 12],
+			"rotation": {"angle": -22.5, "axis": "z", "origin": [0, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"east": {"uv": [0, 0, 4, 0], "texture": "#1"},
+				"south": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"west": {"uv": [0, 0, 4, 0], "texture": "#1"},
+				"up": {"uv": [4.5, 8, 8.5, 10.5], "rotation": 270, "texture": "#1"},
+				"down": {"uv": [4.5, 10.5, 8.5, 8], "rotation": 90, "texture": "#1"}
+			}
+		},
+		{
+			"from": [4, -1, 10],
+			"to": [12, -1, 15],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [0, 0, 0]},
+			"faces": {
+				"north": {"uv": [2.5, 5, 6.5, 5], "texture": "#1"},
+				"east": {"uv": [0, 5, 2.5, 5], "texture": "#1"},
+				"south": {"uv": [9, 5, 13, 5], "texture": "#1"},
+				"west": {"uv": [6.5, 5, 9, 5], "texture": "#1"},
+				"up": {"uv": [8.5, 10.5, 4.5, 8], "texture": "#1"},
+				"down": {"uv": [8.5, 8, 4.5, 10.5], "texture": "#1"}
+			}
+		},
+		{
+			"from": [4, 5, 0],
+			"to": [12, 5, 5],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [0, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 4, 0], "texture": "#1"},
+				"east": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"south": {"uv": [0, 0, 4, 0], "texture": "#1"},
+				"west": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"up": {"uv": [4.5, 8, 8.5, 10.5], "texture": "#1"},
+				"down": {"uv": [4.5, 10.5, 8.5, 8], "texture": "#1"}
+			}
+		},
+		{
+			"name": "面包盖",
+			"from": [3.5, 4.7, 3.5],
+			"to": [12.5, 7.7, 12.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
+			"faces": {
+				"north": {"uv": [4.5, 0, 9, 1.5], "texture": "#1"},
+				"east": {"uv": [4.5, 0, 9, 1.5], "texture": "#1"},
+				"south": {"uv": [4.5, 0, 9, 1.5], "texture": "#1"},
+				"west": {"uv": [4.5, 0, 9, 1.5], "texture": "#1"},
+				"up": {"uv": [4.5, 4.5, 0, 0], "texture": "#1"},
+				"down": {"uv": [4.5, 0, 0, 4.5], "texture": "#1"}
+			}
+		},
+		{
+			"name": "芝麻",
+			"from": [3.5, 7.9, 3.5],
+			"to": [12.5, 7.9, 12.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 8]},
+			"faces": {
+				"north": {"uv": [11, 3, 15.5, 4.5], "texture": "#1"},
+				"east": {"uv": [11, 3, 15.5, 4.5], "texture": "#1"},
+				"south": {"uv": [11, 3, 15.5, 4.5], "texture": "#1"},
+				"west": {"uv": [11, 3, 15.5, 4.5], "texture": "#1"},
+				"up": {"uv": [4.5, 9, 0, 4.5], "texture": "#1"},
+				"down": {"uv": [4.5, 4.5, 0, 9], "texture": "#1"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [70, 0, 0],
+			"translation": [0, 1, 1.5],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [70, 0, 0],
+			"translation": [0, 1, 1.5],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"ground": {
+			"translation": [0, 3.25, 0],
+			"scale": [0.85, 0.85, 0.85]
+		},
+		"gui": {
+			"rotation": [24, 32.5, 0],
+			"translation": [0, 3, 0]
+		},
+		"head": {
+			"translation": [0, 7.5, 0],
+			"scale": [1.75, 1.75, 1.75]
+		}
+	},
+	"groups": [
+		0,
+		1,
+		2,
+		{
+			"name": "生菜",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [3, 4, 5, 6]
+		},
+		7,
+		8
+	]
+}

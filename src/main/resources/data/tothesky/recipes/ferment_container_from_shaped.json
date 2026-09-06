@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " D ",
+    "AIG",
+    " B "
+  ],
+  "key": {
+    "D": {
+      "item": "tothesky:delta_coin"
+    },
+    "B": {
+      "item": "create:brass_casing"
+    },
+    "A": {
+      "item": "minecraft:barrel"
+    },
+    "I": {
+      "item": "create:brass_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass_bottle"
+    }
+  },
+  "result": {
+    "item": "tothesky:ferment_container"
+  }
+}

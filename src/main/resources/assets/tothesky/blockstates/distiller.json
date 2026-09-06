@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/distiller"
+    },
+    "facing=east": {
+      "model": "tothesky:block/distiller",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/distiller",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/distiller",
+      "y": 270
+    }
+  }
+}

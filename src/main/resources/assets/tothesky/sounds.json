@@ -1,0 +1,10 @@
+{
+    "guitar_sound": {
+        "sounds": [
+            {
+                "name": "tothesky:guitar_sound",
+                "stream": false
+            }
+        ]
+    }
+}

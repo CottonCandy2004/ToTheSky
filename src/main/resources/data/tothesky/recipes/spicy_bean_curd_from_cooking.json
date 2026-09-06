@@ -1,0 +1,23 @@
+{
+  "type": "farmersdelight:cooking",
+  "recipe_book_tab": "meals",
+  "ingredients": [
+    {
+      "item": "tothesky:cut_bean_curd"
+    },
+    {
+      "item": "tothesky:cut_bean_curd"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    }
+  ],
+  "result": {
+    "item": "tothesky:spicy_bean_curd"
+  },
+  "container": {
+    "item": "minecraft:bowl"
+  },
+  "experience": 1.5,
+  "cookingtime": 200
+}

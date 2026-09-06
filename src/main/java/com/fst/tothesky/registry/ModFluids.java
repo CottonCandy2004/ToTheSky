@@ -36,6 +36,24 @@ public final class ModFluids {
     public static RegistryObject<ForgeFlowingFluid> UNSTABLE_NETHERITE_LIQUAR_FLOWING;
     public static RegistryObject<Item> UNSTABLE_NETHERITE_LIQUAR_BUCKET;
 
+    // 豆腐链 / 恶魂之泪链流体（noBlock，仅供 Create 配方与桶搬运）
+    public static RegistryObject<ForgeFlowingFluid> BEAN_SAUSE;
+    public static RegistryObject<ForgeFlowingFluid> BEAN_SAUSE_FLOWING;
+    public static RegistryObject<Item> BEAN_SAUSE_BUCKET;
+    public static RegistryObject<ForgeFlowingFluid> BEAN_OIL;
+    public static RegistryObject<ForgeFlowingFluid> BEAN_OIL_FLOWING;
+    public static RegistryObject<Item> BEAN_OIL_BUCKET;
+    public static RegistryObject<ForgeFlowingFluid> SOY_SAUSE;
+    public static RegistryObject<ForgeFlowingFluid> SOY_SAUSE_FLOWING;
+    public static RegistryObject<Item> SOY_SAUSE_BUCKET;
+    public static RegistryObject<ForgeFlowingFluid> GHAST_TEAR;
+    public static RegistryObject<ForgeFlowingFluid> GHAST_TEAR_FLOWING;
+    public static RegistryObject<Item> GHAST_TEAR_BUCKET;
+
+    /** registerTrio 的产出缓存（static 块内赋值结束后搬运到上方具名字段） */
+    private static final RegistryObject<?>[][] TRIO_CACHE = new RegistryObject<?>[4][3];
+    private static int trioIndex = 0;
+
     static {
         // 下界溶液：桶先注册（被 still/flowing 的 Properties 引用）
         NETHERITE_LIQUAR_BUCKET = BUCKETS.register("netherite_liquar_bucket", () -> new BucketItem(
@@ -56,6 +74,50 @@ public final class ModFluids {
         UNSTABLE_NETHERITE_LIQUAR_FLOWING = FLUIDS.register("unstable_netherite_liquar_flowing", () -> new ForgeFlowingFluid.Flowing(
                 new ForgeFlowingFluid.Properties(ModFluidTypes.UNSTABLE_NETHERITE_LIQUAR,
                         UNSTABLE_NETHERITE_LIQUAR, UNSTABLE_NETHERITE_LIQUAR_FLOWING).bucket(UNSTABLE_NETHERITE_LIQUAR_BUCKET)));
+
+        registerTrio("bean_sause", ModFluidTypes.BEAN_SAUSE);
+        registerTrio("bean_oil", ModFluidTypes.BEAN_OIL);
+        registerTrio("soy_sause", ModFluidTypes.SOY_SAUSE);
+        registerTrio("ghast_tear", ModFluidTypes.GHAST_TEAR);
+        BEAN_SAUSE = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[0][0];
+        BEAN_SAUSE_FLOWING = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[0][1];
+        BEAN_SAUSE_BUCKET = (RegistryObject<Item>) TRIO_CACHE[0][2];
+        BEAN_OIL = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[1][0];
+        BEAN_OIL_FLOWING = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[1][1];
+        BEAN_OIL_BUCKET = (RegistryObject<Item>) TRIO_CACHE[1][2];
+        SOY_SAUSE = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[2][0];
+        SOY_SAUSE_FLOWING = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[2][1];
+        SOY_SAUSE_BUCKET = (RegistryObject<Item>) TRIO_CACHE[2][2];
+        GHAST_TEAR = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[3][0];
+        GHAST_TEAR_FLOWING = (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[3][1];
+        GHAST_TEAR_BUCKET = (RegistryObject<Item>) TRIO_CACHE[3][2];
+    }
+
+    /** 注册一组 still/flowing/bucket（桶先注册，与上方下界溶液同模式） */
+    private static void registerTrio(String name, RegistryObject<net.minecraftforge.fluids.FluidType> type) {
+        final int i = trioIndex; // lambda 执行时 trioIndex 已递增，必须用局部快照
+        RegistryObject<Item> bucket = BUCKETS.register(name + "_bucket", () -> new BucketItem(
+                stillRef(i), new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+        RegistryObject<ForgeFlowingFluid> still = FLUIDS.register(name, () -> new ForgeFlowingFluid.Source(
+                new ForgeFlowingFluid.Properties(type, stillRef(i), flowingRef(i)).bucket(bucketRef(i))));
+        RegistryObject<ForgeFlowingFluid> flowing = FLUIDS.register(name + "_flowing", () -> new ForgeFlowingFluid.Flowing(
+                new ForgeFlowingFluid.Properties(type, stillRef(i), flowingRef(i)).bucket(bucketRef(i))));
+        TRIO_CACHE[trioIndex][0] = still;
+        TRIO_CACHE[trioIndex][1] = flowing;
+        TRIO_CACHE[trioIndex][2] = bucket;
+        trioIndex++;
+    }
+
+    private static RegistryObject<ForgeFlowingFluid> stillRef(int i) {
+        return (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[i][0];
+    }
+
+    private static RegistryObject<ForgeFlowingFluid> flowingRef(int i) {
+        return (RegistryObject<ForgeFlowingFluid>) TRIO_CACHE[i][1];
+    }
+
+    private static RegistryObject<Item> bucketRef(int i) {
+        return (RegistryObject<Item>) TRIO_CACHE[i][2];
     }
 
     private ModFluids() {

@@ -1,0 +1,14 @@
+{
+  "type": "create:compacting",
+  "ingredients": [
+    {
+      "item": "chinjufumod:item_seeds_soy"
+    }
+  ],
+  "results": [
+    {
+      "fluid": "tothesky:bean_oil",
+      "amount": 100
+    }
+  ]
+}

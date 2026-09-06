@@ -1,0 +1,17 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:emerald"
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:emerald_nugget"
+    },
+    {
+      "item": "tothesky:emerald_nugget",
+      "chance": 0.75
+    }
+  ]
+}

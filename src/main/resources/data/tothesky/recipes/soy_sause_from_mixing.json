@@ -1,0 +1,18 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "fluid": "tothesky:bean_sause",
+      "amount": 250
+    },
+    {
+      "item": "minecraft:nether_wart"
+    }
+  ],
+  "results": [
+    {
+      "fluid": "tothesky:soy_sause",
+      "amount": 250
+    }
+  ]
+}

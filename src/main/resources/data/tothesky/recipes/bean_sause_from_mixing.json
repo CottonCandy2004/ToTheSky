@@ -1,0 +1,14 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "item": "chinjufumod:item_seeds_soy"
+    }
+  ],
+  "results": [
+    {
+      "fluid": "tothesky:bean_sause",
+      "amount": 100
+    }
+  ]
+}

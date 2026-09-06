@@ -1,0 +1,17 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "farmersdelight:hamburger"
+    },
+    {
+      "item": "create:super_glue"
+    }
+  ],
+  "keepHeldItem": true,
+  "results": [
+    {
+      "item": "tothesky:burger"
+    }
+  ]
+}

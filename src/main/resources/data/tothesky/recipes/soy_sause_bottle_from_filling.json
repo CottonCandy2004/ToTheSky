@@ -1,0 +1,17 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "fluid": "tothesky:soy_sause",
+      "amount": 250
+    }
+  ],
+  "results": [
+    {
+      "item": "tothesky:soy_sause_bottle"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "SCS",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "tothesky:he_graphite_block"
+    },
+    "C": {
+      "item": "tothesky:diamond_core"
+    }
+  },
+  "result": {
+    "item": "tothesky:uncomplete_diamond"
+  }
+}

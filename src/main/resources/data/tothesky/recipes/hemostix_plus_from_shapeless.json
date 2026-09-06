@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "farmersdelight:iron_knife"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "item": "create:experience_block"
+    },
+    {
+      "item": "create:experience_block"
+    },
+    {
+      "item": "create:experience_block"
+    },
+    {
+      "item": "create:experience_block"
+    },
+    {
+      "item": "create:experience_block"
+    },
+    {
+      "item": "create:experience_block"
+    },
+    {
+      "item": "create:experience_block"
+    }
+  ],
+  "result": {
+    "item": "tothesky:hemostix_plus",
+    "nbt": "{Damage:0}"
+  }
+}
