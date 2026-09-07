@@ -66,6 +66,7 @@ dependencies {
     // Create 6.0.8 内嵌 Ponder(catnip)/Flywheel/Registrate 于 jarjar，需解包 Ponder 才能引用 catnip 类
     compileOnly files('libs/create-1.20.1-6.0.8.jar')
     compileOnly files('libs/ponder-forge-1.20.1-1.0.91.jar')
+    compileOnly files('libs/ultramarine-1.20.1-0.5.1.jar')
     compileOnly files('libs/FarmersDelight-1.20.1-1.2.4.jar')
     compileOnly files('libs/kitchenkarrot-1.20.1-0.6.4b.jar')
 }

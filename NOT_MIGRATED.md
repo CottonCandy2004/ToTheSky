@@ -75,7 +75,7 @@
 | `recipes/remove_recipes.js` | 移除原版/其他模组配方（83 行） |
 | `recipes/replace_recipes.js` | 替换其他模组配方 |
 | `recipes/remove_tags.js` | 移除 tag |
-| `recipes/add_tags.js` | 给其他模组物品加 tag（茄子/玉米/黄瓜/辣椒等）——`forge:cheese` 已随奶酪迁移 |
+| `recipes/add_tags.js` | 给其他模组物品加 tag（茄子/玉米/黄瓜/辣椒等）——`forge:cheese` 与 `ultramarine:chisel_dye` 已迁移 |
 | `recipes/ultramarine.js` | ultramarine 模组木工/凿石配方（与本模组无关） |
 | `recipes/add_recipes.js` 中不含 `kubejs:` 的部分 | 镇守府/Create/夸克互转配方、长椅修复、P2P 调谐等 |
 
@@ -93,6 +93,10 @@
 | `dumpling_making.js` | `dumpling/` 包全套 |
 | `sell&roll.js` | `event/VendingEvents` |
 | `item_events.js` 采血/竹蜻蜓/收割黑夜/礼花 | `item/HemostixPlusItem` / `CopterItem` / `HarvestTheNightItem` / `SparklerItem` |
+| `dew_of_oblivion_use.js`（PR#56） | `item/DewOfOblivionItem` |
+| `BasicFoodBlock/Item`（PR#58 食物方块化） | `block/PlaceableFoodBlock` + `item/PlaceableFoodBlockItem` |
+| `MechanicalChiselTableBlock` + `PackedColorsItem`（PR#59） | `block/MechanicalChiselTableBlock` + `item/PackedColorsItem` |
+| `wrench_remove_block.js`（PR#59） | `event/WrenchRemoveEvents` |
 | `block_events.js` 春节部分 | `block/MultipleFireworksBlock` / `MultipleFirecrackersBlock` |
 | `block_events.js` 润滑剂/汉堡/行商 | `event/ItemFeatureEvents` / `block/BurgerBlock` |
 | `instruments_server.js` | `item/InstrumentItem` + `event/InstrumentsEvents` |
@@ -105,4 +109,5 @@
 | `startup_scripts/magic_photo.js` | 四色魔石注册 |
 | `startup_scripts/celestia_startup.js` | 索拉里斯勋章注册 |
 | `startup_scripts/checker.js` | 检查站方块注册 |
+| PR#21 按键绑定 `startup_scripts/client/keyBinding.js` | 客户端按键绑定（服务端无逻辑，客户端功能留 kjs） |
 | `startup_scripts/instruments.js` | 乐器注册 + ModSounds |

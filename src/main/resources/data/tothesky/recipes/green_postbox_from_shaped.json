@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QQQ",
+    "QWQ",
+    "EEE"
+  ],
+  "key": {
+    "Q": {
+      "item": "minecraft:iron_ingot"
+    },
+    "W": {
+      "item": "minecraft:green_dye"
+    },
+    "E": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "item": "contact:green_postbox"
+  }
+}

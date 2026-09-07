@@ -2,6 +2,7 @@ package com.fst.tothesky.registry;
 
 import com.fst.tothesky.ToTheSky;
 import com.fst.tothesky.block.CookedDumplingPlateBlock;
+import com.fst.tothesky.block.PlaceableFoodBlock;
 import com.fst.tothesky.block.DrinkGlassBlock;
 import com.fst.tothesky.block.EmptyGlassBlock;
 import com.fst.tothesky.block.PizzaBlock;
@@ -179,6 +180,70 @@ public final class ModBlocks {
             BLOCKS.register("multiple_firecrackers", () -> new com.fst.tothesky.block.MultipleFirecrackersBlock(
                     Block.box(2, 0, 2, 14, 2, 14),
                     BlockBehaviour.Properties.of().strength(1.0f).noOcclusion()));
+
+    // ---------------- PR#58 可放置食物方块 ----------------
+    private static java.util.List<double[]> boxes(double[]... b) {
+        return java.util.Arrays.asList(b);
+    }
+
+    private static BlockBehaviour.Properties woodFood() {
+        return BlockBehaviour.Properties.of().sound(SoundType.WOOD).noOcclusion();
+    }
+
+    /** 咸豆腐脑（碗形六面箱） */
+    public static final RegistryObject<PlaceableFoodBlock> SALTY_BEAN_CURD_BLOCK =
+            BLOCKS.register("salty_bean_curd", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{5, 2.5, 5, 11, 3.5, 11},
+                            new double[]{5, 1, 11, 11, 4, 12},
+                            new double[]{4, 1, 5, 5, 4, 11},
+                            new double[]{5, 1, 4, 11, 4, 5},
+                            new double[]{11, 1, 5, 12, 4, 11},
+                            new double[]{5, 0, 5, 11, 1, 11}),
+                    woodFood()));
+    /** 幻翼虾仁（扁盘） */
+    public static final RegistryObject<PlaceableFoodBlock> PHANTOM_SHRIMP_BLOCK =
+            BLOCKS.register("phantom_shrimp", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{1, 0, 1, 15, 2, 15}),
+                    woodFood()));
+    /** 甜豆花（碗形六面箱） */
+    public static final RegistryObject<PlaceableFoodBlock> SWEET_BEAN_CURD_BLOCK =
+            BLOCKS.register("sweet_bean_curd", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{5, 2.5, 5, 11, 3.5, 11},
+                            new double[]{5, 1, 11, 11, 4, 12},
+                            new double[]{4, 1, 5, 5, 4, 11},
+                            new double[]{5, 1, 4, 11, 4, 5},
+                            new double[]{11, 1, 5, 12, 4, 11},
+                            new double[]{5, 0, 5, 11, 1, 11}),
+                    woodFood()));
+    /** 饮品659（杯形） */
+    public static final RegistryObject<PlaceableFoodBlock> DRINK_659_BLOCK =
+            BLOCKS.register("drink659", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{5.25, 0, 5.25, 10.75, 10.5, 10.75}),
+                    BlockBehaviour.Properties.of().sound(SoundType.GLASS).noOcclusion()));
+    /** 晴天鳕鱼（扁盘） */
+    public static final RegistryObject<PlaceableFoodBlock> SUNSHINE_COD_BLOCK =
+            BLOCKS.register("sunshine_cod", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{1, 0, 1, 15, 1, 15}),
+                    BlockBehaviour.Properties.of().sound(SoundType.GLASS).noOcclusion()));
+    /** 温泉蛋牛肉盖饭（碗形三层） */
+    public static final RegistryObject<PlaceableFoodBlock> BEEF_OVER_RICE_BLOCK =
+            BLOCKS.register("beef_over_rice", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{2, 0, 2, 14, 1, 14},
+                            new double[]{2, 1, 2, 14, 6, 14},
+                            new double[]{3, 6, 3, 13, 8, 13}),
+                    woodFood()));
+    /** 鱿鱼狂欢节（矮盘） */
+    public static final RegistryObject<PlaceableFoodBlock> SQUID_FESTIVAL_BLOCK =
+            BLOCKS.register("squid_festival", () -> new PlaceableFoodBlock(
+                    boxes(new double[]{2.85, 0, 2.85, 13.15, 3.45, 13.15}),
+                    woodFood()));
+
+    // ---------------- PR#59 动力雕刻台 ----------------
+    /** 动力雕刻台：通电后按 ultramarine 凿刻配方自动雕刻木材 */
+    public static final RegistryObject<Block> MECHANICAL_CHISEL_TABLE =
+            BLOCKS.register("mechanical_chisel_table", () -> new com.fst.tothesky.block.MechanicalChiselTableBlock(
+                    Block.box(0, 0, 0, 16, 4, 16),
+                    BlockBehaviour.Properties.of().sound(SoundType.COPPER).strength(2.0f).noOcclusion()));
 
     @Nullable
     public static DrinkGlassBlock drinkBlockFor(ResourceLocation cocktailId) {

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/sweet_bean_curd",
+      "y": 90
+    },
+    "facing=east": {
+      "model": "tothesky:block/sweet_bean_curd",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "tothesky:block/sweet_bean_curd",
+      "y": 270
+    },
+    "facing=west": {
+      "model": "tothesky:block/sweet_bean_curd"
+    }
+  }
+}

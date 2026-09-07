@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/cocktail/drink659"
+    },
+    "facing=east": {
+      "model": "tothesky:block/cocktail/drink659",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/cocktail/drink659",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/cocktail/drink659",
+      "y": 270
+    }
+  }
+}

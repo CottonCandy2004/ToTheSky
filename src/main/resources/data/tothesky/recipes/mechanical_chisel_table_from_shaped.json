@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    "PIP",
+    " B "
+  ],
+  "key": {
+    "P": {
+      "item": "ultramarine:cyan_bricks"
+    },
+    "B": {
+      "item": "create:andesite_casing"
+    },
+    "E": {
+      "item": "create:andesite_alloy"
+    },
+    "I": {
+      "item": "create:cogwheel"
+    }
+  },
+  "result": {
+    "item": "tothesky:mechanical_chisel_table"
+  }
+}

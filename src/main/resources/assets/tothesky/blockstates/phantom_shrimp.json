@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/phantom_shrimp"
+    },
+    "facing=east": {
+      "model": "tothesky:block/phantom_shrimp",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/phantom_shrimp",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/phantom_shrimp",
+      "y": 270
+    }
+  }
+}

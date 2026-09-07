@@ -25,20 +25,34 @@ public class BeanCurdItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, net.minecraft.world.entity.LivingEntity entity) {
         ItemStack result = super.finishUsingItem(stack, level, entity);
         if (!level.isClientSide && entity instanceof Player player) {
-            if (berry && level.random.nextFloat() <= 0.2f) {
-                for (int i = 0; i < 5; i++) {
-                    LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
-                    if (bolt != null) {
-                        bolt.moveTo(player.getX(), player.getY(), player.getZ());
-                        level.addFreshEntity(bolt);
-                    }
+            if (berry) {
+                berryLightning(level, player);
+            }
+            bowlReturn(player);
+        }
+        return result;
+    }
+
+    /** 浆果麻婆豆腐 20% 五雷轰顶 */
+    private static void berryLightning(Level level, Player player) {
+        if (level.random.nextFloat() <= 0.2f) {
+            for (int i = 0; i < 5; i++) {
+                LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
+                if (bolt != null) {
+                    bolt.moveTo(player.getX(), player.getY(), player.getZ());
+                    level.addFreshEntity(bolt);
                 }
             }
+        }
+    }
+
+    /** 返碗回调（供 PlaceableFoodBlockItem 复用；豆腐类吃完返碗） */
+    public static void bowlReturn(net.minecraft.world.entity.LivingEntity entity) {
+        if (entity instanceof Player player) {
             ItemStack bowl = new ItemStack(Items.BOWL);
             if (!player.addItem(bowl)) {
                 player.drop(bowl, false);
             }
         }
-        return result;
     }
 }

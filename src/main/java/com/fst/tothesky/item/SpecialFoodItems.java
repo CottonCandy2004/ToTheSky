@@ -46,6 +46,75 @@ public final class SpecialFoodItems {
         }
     }
 
+    // ---------------- 供 PlaceableFoodBlockItem 复用的原行为（PR#58 方块化不改变食用效果） ----------------
+
+    /** 鱿鱼狂欢节：吃完返碗（原 BowlFoodItem 行为） */
+    public static void squidFestivalEaten(LivingEntity entity) {
+        if (entity instanceof net.minecraft.world.entity.player.Player player) {
+            giveOrDrop(player, new ItemStack(Items.BOWL));
+        }
+    }
+
+    /** 幻翼虾仁：发光 60 秒 + 头顶四发礼花 */
+    public static void phantomShrimpEaten(LivingEntity entity) {
+        if (entity instanceof ServerPlayer player && entity.level() instanceof ServerLevel serverLevel) {
+            player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 1200, 0));
+            int[] colors = {16711680, 16383744, 50943, 65311};
+            for (int i = 0; i < colors.length; i++) {
+                int color = colors[i];
+                DelayedTasks.schedule(serverLevel.getServer(), 20 * (i + 1),
+                        () -> spawnFirework(serverLevel, player, color));
+            }
+        }
+    }
+
+    /** 饮品659：记录死亡回溯点并给予 rewind 效果（可叠加时长） */
+    public static void drink659Eaten(LivingEntity entity) {
+        if (entity instanceof ServerPlayer player) {
+            ModNbt.setRewindPos(player,
+                    GlobalPos.of(entity.level().dimension(), BlockPos.containing(player.position())));
+            MobEffectInstance existing = player.getEffect(ModEffects.REWIND.get());
+            int duration = 6000 + (existing != null ? existing.getDuration() : 0);
+            player.addEffect(new MobEffectInstance(ModEffects.REWIND.get(), duration, 0));
+        }
+    }
+
+    /** 晴天鳕鱼：食用后雨过天晴 */
+    public static void sunshineCodEaten(LivingEntity entity) {
+        if (entity instanceof ServerPlayer player && entity.level() instanceof ServerLevel serverLevel
+                && serverLevel.dimensionType().hasSkyLight()) {
+            serverLevel.setWeatherParameters(0, 12000 + serverLevel.random.nextInt(168000), false, false);
+            broadcast(player, player.getGameProfile().getName() + "食用了晴天鳕鱼，善哉，天公作美！");
+        }
+    }
+
+    /** 头顶礼花（ 幻翼虾仁 与 PlaceableFoodBlockItem 共用） */
+    private static void spawnFirework(ServerLevel level, net.minecraft.world.entity.player.Player player, int color) {
+        if (player.isRemoved()) {
+            return;
+        }
+        ItemStack rocket = new ItemStack(Items.FIREWORK_ROCKET);
+        // 1.20.1 烟花 NBT：Fireworks{Flight,Explosions:[{Type,Colors,FadeColors,Trail,Flicker}]}
+        CompoundTag explosion = new CompoundTag();
+        explosion.putInt("Type", 0); // SMALL_BALL
+        ListTag colors = new ListTag();
+        colors.add(IntTag.valueOf(color));
+        explosion.put("Colors", colors);
+        explosion.put("FadeColors", colors.copy());
+        explosion.putBoolean("Trail", true);
+        explosion.putBoolean("Flicker", false);
+        ListTag explosions = new ListTag();
+        explosions.add(explosion);
+        CompoundTag fireworks = new CompoundTag();
+        fireworks.put("Explosions", explosions);
+        fireworks.putInt("Flight", 1);
+        CompoundTag tag = new CompoundTag();
+        tag.put("Fireworks", fireworks);
+        rocket.setTag(tag);
+        FireworkRocketEntity firework = new FireworkRocketEntity(level, player.getX(), player.getY() + 2, player.getZ(), rocket);
+        level.addFreshEntity(firework);
+    }
+
     /** 焦糖鳕鱼羹：吃掉自己 1 颗心，残血时直接致命。碗装食物，吃完返碗（BowlFoodItem） */
     public static class CaramelCodSoup extends net.minecraft.world.item.BowlFoodItem {
         public CaramelCodSoup(Properties properties) {
@@ -115,35 +184,6 @@ public final class SpecialFoodItems {
             return result;
         }
 
-        private static void spawnFirework(ServerLevel level, net.minecraft.world.entity.player.Player player, int color) {
-            if (player.isRemoved()) {
-                return;
-            }
-            ItemStack rocket = new ItemStack(Items.FIREWORK_ROCKET);
-            // 1.20.1 烟花 NBT：Fireworks{Flight,Explosions:[{Type,Colors,FadeColors,Trail,Flicker}]}
-            CompoundTag explosion = new CompoundTag();
-            explosion.putInt("Type", 0); // SMALL_BALL
-            ListTag colors = new ListTag();
-            colors.add(IntTag.valueOf(color));
-            explosion.put("Colors", colors);
-            explosion.put("FadeColors", colors.copy());
-            explosion.putBoolean("Trail", true);
-            explosion.putBoolean("Flicker", false);
-            ListTag explosions = new ListTag();
-            explosions.add(explosion);
-            CompoundTag fireworks = new CompoundTag();
-            fireworks.putByte("Flight", (byte) 1);
-            fireworks.put("Explosions", explosions);
-            rocket.getOrCreateTag().put("Fireworks", fireworks);
-
-            FireworkRocketEntity firework = new FireworkRocketEntity(level,
-                    player.getX(), player.getY() + 2, player.getZ(), rocket);
-            firework.setDeltaMovement(
-                    (level.random.nextDouble() - 0.5) * 0.1,
-                    (level.random.nextDouble() - 0.5) * 0.1 + 0.6,
-                    (level.random.nextDouble() - 0.5) * 0.1);
-            level.addFreshEntity(firework);
-        }
     }
 
     /** 劲爆鳕鱼堡：入口即爆。在玩家头上方一格生成强度 4.0 的真实爆炸 */

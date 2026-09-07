@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/squid_festival"
+    },
+    "facing=east": {
+      "model": "tothesky:block/squid_festival",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/squid_festival",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/squid_festival",
+      "y": 270
+    }
+  }
+}

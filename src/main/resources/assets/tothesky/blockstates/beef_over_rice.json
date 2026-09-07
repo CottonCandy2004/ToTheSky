@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/beef_over_rice"
+    },
+    "facing=east": {
+      "model": "tothesky:block/beef_over_rice",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/beef_over_rice",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/beef_over_rice",
+      "y": 270
+    }
+  }
+}

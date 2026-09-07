@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/mechanical_chisel_table"
+    },
+    "facing=east": {
+      "model": "tothesky:block/mechanical_chisel_table",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/mechanical_chisel_table",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/mechanical_chisel_table",
+      "y": 270
+    }
+  }
+}

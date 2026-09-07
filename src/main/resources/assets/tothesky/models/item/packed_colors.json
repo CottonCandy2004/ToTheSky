@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "tothesky:item/phantom_shrimp"
+    "layer0": "tothesky:item/packed_colors"
   }
 }

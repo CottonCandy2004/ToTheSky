@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "YYX",
+    " TY",
+    "T  "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:string"
+    },
+    "T": {
+      "item": "minecraft:stick"
+    },
+    "Y": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "item": "kaleidoscope_cookery:diamond_sickle"
+  }
+}

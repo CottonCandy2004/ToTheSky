@@ -59,12 +59,16 @@ public final class ModItems {
                     .effect(() -> new MobEffectInstance(MobEffects.HUNGER, 300, 79), 1.0f)
                     .alwaysEat()
                     .build()), "digestion_pellow", 7));
-    // 鱿鱼狂欢节（碗装，吃完返碗）
+
+    // 鱿鱼狂欢节（可放置方块形态；吃完返碗）
     public static final RegistryObject<Item> SQUID_FESTIVAL = ITEMS.register("squid_festival",
-            () -> new SpecialFoodItems.SquidFestival(new Item.Properties().stacksTo(16).food(new FoodProperties.Builder()
-                    .nutrition(12).saturationMod(1.0f)
-                    .effect(() -> new MobEffectInstance(MobEffects.CONFUSION, 200, 5), 1.0f)
-                    .build())));
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.SQUID_FESTIVAL_BLOCK.get(),
+                    new Item.Properties().stacksTo(16).food(new FoodProperties.Builder()
+                            .nutrition(12).saturationMod(1.0f)
+                            .effect(() -> new MobEffectInstance(MobEffects.CONFUSION, 200, 5), 1.0f)
+                            .build()),
+                    SpecialFoodItems::squidFestivalEaten));
     // 深海鳕鱼堡
     public static final RegistryObject<Item> COD_BURGER = ITEMS.register("cod_burger",
             () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
@@ -99,39 +103,49 @@ public final class ModItems {
                     .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 1300, 1), 1.0f)
                     .effect(() -> new MobEffectInstance(MobEffects.BAD_OMEN, 600, 1), 0.02f)
                     .build()), "sliced_apple_pizza", 3));
-    // 劲爆鳕鱼堡
-    public static final RegistryObject<Item> BOMB_COD_BURGER = ITEMS.register("bomb_cod_burger",
-            () -> new SpecialFoodItems.BombCodBurger(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(14).saturationMod(14.0f)
-                    .build())));
-    // 幻翼虾仁
+    // 幻翼虾仁（可放置方块形态；发光+礼花）
     public static final RegistryObject<Item> PHANTOM_SHRIMP = ITEMS.register("phantom_shrimp",
-            () -> new SpecialFoodItems.PhantomShrimp(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(7).saturationMod(1.5f)
-                    .build())));
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.PHANTOM_SHRIMP_BLOCK.get(),
+                    new Item.Properties().food(new FoodProperties.Builder()
+                            .nutrition(7).saturationMod(1.5f)
+                            .build()),
+                    SpecialFoodItems::phantomShrimpEaten));
+
     // 三角粥
     public static final RegistryObject<Item> DELTA_PORRIDGE = ITEMS.register("delta_porridge",
             () -> new SpecialFoodItems.DeltaPorridge(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(9).saturationMod(0.8f)
                     .build())));
-    // 饮品659
+    // 饮品659（可放置方块形态；记录回溯点+rewind）
+
+    // 饮品659（可放置方块形态；记录回溯点+rewind）
     public static final RegistryObject<Item> DRINK_659 = ITEMS.register("drink659",
-            () -> new SpecialFoodItems.Drink659(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(2).saturationMod(1.5f)
-                    .alwaysEat()
-                    .build())));
-    // 晴天鳕鱼
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.DRINK_659_BLOCK.get(),
+                    new Item.Properties().food(new FoodProperties.Builder()
+                            .nutrition(2).saturationMod(1.5f)
+                            .alwaysEat()
+                            .build()),
+                    SpecialFoodItems::drink659Eaten));
+    // 晴天鳕鱼（可放置方块形态；雨过天晴）
     public static final RegistryObject<Item> SUNSHINE_COD = ITEMS.register("sunshine_cod",
-            () -> new SpecialFoodItems.SunshineCod(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(5).saturationMod(1.5f)
-                    .alwaysEat()
-                    .build())));
-    // 温泉蛋牛肉盖饭
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.SUNSHINE_COD_BLOCK.get(),
+                    new Item.Properties().food(new FoodProperties.Builder()
+                            .nutrition(5).saturationMod(1.5f)
+                            .alwaysEat()
+                            .build()),
+                    SpecialFoodItems::sunshineCodEaten));
+    // 温泉蛋牛肉盖饭（可放置方块形态）
     public static final RegistryObject<Item> BEEF_OVER_RICE = ITEMS.register("beef_over_rice",
-            () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(10).saturationMod(0.6f)
-                    .alwaysEat()
-                    .build()), "beef_over_rice", 0));
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.BEEF_OVER_RICE_BLOCK.get(),
+                    new Item.Properties().food(new FoodProperties.Builder()
+                            .nutrition(10).saturationMod(0.6f)
+                            .alwaysEat()
+                            .build()),
+                    null));
     // 秘封洋葱绿叶肥虫汤
     public static final RegistryObject<Item> BUG_SOUP = ITEMS.register("bug_soup",
             () -> new SpecialFoodItems.BugSoup(new Item.Properties().food(new FoodProperties.Builder()
@@ -223,20 +237,21 @@ public final class ModItems {
     public static final RegistryObject<Item> HE_GRAPHITE = simple("he_graphite", 0);
     public static final RegistryObject<Item> SMALL_CRYSTAL = simple("small_crystal", 0);
     public static final RegistryObject<Item> FADED_SMALL_CRYSTAL = simple("faded_small_crystal", 0);
-    public static final RegistryObject<Item> DIAMOND_CORE = simple("diamond_core", 0);
-    public static final RegistryObject<Item> UNCOMPLETE_DIAMOND = simple("uncomplete_diamond", 0);
-
-    // ---------------- 豆腐链 ----------------
-    public static final RegistryObject<Item> BEAN_CURD = simple("bean_curd", 0);
+    public static final RegistryObject<Item> SWEET_BEAN_CURD = ITEMS.register("sweet_bean_curd",
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.SWEET_BEAN_CURD_BLOCK.get(),
+                    new Item.Properties().food(new FoodProperties.Builder()
+                            .nutrition(8).saturationMod(1f).build()),
+                    com.fst.tothesky.item.BeanCurdItem::bowlReturn));
     public static final RegistryObject<Item> CUT_BEAN_CURD = ITEMS.register("cut_bean_curd",
             () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(3).saturationMod(0f).build())));
-    public static final RegistryObject<Item> SWEET_BEAN_CURD = ITEMS.register("sweet_bean_curd",
-            () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(8).saturationMod(1f).build()), false));
     public static final RegistryObject<Item> SALTY_BEAN_CURD = ITEMS.register("salty_bean_curd",
-            () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(8).saturationMod(1f).build()), false));
+            () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
+                    ModBlocks.SALTY_BEAN_CURD_BLOCK.get(),
+                    new Item.Properties().food(new FoodProperties.Builder()
+                            .nutrition(8).saturationMod(1f).build()),
+                    com.fst.tothesky.item.BeanCurdItem::bowlReturn));
     public static final RegistryObject<Item> SPICY_BEAN_CURD = ITEMS.register("spicy_bean_curd",
             () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(8).saturationMod(1f)
@@ -337,6 +352,18 @@ public final class ModItems {
             ITEMS.register("fireworks_box", () -> new BlockItem(ModBlocks.FIREWORKS_BOX.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> MULTIPLE_FIRECRACKERS_ITEM =
             ITEMS.register("multiple_firecrackers", () -> new BlockItem(ModBlocks.MULTIPLE_FIRECRACKERS.get(), new Item.Properties()));
+
+    // ---------------- PR#59 动力雕刻台 / 包装颜料 ----------------
+    public static final RegistryObject<BlockItem> MECHANICAL_CHISEL_TABLE_ITEM =
+            ITEMS.register("mechanical_chisel_table", () -> new BlockItem(ModBlocks.MECHANICAL_CHISEL_TABLE.get(), new Item.Properties()));
+    /** 包装颜料：潜行右键拆包；NBT StoredColors 记录内含染料 */
+    public static final RegistryObject<Item> PACKED_COLORS = ITEMS.register("packed_colors",
+            () -> new com.fst.tothesky.item.PackedColorsItem(new Item.Properties()));
+
+    // ---------------- PR#56 遗忘之露 ----------------
+    /** 遗忘之露：对驯服生物使用，解除其主人绑定 */
+    public static final RegistryObject<Item> DEW_OF_OBLIVION = ITEMS.register("dew_of_oblivion",
+            () -> new com.fst.tothesky.item.DewOfOblivionItem(new Item.Properties()));
 
     private static RegistryObject<Item> simple(String name, int tooltipLines) {
         return ITEMS.register(name, () -> tooltipLines > 0

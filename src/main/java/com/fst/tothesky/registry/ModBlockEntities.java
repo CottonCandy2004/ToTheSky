@@ -28,6 +28,13 @@ public final class ModBlockEntities {
                     .of(RollerBlockEntity::new, ModBlocks.ROLLER.get())
                     .build(null));
 
+    /** 动力雕刻台（PR#59）：7 栏位 + FE + ultramarine 凿刻配方 */
+    public static final RegistryObject<BlockEntityType<com.fst.tothesky.block.MechanicalChiselTableBlockEntity>> MECHANICAL_CHISEL_TABLE =
+            BLOCK_ENTITIES.register("mechanical_chisel_table", () -> BlockEntityType.Builder
+                    .of(com.fst.tothesky.block.MechanicalChiselTableBlockEntity::new,
+                            ModBlocks.MECHANICAL_CHISEL_TABLE.get())
+                    .build(null));
+
     private ModBlockEntities() {
     }
 }

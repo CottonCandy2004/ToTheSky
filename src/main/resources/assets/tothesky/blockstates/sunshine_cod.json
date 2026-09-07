@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "tothesky:block/sunshine_cod"
+    },
+    "facing=east": {
+      "model": "tothesky:block/sunshine_cod",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "tothesky:block/sunshine_cod",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "tothesky:block/sunshine_cod",
+      "y": 270
+    }
+  }
+}
