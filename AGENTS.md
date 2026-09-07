@@ -1,5 +1,9 @@
 # 仓库指南（Repository Guidelines）
 
+## 工作区隔离
+本目录是 **Forge 1.20.1** 专用工作区：`E:\forgeMod\ToTheSky-1.20.1`，固定分支 `1.20.1`。
+1.21.1（NeoForge）在 `E:\forgeMod\ToTheSky-1.21.1`（分支 `main`）。两者是同一仓库的 git worktree，**禁止在本目录 `git switch`/`checkout` 到 main**——去另一个文件夹工作。`E:\forgeMod\ToTheSky`（无版本号）已废弃。
+
 ## 项目概述
 ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模组，基于 Minecraft 1.21.1 的 NeoForge（NeoForge 21.1.248，Java 21）——「一点点混沌，很多的乐趣」。正在将旧版 KubeJS 脚本迁移为原生 NeoForge 实现，已迁移鸡尾酒、饺子、食物配方、下界合金产线/魔女因子链、售货机/扭蛋机等。许可证：保留所有权利（`TEMPLATE_LICENSE.txt` 中的 MIT 许可证仅覆盖 NeoForged MDK 模板本身，不适用于模组本体）。
 
