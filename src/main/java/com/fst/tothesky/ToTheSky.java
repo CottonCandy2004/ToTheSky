@@ -6,6 +6,7 @@ import com.fst.tothesky.registry.ModEffects;
 import com.fst.tothesky.registry.ModFluids;
 import com.fst.tothesky.registry.ModFluidTypes;
 import com.fst.tothesky.registry.ModItems;
+import com.fst.tothesky.registry.ModKcItems;
 import com.fst.tothesky.registry.ModRecipes;
 import com.fst.tothesky.registry.ModTabs;
 import com.mojang.logging.LogUtils;
@@ -24,6 +25,7 @@ public class ToTheSky {
 
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        ModKcItems.KC_ITEMS.register(modEventBus);
         ModEffects.EFFECTS.register(modEventBus);
         ModTabs.TABS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);

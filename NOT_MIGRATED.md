@@ -111,3 +111,11 @@
 | `startup_scripts/checker.js` | 检查站方块注册 |
 | PR#21 按键绑定 `startup_scripts/client/keyBinding.js` | 客户端按键绑定（服务端无逻辑，客户端功能留 kjs） |
 | `startup_scripts/instruments.js` | 乐器注册 + ModSounds |
+
+## 九、kubejs v4Update 分支（RiaFST 4 KubeJS 脚本库的 mod 并行版）
+
+RiaFST 4 的 kubejs 脚本库已建 `v4Update` 分支（从 main 分出）：
+- **已删除**：全部迁移到 mod 的注册与逻辑（startup 注册、food/item/block events、售货机、镰刀、检查站、乐器、鸡尾酒放置、雕刻台、遗忘之露、扳手拆除、配方段等），assets/kubejs 仅保留 FPS 活动物品与 player_seat 几何。
+- **保留并改指 tothesky: id**：dumpling_making（汤锅段未迁）、wine_server（酿酒逻辑未迁——WineCraftingTableBlock 仅注册方块形态）、loots、tooltips/jeiModify/ponder、party 脚本。
+- **保留 kubejs: 注册**：fps.js 的 event_item_1~5（活动物品）、seat/player_seat（座椅实体）、guitar_sound 之外的 kjs 端音效无。
+- 旧存档迁移依赖 mod 的 MissingMappingsEvent（`event/MissingMappingEvents`）：kubejs:* → tothesky:* 全注册表 remap（方块/物品/流体/效果/音效/方块实体，含披萨阶段方块与 cooked_dumpling_plate→dumpling_plate 特例）。

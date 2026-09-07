@@ -91,15 +91,10 @@ public final class SickleEvents {
             // 水稻特判：kaleidoscope RiceCropBlock 的 LOCATION 属性
             BlockPos targetPos = pos;
             BlockState targetState = state;
-            if (block.getClass().getName().equals("com.github.ysbbbbbb.kaleidoscopecookery.block.crop.RiceCropBlock")) {
-                try {
-                    var locationProp = (net.minecraft.world.level.block.state.properties.IntegerProperty)
-                            block.getClass().getField("LOCATION").get(null);
-                    int location = state.getValue(locationProp);
-                    targetPos = pos.below(location);
-                    targetState = level.getBlockState(targetPos);
-                } catch (Exception ignored) {
-                }
+            if (block instanceof com.github.ysbbbbbb.kaleidoscopecookery.block.crop.RiceCropBlock) {
+                int location = state.getValue(com.github.ysbbbbbb.kaleidoscopecookery.block.crop.RiceCropBlock.LOCATION);
+                targetPos = pos.below(location);
+                targetState = level.getBlockState(targetPos);
             }
             if (crop.isMaxAge(targetState)) {
                 block.playerDestroy(level, player, targetPos, targetState, null, ItemStack.EMPTY);
