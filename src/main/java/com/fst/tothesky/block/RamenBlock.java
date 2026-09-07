@@ -10,6 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -22,18 +24,23 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * 拉面：右键吃一口（4 饥饿 + 4 饱和度），共五口；
  * 吃完最后一口返还一个碗。破坏不掉落。
  */
-public class RamenBlock extends Block {
-    public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, 4);
+public class RamenBlock extends net.minecraft.world.level.block.HorizontalDirectionalBlock {
+    public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, 6);
     private static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 6, 14);
 
     public RamenBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(BITES, 0));
+        registerDefaultState(stateDefinition.any().setValue(BITES, 0).setValue(FACING, Direction.NORTH));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(BITES);
+        builder.add(BITES, FACING);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
     @Override

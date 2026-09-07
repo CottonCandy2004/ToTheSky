@@ -146,6 +146,10 @@ public final class ModItems {
                             .alwaysEat()
                             .build()),
                     null));
+    /** 劲爆鳕鱼堡：入口即爆（kjs foodEaten 爆炸行为由 BombCodBurger 实现） */
+    public static final RegistryObject<Item> BOMB_COD_BURGER = ITEMS.register("bomb_cod_burger",
+            () -> new SpecialFoodItems.BombCodBurger(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(14).saturationMod(14.0f).build())));
     // 秘封洋葱绿叶肥虫汤
     public static final RegistryObject<Item> BUG_SOUP = ITEMS.register("bug_soup",
             () -> new SpecialFoodItems.BugSoup(new Item.Properties().food(new FoodProperties.Builder()
@@ -237,12 +241,16 @@ public final class ModItems {
     public static final RegistryObject<Item> HE_GRAPHITE = simple("he_graphite", 0);
     public static final RegistryObject<Item> SMALL_CRYSTAL = simple("small_crystal", 0);
     public static final RegistryObject<Item> FADED_SMALL_CRYSTAL = simple("faded_small_crystal", 0);
+    /** 钻石核心 / 未完成的钻石：钻石产线中间品（Create 序列装配链） */
+    public static final RegistryObject<Item> DIAMOND_CORE = simple("diamond_core", 0);
+    public static final RegistryObject<Item> UNCOMPLETE_DIAMOND = simple("uncomplete_diamond", 0);
     public static final RegistryObject<Item> SWEET_BEAN_CURD = ITEMS.register("sweet_bean_curd",
             () -> new com.fst.tothesky.item.PlaceableFoodBlockItem(
                     ModBlocks.SWEET_BEAN_CURD_BLOCK.get(),
                     new Item.Properties().food(new FoodProperties.Builder()
                             .nutrition(8).saturationMod(1f).build()),
                     com.fst.tothesky.item.BeanCurdItem::bowlReturn));
+    public static final RegistryObject<Item> BEAN_CURD = simple("bean_curd", 0);
     public static final RegistryObject<Item> CUT_BEAN_CURD = ITEMS.register("cut_bean_curd",
             () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(3).saturationMod(0f).build())));

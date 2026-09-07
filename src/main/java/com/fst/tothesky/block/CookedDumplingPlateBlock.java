@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  * 第 8 次（bite=8）取走后返还碗并移除方块。破坏不掉落。
  */
 public class CookedDumplingPlateBlock extends BaseEntityBlock {
-    public static final IntegerProperty BITE = IntegerProperty.create("bite", 0, 8);
+    public static final IntegerProperty BITE = IntegerProperty.create("bite", 0, 9);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 4, 15);
 

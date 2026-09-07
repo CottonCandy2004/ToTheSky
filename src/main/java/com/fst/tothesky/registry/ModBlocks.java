@@ -47,6 +47,35 @@ public final class ModBlocks {
     public static final RegistryObject<PizzaBlock> APPLE_PIZZA =
             BLOCKS.register("apple_pizza", () -> new PizzaBlock(FOOD_BLOCK_PROPS, ModItems.SLICED_APPLE_PIZZA));
 
+    // ---------------- 旧披萨阶段方块（存档兼容，无物品无掉落） ----------------
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> PIZZA_MARGARITA_4 =
+            BLOCKS.register("pizza_margarita4", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> null, ModItems.SLICED_PIZZA_MARGARITA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> PORK_PIZZA_4 =
+            BLOCKS.register("pork_pizza4", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> null, ModItems.SLICED_PORK_PIZZA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> APPLE_PIZZA_4 =
+            BLOCKS.register("apple_pizza4", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> null, ModItems.SLICED_APPLE_PIZZA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> PIZZA_MARGARITA_3 =
+            BLOCKS.register("pizza_margarita3", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> PIZZA_MARGARITA_4.get(), ModItems.SLICED_PIZZA_MARGARITA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> PORK_PIZZA_3 =
+            BLOCKS.register("pork_pizza3", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> PORK_PIZZA_4.get(), ModItems.SLICED_PORK_PIZZA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> APPLE_PIZZA_3 =
+            BLOCKS.register("apple_pizza3", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> APPLE_PIZZA_4.get(), ModItems.SLICED_APPLE_PIZZA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> PIZZA_MARGARITA_2 =
+            BLOCKS.register("pizza_margarita2", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> PIZZA_MARGARITA_3.get(), ModItems.SLICED_PIZZA_MARGARITA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> PORK_PIZZA_2 =
+            BLOCKS.register("pork_pizza2", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> PORK_PIZZA_3.get(), ModItems.SLICED_PORK_PIZZA));
+    public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> APPLE_PIZZA_2 =
+            BLOCKS.register("apple_pizza2", () -> new com.fst.tothesky.block.PizzaStageBlock(
+                    FOOD_BLOCK_PROPS.noLootTable(), () -> APPLE_PIZZA_3.get(), ModItems.SLICED_APPLE_PIZZA));
+
     // 一盘熟饺子：右键逐个取食，内容物存于方块实体
     public static final RegistryObject<CookedDumplingPlateBlock> COOKED_DUMPLING_PLATE =
             BLOCKS.register("cooked_dumpling_plate", () -> new CookedDumplingPlateBlock(FOOD_BLOCK_PROPS));
