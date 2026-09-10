@@ -16,7 +16,7 @@
                 "item": "minecraft:pumpkin"
             },
             {
-                "tag": "forge:vegetables/pepper"
+                "tag": "forge:vegetables/chilipepper"
             }
         ],
         "craftingtime": 100,

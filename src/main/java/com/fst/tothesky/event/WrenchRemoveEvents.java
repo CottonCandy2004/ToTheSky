@@ -30,9 +30,9 @@ public final class WrenchRemoveEvents {
         }
         ItemStack itemInHand = player.getItemInHand(event.getHand());
         boolean isWrench = itemInHand.is(net.minecraft.tags.ItemTags.create(
-                        new net.minecraft.resources.ResourceLocation("forge", "tools/wrench")))
+                        net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("forge", "tools/wrench")))
                 || net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(itemInHand.getItem())
-                        .equals(new net.minecraft.resources.ResourceLocation("create", "wrench"));
+                        .equals(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "wrench"));
         if (!isWrench || !player.isSecondaryUseActive()) {
             return;
         }
@@ -54,7 +54,7 @@ public final class WrenchRemoveEvents {
 
     private static void playWrenchRemove(Level level, net.minecraft.core.BlockPos pos) {
         var sound = net.minecraftforge.registries.ForgeRegistries.SOUND_EVENTS
-                .getValue(new net.minecraft.resources.ResourceLocation("create", "wrench_remove"));
+                .getValue(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "wrench_remove"));
         if (sound != null) {
             level.playSound(null, pos, sound, net.minecraft.sounds.SoundSource.BLOCKS,
                     1.0f, level.random.nextFloat() * 0.5f + 0.5f);

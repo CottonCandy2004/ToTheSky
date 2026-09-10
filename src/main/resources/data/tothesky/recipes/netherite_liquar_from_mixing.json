@@ -32,8 +32,8 @@
   ],
   "results": [
     {
-      "amount": 1000,
-      "item": "tothesky:netherite_liquar"
+      "fluid": "tothesky:netherite_liquar",
+      "amount": 1000
     }
   ]
 }

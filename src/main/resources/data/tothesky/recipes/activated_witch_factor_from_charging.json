@@ -1,15 +1,13 @@
 {
   "type": "createaddition:charging",
+  "input": {
+    "item": "tothesky:witch_factor",
+    "count": 1
+  },
+  "result": {
+    "item": "tothesky:activated_witch_factor",
+    "count": 1
+  },
   "energy": 50000,
-  "max_charge_rate": 1000,
-  "ingredients": [
-    {
-      "item": "tothesky:witch_factor"
-    }
-  ],
-  "results": [
-    {
-      "item": "tothesky:activated_witch_factor"
-    }
-  ]
+  "maxChargeRate": 1000
 }

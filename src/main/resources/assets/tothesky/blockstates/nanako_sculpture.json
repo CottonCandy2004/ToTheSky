@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "tothesky:block/nanako_sculpture"
-    }
+    "facing=north": { "model": "tothesky:block/nanako_sculpture" },
+    "facing=east": { "model": "tothesky:block/nanako_sculpture", "y": 90 },
+    "facing=south": { "model": "tothesky:block/nanako_sculpture", "y": 180 },
+    "facing=west": { "model": "tothesky:block/nanako_sculpture", "y": 270 }
   }
 }

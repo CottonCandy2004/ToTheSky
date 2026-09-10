@@ -15,7 +15,7 @@ public final class ModSounds {
     /** 吉他弹奏音（assets/tothesky/sounds/guitar_sound.ogg） */
     public static final RegistryObject<SoundEvent> GUITAR_SOUND =
             SOUNDS.register("guitar_sound", () -> SoundEvent.createVariableRangeEvent(
-                    new ResourceLocation(ToTheSky.MODID, "guitar_sound")));
+                    ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, "guitar_sound")));
 
     private ModSounds() {
     }

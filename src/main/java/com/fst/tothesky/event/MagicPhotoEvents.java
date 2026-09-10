@@ -34,7 +34,7 @@ public final class MagicPhotoEvents {
         Player player = event.getEntity();
         ItemStack stack = event.getItemStack();
         if (!stack.is(net.minecraftforge.registries.ForgeRegistries.ITEMS
-                .getValue(new net.minecraft.resources.ResourceLocation("exposure", "photograph")))) {
+                .getValue(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("exposure", "photograph")))) {
             return;
         }
         if (!player.isCrouching()) {

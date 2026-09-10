@@ -61,12 +61,12 @@ public final class ModFluidTypes {
             consumer.accept(new IClientFluidTypeExtensions() {
                 @Override
                 public ResourceLocation getStillTexture() {
-                    return new ResourceLocation(namespace, "block/" + name + "_still");
+                    return ResourceLocation.fromNamespaceAndPath(namespace, "block/" + name + "_still");
                 }
 
                 @Override
                 public ResourceLocation getFlowingTexture() {
-                    return new ResourceLocation(namespace, "block/" + name + "_flow");
+                    return ResourceLocation.fromNamespaceAndPath(namespace, "block/" + name + "_flow");
                 }
             });
         }

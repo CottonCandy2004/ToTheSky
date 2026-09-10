@@ -28,8 +28,8 @@
   ],
   "results": [
     {
-      "amount": 1000,
-      "item": "tothesky:unstable_netherite_liquar"
+      "fluid": "tothesky:unstable_netherite_liquar",
+      "amount": 1000
     }
   ],
   "heatRequirement": "heated"

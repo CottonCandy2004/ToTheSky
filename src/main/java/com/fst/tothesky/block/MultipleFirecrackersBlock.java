@@ -55,7 +55,7 @@ public class MultipleFirecrackersBlock extends SimpleShapeBlock {
     /** 声音与粒子播给玩家的半径（旧脚本 @a[distance=..40]） */
     private static final double SOUND_RADIUS = 40;
     private static final ResourceLocation FIRE_MACHINE_GUN =
-            new ResourceLocation("createbigcannons", "fire_machine_gun");
+            ResourceLocation.fromNamespaceAndPath("createbigcannons", "fire_machine_gun");
     /** 8 个水平邻格偏移（含斜角） */
     private static final int[][] NEIGHBORS = {
             {1, 0, 0}, {-1, 0, 0}, {0, 0, 1}, {0, 0, -1},

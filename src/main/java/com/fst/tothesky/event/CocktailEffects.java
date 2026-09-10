@@ -3,7 +3,7 @@ package com.fst.tothesky.event;
 import com.fst.tothesky.ToTheSky;
 import com.fst.tothesky.effect.HotPotatoEffect;
 import com.fst.tothesky.registry.ModEffects;
-import io.github.tt432.kitchenkarrot.item.CocktailItem;
+import com.fst.tothesky.cocktail.CocktailHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -41,7 +41,7 @@ import java.util.Random;
  * - fstwines:dangerous_party  → 击鼓传花（效果自驱动，见 HotPotatoEffect）
  * - fstwines:shoal_in_dream   → 脚下放一张蓝色床（四方向找空位），否则给一张
  *
- * 1.20.1 适配：鸡尾酒 id 直接用 CocktailItem.getCocktail（NBT）；
+ * 1.20.1 适配：鸡尾酒 id 用 CocktailHelper 读 NBT，不引用 kk 类。
  * buff 本体在配方 JSON 的 content.effect 里（1.21 是 CocktailProperty 注册表项）。
  */
 @Mod.EventBusSubscriber(modid = ToTheSky.MODID)
@@ -57,10 +57,7 @@ public final class CocktailEffects {
             return;
         }
         ItemStack stack = event.getItem();
-        if (!(stack.getItem() instanceof CocktailItem)) {
-            return;
-        }
-        ResourceLocation id = CocktailItem.getCocktail(stack);
+        ResourceLocation id = CocktailHelper.cocktailId(stack);
         if (id == null) {
             return;
         }
@@ -98,7 +95,7 @@ public final class CocktailEffects {
             item("crabbersdelight", "pearl"));
 
     private static ItemStack item(String ns, String path) {
-        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(ns, path));
+        Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(ns, path));
         return new ItemStack(item == null ? Items.AIR : item, 4);
     }
 

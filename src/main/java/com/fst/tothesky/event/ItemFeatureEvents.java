@@ -47,11 +47,11 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = ToTheSky.MODID)
 public final class ItemFeatureEvents {
     private static final TagKey<Block> FORGE_CHESTS =
-            TagKey.create(Registries.BLOCK, new ResourceLocation("forge", "chests"));
-    private static final ResourceLocation CREATE_DEPLOYER = new ResourceLocation("create", "deployer");
-    private static final ResourceLocation CREATE_SLIME_ADDED = new ResourceLocation("create", "slime_added");
-    private static final ResourceLocation ULTRAMARINE_COIN = new ResourceLocation("ultramarine", "copper_cash_coin");
-    private static final ResourceLocation ULTRAMARINE_MERCHANT = new ResourceLocation("ultramarine", "travelling_merchant");
+            TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("forge", "chests"));
+    private static final ResourceLocation CREATE_DEPLOYER = ResourceLocation.fromNamespaceAndPath("create", "deployer");
+    private static final ResourceLocation CREATE_SLIME_ADDED = ResourceLocation.fromNamespaceAndPath("create", "slime_added");
+    private static final ResourceLocation ULTRAMARINE_COIN = ResourceLocation.fromNamespaceAndPath("ultramarine", "copper_cash_coin");
+    private static final ResourceLocation ULTRAMARINE_MERCHANT = ResourceLocation.fromNamespaceAndPath("ultramarine", "travelling_merchant");
 
     /** 脚本中的公共 Owner（Create 机械手所有者，NBT [I;...] 四段） */
     private static final int[] SHARED_OWNER = {2112482347, -724487850, -1824816047, -774830698};

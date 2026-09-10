@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "chinjufumod:item_crop_chilipepper",
+      "required": false
+    }
+  ]
+}

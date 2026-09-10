@@ -44,7 +44,7 @@ public final class ModKcItems {
         // 注册到排序表可以让耐久条/挖掘等级与其他 Tier 正确比较，属纯增强。
         ForgeTier tier = new ForgeTier(level, uses, speed, attack, enchantment,
                 BlockTags.NEEDS_STONE_TOOL, () -> Ingredient.of(Items.DIAMOND));
-        TierSortingRegistry.registerTier(tier, new ResourceLocation("tothesky", name),
+        TierSortingRegistry.registerTier(tier, ResourceLocation.fromNamespaceAndPath("tothesky", name),
                 java.util.List.of(net.minecraft.world.item.Tiers.DIAMOND), java.util.List.of());
         return tier;
     }

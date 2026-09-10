@@ -35,6 +35,10 @@ public final class SickleEvents {
 
     @SubscribeEvent
     public static void onSickleUse(PlayerInteractEvent.RightClickItem event) {
+        // kc 缺失时不存在镰刀物品；同时避免解析 RiceCropBlock（kc 类）
+        if (!net.minecraftforge.fml.ModList.get().isLoaded("kaleidoscope_cookery")) {
+            return;
+        }
         Player player = event.getEntity();
         ItemStack item = event.getItemStack();
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(item.getItem());
@@ -82,7 +86,7 @@ public final class SickleEvents {
         }
         // 收割黑名单
         if (state.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,
-                new ResourceLocation("kaleidoscope_cookery", "sickle_harvest_blacklist")))) {
+                ResourceLocation.fromNamespaceAndPath("kaleidoscope_cookery", "sickle_harvest_blacklist")))) {
             return false;
         }
         Block block = state.getBlock();

@@ -7,13 +7,13 @@
   ],
   "key": {
     "E": {
-      "item": "mynethersdelight:bullet_pepper"
+      "tag": "forge:crops/chilipepper"
     },
     "B": {
       "tag": "minecraft:leaves"
     },
     "O": {
-      "tag": "forge:foods/onion"
+      "tag": "forge:crops/onion"
     },
     "R": {
       "item": "minecraft:beetroot_soup"

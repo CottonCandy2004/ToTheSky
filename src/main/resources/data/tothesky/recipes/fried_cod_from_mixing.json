@@ -2,10 +2,11 @@
   "type": "create:mixing",
   "ingredients": [
     {
-      "item": "kaleidoscope_cookery:oil"
+      "fluid": "tothesky:bean_oil",
+      "amount": 250
     },
     {
-      "tag": "forge:foods/raw_cod"
+      "tag": "forge:raw_fishes/cod"
     }
   ],
   "results": [
