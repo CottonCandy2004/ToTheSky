@@ -1,0 +1,14 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:wheat_seeds"
+    }
+  ],
+  "results": [
+    {
+      "item": "kaleidoscope_cookery:oil",
+      "chance": 0.125
+    }
+  ]
+}

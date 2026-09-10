@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  D",
+    "BI ",
+    "SB "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stripped_oak_wood"
+    },
+    "I": {
+      "item": "createaddition:iron_wire"
+    },
+    "B": {
+      "item": "create:brass_nugget"
+    },
+    "D": {
+      "item": "minecraft:dark_oak_planks"
+    }
+  },
+  "result": {
+    "item": "tothesky:guitar"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "chinjufumod:item_seeds_soy"
+    }
+  ],
+  "results": [
+    {
+      "item": "kaleidoscope_cookery:oil",
+      "chance": 0.25
+    }
+  ]
+}

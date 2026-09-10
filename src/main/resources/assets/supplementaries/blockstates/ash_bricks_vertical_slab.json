@@ -1,0 +1,9 @@
+
+{
+  "variants": {
+    "facing=north": { "model": "supplementaries:block/ash_bricks_vertical_slab", "y": 0, "uvlock": true },
+    "facing=south": { "model": "supplementaries:block/ash_bricks_vertical_slab", "y": 180, "uvlock": true },
+    "facing=east": { "model": "supplementaries:block/ash_bricks_vertical_slab", "y": 90, "uvlock": true },
+    "facing=west": { "model": "supplementaries:block/ash_bricks_vertical_slab", "y": 270, "uvlock": true }
+  }
+}

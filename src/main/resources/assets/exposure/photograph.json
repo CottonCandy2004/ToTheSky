@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "exposure:item/photograph"
+  },
+  "overrides": [
+    {"predicates": { "custom_model_data": 1 }, "model": "exposure:item/magic_photograph"}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tothesky:block/small_tea_bush"
+    },
+    "age=1": {
+      "model": "tothesky:block/small_tea_bush"
+    }
+  }
+}

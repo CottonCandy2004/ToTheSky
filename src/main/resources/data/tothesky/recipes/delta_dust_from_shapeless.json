@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "tothesky:delta_coin_chip"
+    }
+  ],
+  "result": {
+    "item": "tothesky:delta_dust"
+  }
+}

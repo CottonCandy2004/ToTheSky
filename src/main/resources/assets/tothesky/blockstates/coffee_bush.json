@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tothesky:block/coffee_bush_age1"
+    },
+    "age=1": {
+      "model": "tothesky:block/coffee_bush_age2"
+    },
+    "age=2": {
+      "model": "tothesky:block/coffee_bush_age3"
+    },
+    "age=3": {
+      "model": "tothesky:block/coffee_bush_age4"
+    }
+  }
+}

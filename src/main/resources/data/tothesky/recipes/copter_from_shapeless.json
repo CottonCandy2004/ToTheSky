@@ -1,0 +1,28 @@
+{
+  "forge:conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "immersive_aircraft"
+    },
+    {
+      "type": "forge:mod_loaded",
+      "modid": "create_things_and_misc"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:stick"
+    },
+    {
+      "item": "immersive_aircraft:propeller"
+    },
+    {
+      "item": "create_things_and_misc:vibration_mechanism"
+    }
+  ],
+  "result": {
+    "item": "tothesky:copter",
+    "nbt": "{Damage:0}"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "tothesky:delta_coin"
+    }
+  ],
+  "result": {
+    "count": 10,
+    "item": "tothesky:delta_coin_chip"
+  }
+}

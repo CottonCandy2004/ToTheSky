@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  E",
+    "BIB",
+    "BDB"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:dark_oak_planks"
+    },
+    "E": {
+      "item": "create:electron_tube"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "create:brass_ingot"
+    }
+  },
+  "result": {
+    "item": "tothesky:piano"
+  }
+}

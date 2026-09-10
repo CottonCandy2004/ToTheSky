@@ -1,0 +1,17 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    {
+      "tag": "forge:foods/dough"
+    }
+  ],
+  "tool": {
+    "tag": "forge:tools/shovels"
+  },
+  "result": [
+    {
+      "item": "tothesky:pizza_base",
+      "count": 1
+    }
+  ]
+}

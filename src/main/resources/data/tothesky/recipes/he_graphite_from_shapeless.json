@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "tothesky:he_graphite_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "tothesky:he_graphite"
+  }
+}

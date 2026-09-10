@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "tothesky:block/tea_bush_green"
+    },
+    "age=1": {
+      "model": "tothesky:block/tea_bush_yellow"
+    },
+    "age=2": {
+      "model": "tothesky:block/tea_bush_brown"
+    },
+    "age=3": {
+      "model": "tothesky:block/tea_bush_black"
+    }
+  }
+}
