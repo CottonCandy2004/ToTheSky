@@ -227,5 +227,8 @@
   "block.tothesky.pork_pizza4": "猪肉碎披萨",
   "block.tothesky.apple_pizza2": "苹果披萨",
   "block.tothesky.apple_pizza3": "苹果披萨",
-  "block.tothesky.apple_pizza4": "苹果披萨"
+  "block.tothesky.apple_pizza4": "苹果披萨",
+  "block.tothesky.calendar": "日历",
+  "gui.tothesky.calendar.prev_month": "上个月",
+  "gui.tothesky.calendar.next_month": "下个月"
 }

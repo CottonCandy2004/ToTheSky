@@ -1,5 +1,6 @@
 package com.fst.tothesky;
 
+import com.fst.tothesky.network.ModNetwork;
 import com.fst.tothesky.registry.ModBlockEntities;
 import com.fst.tothesky.registry.ModBlocks;
 import com.fst.tothesky.registry.ModEffects;
@@ -38,5 +39,7 @@ public class ToTheSky {
         ModFluids.FLUIDS.register(modEventBus);
         ModFluids.BUCKETS.register(modEventBus);
         com.fst.tothesky.registry.ModSounds.SOUNDS.register(modEventBus);
+
+        ModNetwork.register();
     }
 }

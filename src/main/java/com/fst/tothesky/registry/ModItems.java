@@ -339,6 +339,11 @@ public final class ModItems {
     public static final RegistryObject<BlockItem> MULTIPLE_FIRECRACKERS_ITEM =
             ITEMS.register("multiple_firecrackers", () -> new BlockItem(ModBlocks.MULTIPLE_FIRECRACKERS.get(), new Item.Properties()));
 
+    // ---------------- 日历 ----------------
+    /** 日历方块物品 */
+    public static final RegistryObject<BlockItem> CALENDAR_ITEM =
+            ITEMS.register("calendar", () -> new BlockItem(ModBlocks.CALENDAR.get(), new Item.Properties()));
+
     // ---------------- PR#59 动力雕刻台 / 包装颜料 ----------------
     public static final RegistryObject<BlockItem> MECHANICAL_CHISEL_TABLE_ITEM =
             ITEMS.register("mechanical_chisel_table", () -> new BlockItem(ModBlocks.MECHANICAL_CHISEL_TABLE.get(), new Item.Properties()));

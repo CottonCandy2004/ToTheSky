@@ -227,5 +227,8 @@
   "block.tothesky.pork_pizza4": "Pork Pizza",
   "block.tothesky.apple_pizza2": "Apple Pizza",
   "block.tothesky.apple_pizza3": "Apple Pizza",
-  "block.tothesky.apple_pizza4": "Apple Pizza"
+  "block.tothesky.apple_pizza4": "Apple Pizza",
+  "block.tothesky.calendar": "Calendar",
+  "gui.tothesky.calendar.prev_month": "Previous Month",
+  "gui.tothesky.calendar.next_month": "Next Month"
 }
