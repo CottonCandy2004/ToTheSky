@@ -39,7 +39,7 @@ public class PackedColorsItem extends Item {
             ListTag list = nbt.getList(TAG_COLORS, Tag.TAG_STRING);
             for (int i = 0; i < list.size(); i++) {
                 var item = net.minecraftforge.registries.ForgeRegistries.ITEMS
-                        .getValue(new net.minecraft.resources.ResourceLocation(list.getString(i)));
+                        .getValue(net.minecraft.resources.ResourceLocation.parse(list.getString(i)));
                 if (item != null) {
                     colors.add(new ItemStack(item, stack.getCount()));
                 }
@@ -71,7 +71,7 @@ public class PackedColorsItem extends Item {
             ListTag list = nbt.getList(TAG_COLORS, Tag.TAG_STRING);
             for (int i = 0; i < list.size(); i++) {
                 var item = net.minecraftforge.registries.ForgeRegistries.ITEMS
-                        .getValue(new net.minecraft.resources.ResourceLocation(list.getString(i)));
+                        .getValue(net.minecraft.resources.ResourceLocation.parse(list.getString(i)));
                 if (item != null) {
                     tooltip.add(Component.literal("- " + item.getName(stack).getString())
                             .withStyle(net.minecraft.ChatFormatting.WHITE));

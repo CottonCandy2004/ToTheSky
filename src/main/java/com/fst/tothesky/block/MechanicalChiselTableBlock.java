@@ -33,7 +33,7 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nullable;
 
 /**
- * 动力雕刻台（PR#59）：7 栏位（0 木材 / 1 模板 / 2-5 染料 / 6 输出），
+ * 动力雕刻台（PR#59）：4 栏位（0 材料 / 1 模板 / 2 打包染料 / 3 输出），
  * 接收 FE（上限 10000）后每 tick 最多执行 10 次 ultramarine 凿刻配方。
  * 移植自 kubejs/startup_scripts/block/MechanicalChiselTableBlock.js。
  */
@@ -42,9 +42,8 @@ public class MechanicalChiselTableBlock extends HorizontalDirectionalBlock imple
 
     public static final int SLOT_MATERIAL = 0;
     public static final int SLOT_TEMPLATE = 1;
-    public static final int SLOT_COLOR_START = 2;
-    public static final int SLOT_COLOR_END = 5;
-    public static final int SLOT_RESULT = 6;
+    public static final int SLOT_PACKED_COLORS = 2;
+    public static final int SLOT_RESULT = 3;
     public static final int MAX_ENERGY = 10000;
     public static final int ENERGY_COST = 100;
     public static final int MAX_OPERATIONS_PER_TICK = 10;

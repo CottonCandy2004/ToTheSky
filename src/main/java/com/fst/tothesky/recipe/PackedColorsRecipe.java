@@ -21,9 +21,7 @@ import net.minecraft.world.level.Level;
  * kjs 的 modifyResult 回调在此实现为 matches+assemble。
  */
 public class PackedColorsRecipe extends CustomRecipe {
-    private static final ResourceLocation XUAN_PAPER = new ResourceLocation("ultramarine", "xuan_paper");
-    private static final net.minecraft.tags.TagKey<net.minecraft.world.item.Item> CHISEL_DYE =
-            net.minecraft.tags.ItemTags.create(new ResourceLocation("ultramarine", "chisel_dye"));
+    private static final ResourceLocation XUAN_PAPER = ResourceLocation.fromNamespaceAndPath("ultramarine", "xuan_paper");
 
     public PackedColorsRecipe(ResourceLocation id, CraftingBookCategory category) {
         super(id, category);
@@ -38,15 +36,26 @@ public class PackedColorsRecipe extends CustomRecipe {
             if (stack.isEmpty()) {
                 continue;
             }
-            if (stack.is(net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(XUAN_PAPER))) {
+            if (isXuanPaper(stack)) {
                 papers++;
-            } else if (stack.is(CHISEL_DYE)) {
+            } else if (isDye(stack)) {
                 dyes++;
             } else {
                 return false;
             }
         }
         return papers == 1 && dyes >= 1 && dyes <= 4;
+    }
+
+    /** 宣纸判定（ultramarine:xuan_paper；软依赖缺失时 paper 为 null 直接不匹配） */
+    private static boolean isXuanPaper(ItemStack stack) {
+        var paper = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(XUAN_PAPER);
+        return paper != null && stack.is(paper);
+    }
+
+    /** 染料判定：任意原版染料或群青颜料粉（见 {@link com.fst.tothesky.util.DyeHelper}） */
+    private static boolean isDye(ItemStack stack) {
+        return com.fst.tothesky.util.DyeHelper.isDye(stack);
     }
 
     @Override
@@ -75,10 +84,7 @@ public class PackedColorsRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER.get();
+        return com.fst.tothesky.registry.ModRecipes.PACKED_COLORS.get();
     }
 
-    public static final net.minecraftforge.registries.RegistryObject<RecipeSerializer<PackedColorsRecipe>> SERIALIZER =
-            com.fst.tothesky.registry.ModRecipes.RECIPE_SERIALIZERS
-                    .register("packed_colors", () -> new SimpleCraftingRecipeSerializer<>(PackedColorsRecipe::new));
 }
