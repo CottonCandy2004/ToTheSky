@@ -1,7 +1,6 @@
 package com.fst.tothesky.registry;
 
 import com.fst.tothesky.ToTheSky;
-import com.fst.tothesky.block.CookedDumplingPlateBlock;
 import com.fst.tothesky.block.PlaceableFoodBlock;
 import com.fst.tothesky.block.DrinkGlassBlock;
 import com.fst.tothesky.block.EmptyGlassBlock;
@@ -75,10 +74,6 @@ public final class ModBlocks {
     public static final RegistryObject<com.fst.tothesky.block.PizzaStageBlock> APPLE_PIZZA_2 =
             BLOCKS.register("apple_pizza2", () -> new com.fst.tothesky.block.PizzaStageBlock(
                     FOOD_BLOCK_PROPS.noLootTable(), () -> APPLE_PIZZA_3.get(), ModItems.SLICED_APPLE_PIZZA));
-
-    // 一盘熟饺子：右键逐个取食，内容物存于方块实体
-    public static final RegistryObject<CookedDumplingPlateBlock> COOKED_DUMPLING_PLATE =
-            BLOCKS.register("cooked_dumpling_plate", () -> new CookedDumplingPlateBlock(FOOD_BLOCK_PROPS));
 
     // 空杯
     public static final RegistryObject<EmptyGlassBlock> MARTINI_GLASS =
@@ -297,7 +292,7 @@ public final class ModBlocks {
     }
 
     private static ResourceLocation kk(String path) {
-        return new ResourceLocation("kitchenkarrot", path);
+        return ResourceLocation.fromNamespaceAndPath("kitchenkarrot", "cocktails/" + path);
     }
 
     private ModBlocks() {

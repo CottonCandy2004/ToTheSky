@@ -1,9 +1,6 @@
 package com.fst.tothesky.registry;
 
 import com.fst.tothesky.ToTheSky;
-import com.fst.tothesky.item.CookedDumplingItem;
-import com.fst.tothesky.item.CookedDumplingPlateItem;
-import com.fst.tothesky.item.DumplingWrapperItem;
 import com.fst.tothesky.item.SpecialFoodItems;
 import com.fst.tothesky.item.TooltipBlockItem;
 import com.fst.tothesky.item.TooltipItem;
@@ -25,9 +22,11 @@ public final class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, ToTheSky.MODID);
 
-    /** 农夫乐事的滋养效果 */
-    private static final net.minecraft.world.effect.MobEffect NOURISHMENT_EFFECT =
-            vectorwing.farmersdelight.common.registry.ModEffects.NOURISHMENT.get();
+    /** 农夫乐事的滋养效果；FD 未安装时为 null，食物效果被跳过 */
+    private static net.minecraft.world.effect.MobEffect nourishment() {
+        return ForgeRegistries.MOB_EFFECTS.getValue(
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("farmersdelight", "nourishment"));
+    }
 
     // ---------------- 方块物品 ----------------
     public static final RegistryObject<TooltipBlockItem> RAMEN = ITEMS.register("ramen",
@@ -88,19 +87,19 @@ public final class ModItems {
     public static final RegistryObject<Item> SLICED_PIZZA_MARGARITA = ITEMS.register("sliced_pizza_margarita",
             () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(4).saturationMod(1.0f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 1200, 1), 1.0f)
+                    .effect(() -> new MobEffectInstance(nourishment(), 1200, 1), 1.0f)
                     .build()), "sliced_pizza_margarita", 3));
     // 切片猪肉碎披萨
     public static final RegistryObject<Item> SLICED_PORK_PIZZA = ITEMS.register("sliced_pork_pizza",
             () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(5).saturationMod(1.2f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 1800, 1), 1.0f)
+                    .effect(() -> new MobEffectInstance(nourishment(), 1800, 1), 1.0f)
                     .build()), "sliced_pork_pizza", 3));
     // 切片苹果披萨
     public static final RegistryObject<Item> SLICED_APPLE_PIZZA = ITEMS.register("sliced_apple_pizza",
             () -> new TooltipItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(5).saturationMod(1.0f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 1300, 1), 1.0f)
+                    .effect(() -> new MobEffectInstance(nourishment(), 1300, 1), 1.0f)
                     .effect(() -> new MobEffectInstance(MobEffects.BAD_OMEN, 600, 1), 0.02f)
                     .build()), "sliced_apple_pizza", 3));
     // 幻翼虾仁（可放置方块形态；发光+礼花）
@@ -158,18 +157,6 @@ public final class ModItems {
                     .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 0), 1.0f)
                     .alwaysEat()
                     .build())));
-    // 饺子
-    public static final RegistryObject<Item> COOKED_DUMPLING = ITEMS.register("cooked_dumpling",
-            () -> new CookedDumplingItem(new Item.Properties().food(new FoodProperties.Builder()
-                    .nutrition(4).saturationMod(1.0f)
-                    .fast()
-                    .build())));
-    // 一盘熟饺子（方块物品）
-    public static final RegistryObject<CookedDumplingPlateItem> COOKED_DUMPLING_PLATE_ITEM =
-            ITEMS.register("cooked_dumpling_plate",
-                    () -> new CookedDumplingPlateItem(ModBlocks.COOKED_DUMPLING_PLATE.get(),
-                            new Item.Properties().stacksTo(1)));
-
     // ---------------- 食材 ----------------
     public static final RegistryObject<Item> CHEESE = simple("cheese", 2);
     public static final RegistryObject<Item> PIZZA_BASE = simple("pizza_base", 3);
@@ -177,12 +164,6 @@ public final class ModItems {
     public static final RegistryObject<Item> RAW_PORK_PIZZA = simple("raw_pork_pizza", 2);
     public static final RegistryObject<Item> RAW_APPLE_PIZZA = simple("raw_apple_pizza", 2);
     public static final RegistryObject<Item> RAW_SUNSHINE_COD = simple("raw_sunshine_cod", 0);
-    public static final RegistryObject<Item> DUMPLING_WRAPPER = ITEMS.register("dumpling_wrapper",
-            () -> new DumplingWrapperItem(new Item.Properties()));
-    public static final RegistryObject<Item> RAW_DUMPLING = simple("raw_dumpling", 1);
-    public static final RegistryObject<Item> RAW_DUMPLING_PLATE = ITEMS.register("raw_dumpling_plate",
-            () -> new TooltipItem(new Item.Properties().stacksTo(1), "raw_dumpling_plate", 1));
-
     // ---------------- 下界合金产线材料 ----------------
     /** 血瓶：下界溶液原料（移植自 kjs，maxStackSize 1，用完返还玻璃瓶） */
     public static final RegistryObject<Item> BLOOD_BOTTLE = ITEMS.register("blood_bottle",
@@ -215,9 +196,6 @@ public final class ModItems {
             ITEMS.register("roller", () -> new BlockItem(ModBlocks.ROLLER.get(), new Item.Properties()));
 
     // ---------------- 医疗/工具 ----------------
-    /** 采血套装：无功能占位（plus 版才有抽血逻辑） */
-    public static final RegistryObject<Item> HEMOSTIX = ITEMS.register("hemostix",
-            () -> new Item(new Item.Properties().stacksTo(16)));
     /** 采血套装plus：右键抽血换血瓶（耐久 13） */
     public static final RegistryObject<Item> HEMOSTIX_PLUS = ITEMS.register("hemostix_plus",
             () -> new com.fst.tothesky.item.HemostixPlusItem(new Item.Properties().durability(13)));
@@ -263,11 +241,11 @@ public final class ModItems {
     public static final RegistryObject<Item> SPICY_BEAN_CURD = ITEMS.register("spicy_bean_curd",
             () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(8).saturationMod(1f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 600, 0), 1.0f).build()), false));
+                    .effect(() -> new MobEffectInstance(nourishment(), 600, 0), 1.0f).build()), false));
     public static final RegistryObject<Item> BERRY_BEAN_CURD = ITEMS.register("berry_bean_curd",
             () -> new com.fst.tothesky.item.BeanCurdItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(10).saturationMod(1f)
-                    .effect(() -> new MobEffectInstance(NOURISHMENT_EFFECT, 600, 0), 1.0f).build()), true));
+                    .effect(() -> new MobEffectInstance(nourishment(), 600, 0), 1.0f).build()), true));
     /** 酱油瓶 */
     public static final RegistryObject<Item> SOY_SAUSE_BOTTLE = ITEMS.register("soy_sause_bottle",
             () -> new Item(new Item.Properties().stacksTo(16)));

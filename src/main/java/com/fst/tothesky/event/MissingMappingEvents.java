@@ -36,8 +36,8 @@ public final class MissingMappingEvents {
             "golden_cooking_pot", "golden_skillet", "silver_cooking_pot", "copper_cooking_pot",
             // 活动方块 / 石墨块
             "event_block_1", "event_block_2", "event_block_3", "he_graphite_block",
-            // 售货机 / 压面机 / 检查站 / 饺子盘 / 拉面
-            "seller", "roller", "checker", "cooked_dumpling_plate", "ramen",
+            // 售货机 / 压面机 / 检查站 / 拉面
+            "seller", "roller", "checker", "ramen",
             // 春节方块
             "fireworks_box", "multiple_fireworks", "multiple_firecrackers", "firing_multiple_fireworks",
             // 鸡尾酒玻璃杯方块（drink_block_registry）
@@ -63,11 +63,10 @@ public final class MissingMappingEvents {
             // 食物
             "bug_soup", "caramel_cod_soup", "pasta_with_chocolate", "digestion_pellow",
             "cod_burger", "fried_cod", "cut_cheese", "delta_porridge",
-            "cooked_dumpling", "dumpling_wrapper", "raw_dumpling_plate",
             // 豆制品链
             "bean_curd", "cut_bean_curd", "spicy_bean_curd", "berry_bean_curd", "soy_sause_bottle", "soy_bean_oil",
             // 采血链
-            "blood_bottle", "hemostix", "hemostix_plus",
+            "blood_bottle", "hemostix_plus",
             // 事件/杂项物品
             "deployer_lubricant", "harvest_the_night", "copter", "he_graphite_block",
             // 鳕鱼堡 / 钻石产线
@@ -104,11 +103,10 @@ public final class MissingMappingEvents {
             "guitar_sound"
     );
 
-    /** kjs 方块实体注册名 → mod 注册名（kjs 的 cooked_dumpling_plate 在 mod 侧叫 dumpling_plate） */
+    /** kjs 方块实体注册名 → mod 注册名 */
     private static final Map<String, String> MIGRATED_BLOCK_ENTITIES = Map.of(
             "seller", "seller",
             "roller", "roller",
-            "cooked_dumpling_plate", "dumpling_plate",
             "mechanical_chisel_table", "mechanical_chisel_table"
     );
 
@@ -132,7 +130,7 @@ public final class MissingMappingEvents {
         for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(Registries.BLOCK, KJS)) {
             String path = mapping.getKey().getPath();
             if (MIGRATED_BLOCKS.contains(path)) {
-                Block target = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(ToTheSky.MODID, path));
+                Block target = ForgeRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, path));
                 if (target != null) {
                     mapping.remap(target);
                     ToTheSky.LOGGER.info("方块映射 kubejs:{} -> tothesky:{}", path, path);
@@ -148,7 +146,7 @@ public final class MissingMappingEvents {
                     || MIGRATED_ITEMS.contains(path)
                     || MIGRATED_BUCKETS.contains(path);
             if (migrated) {
-                Item target = ForgeRegistries.ITEMS.getValue(new ResourceLocation(ToTheSky.MODID, path));
+                Item target = ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, path));
                 if (target != null) {
                     mapping.remap(target);
                     ToTheSky.LOGGER.info("物品映射 kubejs:{} -> tothesky:{}", path, path);
@@ -163,7 +161,7 @@ public final class MissingMappingEvents {
             String path = mapping.getKey().getPath();
             if (MIGRATED_FLUIDS.contains(path)) {
                 net.minecraft.world.level.material.Fluid target = ForgeRegistries.FLUIDS
-                        .getValue(new ResourceLocation(ToTheSky.MODID, path));
+                        .getValue(ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, path));
                 if (target != null) {
                     mapping.remap(target);
                     ToTheSky.LOGGER.info("流体映射 kubejs:{} -> tothesky:{}", path, path);
@@ -179,7 +177,7 @@ public final class MissingMappingEvents {
             String targetPath = MIGRATED_BLOCK_ENTITIES.get(path);
             if (targetPath != null) {
                 net.minecraft.world.level.block.entity.BlockEntityType<?> target = ForgeRegistries.BLOCK_ENTITY_TYPES
-                        .getValue(new ResourceLocation(ToTheSky.MODID, targetPath));
+                        .getValue(ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, targetPath));
                 if (target != null) {
                     mapping.remap(target);
                     ToTheSky.LOGGER.info("方块实体映射 kubejs:{} -> tothesky:{}", path, targetPath);
@@ -194,7 +192,7 @@ public final class MissingMappingEvents {
             String path = mapping.getKey().getPath();
             if (MIGRATED_SOUNDS.contains(path)) {
                 net.minecraft.sounds.SoundEvent target = ForgeRegistries.SOUND_EVENTS
-                        .getValue(new ResourceLocation(ToTheSky.MODID, path));
+                        .getValue(ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, path));
                 if (target != null) {
                     mapping.remap(target);
                     ToTheSky.LOGGER.info("音效映射 kubejs:{} -> tothesky:{}", path, path);
@@ -209,7 +207,7 @@ public final class MissingMappingEvents {
             String path = mapping.getKey().getPath();
             if (MIGRATED_EFFECTS.contains(path)) {
                 net.minecraft.world.effect.MobEffect target = ForgeRegistries.MOB_EFFECTS
-                        .getValue(new ResourceLocation(ToTheSky.MODID, path));
+                        .getValue(ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, path));
                 if (target != null) {
                     mapping.remap(target);
                     ToTheSky.LOGGER.info("效果映射 kubejs:{} -> tothesky:{}", path, path);
