@@ -65,13 +65,14 @@ public final class CalendarScreen extends Screen {
     protected void init() {
         int left = (this.width - CalendarConstants.IMAGE_WIDTH) / 2;
         int top = (this.height - CalendarConstants.IMAGE_HEIGHT) / 2;
+        // 翻页按钮整体下移 20px；左侧原「上个月」位置由标题文本替代
         addRenderableWidget(Button.builder(
                         Component.translatable("gui.tothesky.calendar.prev_month"), b -> shiftMonth(-1))
-                .bounds(left + 16, top + 16, BUTTON_W, BUTTON_H)
+                .bounds(left + 16, top + 16 + 20, BUTTON_W, BUTTON_H)
                 .build());
         addRenderableWidget(Button.builder(
                         Component.translatable("gui.tothesky.calendar.next_month"), b -> shiftMonth(1))
-                .bounds(left + CalendarConstants.IMAGE_WIDTH - 16 - BUTTON_W, top + 16, BUTTON_W, BUTTON_H)
+                .bounds(left + CalendarConstants.IMAGE_WIDTH - 16 - BUTTON_W, top + 16 + 20, BUTTON_W, BUTTON_H)
                 .build());
     }
 
@@ -95,6 +96,10 @@ public final class CalendarScreen extends Screen {
         // 底图 256×256（7 参 blit 按 256×256 硬编码）
         graphics.blit(BACKGROUND, x, y, 0, 0,
                 CalendarConstants.IMAGE_WIDTH, CalendarConstants.IMAGE_HEIGHT);
+
+        // 月份标题（原「上个月」按钮位置）：xxxx·x月
+        graphics.drawString(this.font, shownYear + "·" + shownMonth + "月",
+                x + 16, y + 16 + 4, 0x404040, false);
 
         YearMonth yearMonth = YearMonth.of(shownYear, shownMonth);
         LocalDate first = LocalDate.of(shownYear, shownMonth, 1);
