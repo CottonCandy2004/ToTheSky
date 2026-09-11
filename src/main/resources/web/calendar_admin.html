@@ -139,7 +139,7 @@ function renderTable(events) {
     tr.innerHTML =
       '<td class="date">' + e.month + ' 月 ' + e.day + ' 日</td>' +
       '<td><span class="badge ' + e.type + '">' + (e.type === 'birthday' ? '生日' : '节日') + '</span></td>' +
-      '<td>' + escapeHtml(e.name) + '</td>' +
+      '<td>' + escapeHtml(e.type === 'birthday' ? e.name + '的生日' : e.name) + '</td>' +
       '<td>' + iconHtml(e) + '</td>' +
       '<td>' + (e.description ? escapeHtml(e.description) : '<span class="muted">—</span>') + '</td>' +
       '<td><button class="link" data-edit="' + e.id + '">编辑</button>' +
@@ -245,7 +245,7 @@ $('iconType').addEventListener('change', () => {
   try {
     const t = await api('GET', '/today');
     $('today').textContent = '今天是 ' + t.date + (t.events.length
-        ? '，今日活动：' + t.events.map(e => e.name).join('、')
+        ? '，今日活动：' + t.events.map(e => e.type === 'birthday' ? e.name + '的生日' : e.name).join('、')
         : '，今日无活动');
   } catch (_) { /* 页头信息失败不致命 */ }
   refresh();

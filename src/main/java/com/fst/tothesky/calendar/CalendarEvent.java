@@ -80,6 +80,11 @@ public final class CalendarEvent {
                 description != null ? description : this.description);
     }
 
+    /** 展示标题：生日显示「xxx的生日」，节日显示名称原样 */
+    public String displayTitle() {
+        return TYPE_BIRTHDAY.equals(type) ? name + "的生日" : name;
+    }
+
     // ---- NBT ----
 
     public CompoundTag toTag() {

@@ -40,16 +40,18 @@ public final class CalendarData extends SavedData {
     private CalendarData() {
     }
 
-    /** 读取/创建（服务器级：挂在主世界上）；SavedData 为空时从镜像恢复 */
+    /**
+     * 读取/创建（服务器级：挂在主世界上）；镜像文件与 SavedData 按 id 并集合并。
+     * <p>双写（SavedData + world/calendar_events.json）在多进程/强杀交错下可能一方更新：
+     * 合并保证两边任一侧的新增事件都不丢；同 id 以内存（SavedData 读出的）为准。
+     */
     public static CalendarData get(MinecraftServer server) {
         CalendarData data = server.overworld().getDataStorage().computeIfAbsent(
                 CalendarData::read, CalendarData::new, DATA_NAME);
         if (data.worldDir == null) {
             data.worldDir = server.getWorldPath(
                     net.minecraft.world.level.storage.LevelResource.ROOT);
-            if (data.byMonthDay.isEmpty()) {
-                data.restoreFromMirror();
-            }
+            data.mergeFromMirror();
         }
         return data;
     }
@@ -169,8 +171,12 @@ public final class CalendarData extends SavedData {
         }
     }
 
-    /** 启动恢复：SavedData 为空且镜像存在时从镜像载入 */
-    private void restoreFromMirror() {
+    /**
+     * 启动合并：镜像事件按 id 并入（同 id 保留内存中的 SavedData 版本）。
+     * 逐条容错——单条脏数据（非法 UUID、缺字段、历史 int 数组 id 格式）跳过，
+     * 不影响其余条目；全部解析完如有新增则落盘回写。
+     */
+    private void mergeFromMirror() {
         if (worldDir == null) {
             return;
         }
@@ -182,28 +188,71 @@ public final class CalendarData extends SavedData {
             com.google.gson.JsonArray array = com.google.gson.JsonParser.parseString(
                     java.nio.file.Files.readString(file, java.nio.charset.StandardCharsets.UTF_8))
                     .getAsJsonArray();
+            int merged = 0;
+            int skipped = 0;
             for (var element : array) {
                 if (!element.isJsonObject()) {
+                    skipped++;
                     continue;
                 }
-                com.google.gson.JsonObject obj = element.getAsJsonObject();
-                CalendarEvent event = CalendarEvent.create(
-                        java.util.UUID.fromString(obj.get("id").getAsString()),
-                        obj.get("name").getAsString(),
-                        obj.has("type") ? obj.get("type").getAsString() : CalendarEvent.TYPE_FESTIVAL,
-                        obj.get("month").getAsInt(),
-                        obj.get("day").getAsInt(),
-                        obj.has("iconType") ? obj.get("iconType").getAsString() : CalendarEvent.ICON_NONE,
-                        obj.has("iconId") ? obj.get("iconId").getAsString() : "",
-                        obj.has("description") ? obj.get("description").getAsString() : "");
-                put(event);
+                try {
+                    com.google.gson.JsonObject obj = element.getAsJsonObject();
+                    java.util.UUID id = readId(obj.get("id"));
+                    if (id == null || find(id) != null) {
+                        continue; // id 无法解析，或 SavedData 已有该 id
+                    }
+                    CalendarEvent event = CalendarEvent.create(
+                            id,
+                            obj.get("name").getAsString(),
+                            obj.has("type") ? obj.get("type").getAsString() : CalendarEvent.TYPE_FESTIVAL,
+                            obj.get("month").getAsInt(),
+                            obj.get("day").getAsInt(),
+                            obj.has("iconType") ? obj.get("iconType").getAsString() : CalendarEvent.ICON_NONE,
+                            obj.has("iconId") ? obj.get("iconId").getAsString() : "",
+                            obj.has("description") ? obj.get("description").getAsString() : "");
+                    put(event);
+                    merged++;
+                } catch (Exception e) {
+                    skipped++;
+                }
             }
-            if (!byMonthDay.isEmpty()) {
+            if (merged > 0) {
                 setDirty();
-                com.fst.tothesky.ToTheSky.LOGGER.info("[日历] 从镜像恢复 {} 条事件", all().size());
+                writeMirror();
+                com.fst.tothesky.ToTheSky.LOGGER.info("[日历] 从镜像合并 {} 条 SavedData 缺失的事件", merged);
+            }
+            if (skipped > 0) {
+                com.fst.tothesky.ToTheSky.LOGGER.warn("[日历] 镜像中 {} 条脏数据被跳过", skipped);
             }
         } catch (Exception e) {
-            com.fst.tothesky.ToTheSky.LOGGER.warn("[日历] 镜像恢复失败（忽略，从空数据开始）: {}", e.getMessage());
+            com.fst.tothesky.ToTheSky.LOGGER.warn("[日历] 镜像合并失败（忽略）: {}", e.getMessage());
         }
+    }
+
+    /** 解析 id：字符串 UUID 或历史 Gson int[4] 数组格式；失败返回 null */
+    @Nullable
+    private static java.util.UUID readId(com.google.gson.JsonElement element) {
+        if (element == null) {
+            return null;
+        }
+        if (element.isJsonPrimitive()) {
+            try {
+                return java.util.UUID.fromString(element.getAsString());
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+        if (element.isJsonArray() && element.getAsJsonArray().size() == 4) {
+            try {
+                long most = (element.getAsJsonArray().get(0).getAsLong() & 0xFFFFFFFFL) << 32
+                        | (element.getAsJsonArray().get(1).getAsLong() & 0xFFFFFFFFL);
+                long least = (element.getAsJsonArray().get(2).getAsLong() & 0xFFFFFFFFL) << 32
+                        | (element.getAsJsonArray().get(3).getAsLong() & 0xFFFFFFFFL);
+                return new java.util.UUID(most, least);
+            } catch (NumberFormatException | IllegalStateException e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

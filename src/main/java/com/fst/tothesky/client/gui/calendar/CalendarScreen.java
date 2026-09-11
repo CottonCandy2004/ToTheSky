@@ -127,11 +127,7 @@ public final class CalendarScreen extends Screen {
                         cellX + CalendarConstants.CELL, cellY + CalendarConstants.CELL, 0x40FFFFFF);
             }
 
-            // 日期数字（左上角）
-            graphics.drawString(this.font, String.valueOf(day), cellX + 2, cellY + 2,
-                    0x404040, false);
-
-            // 当日事件
+            // 当日事件（图标在数字下层：先画图标）
             List<CalendarEvent> events = eventsOn(day);
             if (!events.isEmpty()) {
                 CalendarEvent event = events.get(carouselIndex(events.size()));
@@ -143,6 +139,10 @@ public final class CalendarScreen extends Screen {
                     hoveredY = mouseY;
                 }
             }
+
+            // 日期数字最后画（最上层），左上角
+            graphics.drawString(this.font, String.valueOf(day), cellX + 2, cellY + 2,
+                    0x404040, false);
         }
 
         super.render(graphics, mouseX, mouseY, partialTick);
@@ -171,7 +171,7 @@ public final class CalendarScreen extends Screen {
         List<Component> lines = new ArrayList<>();
         for (CalendarEvent event : events) {
             String mark = CalendarEvent.TYPE_BIRTHDAY.equals(event.type) ? "🎂 " : "🎉 ";
-            lines.add(Component.literal(mark + event.name));
+            lines.add(Component.literal(mark + event.displayTitle()));
             if (!event.description.isEmpty()) {
                 lines.add(Component.literal("  " + event.description));
             }
@@ -196,12 +196,13 @@ public final class CalendarScreen extends Screen {
                 if (item == null) {
                     return;
                 }
-                // 16px 图标在 22px 格内居中
-                graphics.renderItem(new ItemStack(item), cellX + 3, cellY + 3);
+                // 16px 图标贴格右下（22px 格留 6px 上边距给数字）
+                graphics.renderItem(new ItemStack(item), cellX + CalendarConstants.CELL - 16,
+                        cellY + CalendarConstants.CELL - 16);
             }
             case CalendarEvent.ICON_PLAYER ->
-                    CalendarHeadRenderer.render(event.iconId, graphics, cellX + 3, cellY + 3, 16);
-            default -> { }
+                    CalendarHeadRenderer.render(event.iconId, graphics,
+                            cellX + CalendarConstants.CELL - 16, cellY + CalendarConstants.CELL - 16, 16);
         }
     }
 
