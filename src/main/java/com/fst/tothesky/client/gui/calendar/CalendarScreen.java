@@ -27,9 +27,9 @@ public final class CalendarScreen extends Screen {
     private static final ResourceLocation DAY_FRAME =
             new ResourceLocation(ToTheSky.MODID, "textures/gui/calendar_day.png");
 
-    /** 翻月按钮（占位：底图画好后换成贴图箭头），宽高比 3:1 */
-    private static final int BUTTON_W = 24;
-    private static final int BUTTON_H = 8;
+    /** 翻月按钮（占位：底图画好后换成贴图箭头） */
+    private static final int BUTTON_W = 52;
+    private static final int BUTTON_H = 14;
 
     /** 当前包数据 */
     private CalendarDataPacket packet;
