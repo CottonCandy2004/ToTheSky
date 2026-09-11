@@ -27,8 +27,9 @@ public final class CalendarScreen extends Screen {
     private static final ResourceLocation DAY_FRAME =
             new ResourceLocation(ToTheSky.MODID, "textures/gui/calendar_day.png");
 
-    /** 翻月按钮（占位：底图画好后换成贴图箭头） */
-    private static final int BUTTON_SIZE = 14;
+    /** 翻月按钮（占位：底图画好后换成贴图箭头），宽高比 3:1 */
+    private static final int BUTTON_W = 24;
+    private static final int BUTTON_H = 8;
 
     /** 当前包数据 */
     private CalendarDataPacket packet;
@@ -66,11 +67,11 @@ public final class CalendarScreen extends Screen {
         int top = (this.height - CalendarConstants.IMAGE_HEIGHT) / 2;
         addRenderableWidget(Button.builder(
                         Component.translatable("gui.tothesky.calendar.prev_month"), b -> shiftMonth(-1))
-                .bounds(left + 16, top + 16, BUTTON_SIZE, BUTTON_SIZE)
+                .bounds(left + 16, top + 16, BUTTON_W, BUTTON_H)
                 .build());
         addRenderableWidget(Button.builder(
                         Component.translatable("gui.tothesky.calendar.next_month"), b -> shiftMonth(1))
-                .bounds(left + CalendarConstants.IMAGE_WIDTH - 16 - BUTTON_SIZE, top + 16, BUTTON_SIZE, BUTTON_SIZE)
+                .bounds(left + CalendarConstants.IMAGE_WIDTH - 16 - BUTTON_W, top + 16, BUTTON_W, BUTTON_H)
                 .build());
     }
 
@@ -108,6 +109,9 @@ public final class CalendarScreen extends Screen {
         List<Component> hoveredTooltip = null;
         int hoveredX = 0;
         int hoveredY = 0;
+        // 各格左上角（数字统一后画，避免 item flush 的 depth 残留裁字）
+        int[] dayX = new int[days + 1];
+        int[] dayY = new int[days + 1];
 
         for (int day = 1; day <= days; day++) {
             int index = firstCol + day - 1;
@@ -115,6 +119,8 @@ public final class CalendarScreen extends Screen {
             int row = index / CalendarConstants.COLUMNS;
             int cellX = x + CalendarConstants.cellX(col);
             int cellY = y + CalendarConstants.cellY(row);
+            dayX[day] = cellX;
+            dayY[day] = cellY;
 
             // 日期框 24×24（1px 透明边 → 坐标 -1 对齐 22px 内容区）
             graphics.blit(DAY_FRAME, cellX - 1, cellY - 1, 0, 0,
@@ -127,7 +133,7 @@ public final class CalendarScreen extends Screen {
                         cellX + CalendarConstants.CELL, cellY + CalendarConstants.CELL, 0x40FFFFFF);
             }
 
-            // 当日事件（图标在数字下层：先画图标）
+            // 当日事件（图标）
             List<CalendarEvent> events = eventsOn(day);
             if (!events.isEmpty()) {
                 CalendarEvent event = events.get(carouselIndex(events.size()));
@@ -139,11 +145,17 @@ public final class CalendarScreen extends Screen {
                     hoveredY = mouseY;
                 }
             }
-
-            // 日期数字最后画（最上层），左上角
-            graphics.drawString(this.font, String.valueOf(day), cellX + 2, cellY + 2,
-                    0x404040, false);
         }
+
+        // 日期数字统一最后画：先推 pose z=200 压过 item 渲染写入的深度（z=150），
+        // 否则 depth test 会把文字裁掉——表现为图标盖住数字
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 200);
+        for (int day = 1; day <= days; day++) {
+            graphics.drawString(this.font, String.valueOf(day),
+                    dayX[day] + 2, dayY[day] + 2, 0x404040, false);
+        }
+        graphics.pose().popPose();
 
         super.render(graphics, mouseX, mouseY, partialTick);
 
