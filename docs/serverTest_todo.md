@@ -196,7 +196,7 @@
 
 ## 14. 配方抽测
 
-- [ ] `data/tothesky/recipes` 共 108 条（统计于 `src/main/resources/data/tothesky`）：抽测 10 条（压实豆腐、切割豆腐、Create 序列钻石、下界合金产线、魔女因子、奶酪、饮品659、晴天鳕鱼、牛肉盖饭、动力雕刻台）
+- [ ] `data/tothesky/recipes` 共 109 条（统计于 `src/main/resources/data/tothesky`）：抽测 10 条（压实豆腐、切割豆腐、Create 序列钻石、下界合金产线、魔女因子、奶酪、饮品659、晴天鳕鱼、牛肉盖饭、动力雕刻台）；**日历**：无序配方金粒+黄绿色染料+纸（`calendar_from_shapeless.json`）
 - [ ] `fstwines` 配方 7 条（酒类数据驱动）
 - [ ] 镰刀合成（`kaleidoscope_cookery` 命名空间：钻石镰刀 shaped + 下界合金 smithing）
 - [ ] 遗忘之露（金锭+恶魂之泪十字）
