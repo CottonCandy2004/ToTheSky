@@ -122,15 +122,18 @@ public final class CalendarScreen extends Screen {
             dayX[day] = cellX;
             dayY[day] = cellY;
 
-            // 日期框 24×24（1px 透明边 → 坐标 -1 对齐 22px 内容区）
+            // 日期框贴图 24×24（主体在贴图 1..22）→ 坐标 -1 对齐 22px 格主体
             graphics.blit(DAY_FRAME, cellX - 1, cellY - 1, 0, 0,
                     CalendarConstants.DAY_FRAME_SIZE, CalendarConstants.DAY_FRAME_SIZE,
                     CalendarConstants.DAY_FRAME_SIZE, CalendarConstants.DAY_FRAME_SIZE);
 
-            // 今天高亮
+            // 今天高亮（覆盖内容区）
             if (isCurrentMonth && day == packet.todayDay) {
-                graphics.fill(cellX, cellY,
-                        cellX + CalendarConstants.CELL, cellY + CalendarConstants.CELL, 0x40FFFFFF);
+                graphics.fill(cellX + CalendarConstants.CONTENT_OFFSET,
+                        cellY + CalendarConstants.CONTENT_OFFSET,
+                        cellX + CalendarConstants.CONTENT_OFFSET + CalendarConstants.CONTENT,
+                        cellY + CalendarConstants.CONTENT_OFFSET + CalendarConstants.CONTENT,
+                        0x40FFFFFF);
             }
 
             // 当日事件（图标）
@@ -152,8 +155,10 @@ public final class CalendarScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 200);
         for (int day = 1; day <= days; day++) {
+            // 数字在内容区左上角（格左上 +3，避开三重边框）
             graphics.drawString(this.font, String.valueOf(day),
-                    dayX[day] + 2, dayY[day] + 2, 0x404040, false);
+                    dayX[day] + CalendarConstants.CONTENT_OFFSET,
+                    dayY[day] + CalendarConstants.CONTENT_OFFSET, 0x404040, false);
         }
         graphics.pose().popPose();
 
@@ -208,14 +213,21 @@ public final class CalendarScreen extends Screen {
                 if (item == null) {
                     return;
                 }
-                // 16px 图标贴格右下再整体左上移 1px（22px 格留 7px 边距给数字）
+                // 16px 图标贴内容区右下再整体左上移 1px（18px 内容区留 3px 上边距给数字）
+                int contentX = cellX + CalendarConstants.CONTENT_OFFSET;
+                int contentY = cellY + CalendarConstants.CONTENT_OFFSET;
                 graphics.renderItem(new ItemStack(item),
-                        cellX + CalendarConstants.CELL - 17, cellY + CalendarConstants.CELL - 17);
+                        contentX + CalendarConstants.CONTENT - 17,
+                        contentY + CalendarConstants.CONTENT - 17);
             }
-            case CalendarEvent.ICON_PLAYER ->
-                    // 玩家头像比物品小一圈：14px（右下锚点同样左上移 1px）
-                    CalendarHeadRenderer.render(event.iconId, graphics,
-                            cellX + CalendarConstants.CELL - 15, cellY + CalendarConstants.CELL - 15, 14);
+            case CalendarEvent.ICON_PLAYER -> {
+                // 玩家头像比物品小一圈：14px（内容区右下锚点同样左上移 1px）
+                int contentX = cellX + CalendarConstants.CONTENT_OFFSET;
+                int contentY = cellY + CalendarConstants.CONTENT_OFFSET;
+                CalendarHeadRenderer.render(event.iconId, graphics,
+                        contentX + CalendarConstants.CONTENT - 15,
+                        contentY + CalendarConstants.CONTENT - 15, 14);
+            }
         }
     }
 

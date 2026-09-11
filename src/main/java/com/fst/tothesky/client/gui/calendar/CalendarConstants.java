@@ -1,31 +1,37 @@
 package com.fst.tothesky.client.gui.calendar;
 
 /**
- * 日历 GUI 布局常量（与用户提供的底图/日期框规格对应）。
+ * 日历 GUI 布局常量（与新底图逐像素测量对齐）。
  *
- * <p>底图 256×256；日期格区起点 (42, 92)，7 列 × 5 行，
- * 格间距 25px（22px 可见内容 + 3px 间隔）。
- * 日期框贴图 24×24（四周 1px 透明边），blit 时坐标 -1 对齐。
- * 月份需要 6 周时第 6 行落在 y=217（仍在底图内）。
+ * <p>底图 256×256（自带标题栏、星期标签、完整日期格边框与填充）。
+ * 日期格区：第一完整格左上 (41, 87)，7 列 × 6 行，步进 25px
+ * （格主体 22px + 2px 间隙 + 1px 右下阴影），填充内容区 18×18（从格左上 +3 起）。
+ * 底缘 87 + 5×25 + 22 = 234，在 256 底图内。
+ * 日期框贴图 24×24（贴图主体在 x/y=1..22，四周留白）→ blit 坐标 = 格左上 -1。
  */
 public final class CalendarConstants {
     /** 底图尺寸 */
     public static final int IMAGE_WIDTH = 256;
     public static final int IMAGE_HEIGHT = 256;
 
-    /** 格区起点（第一个日期格左上角） */
-    public static final int GRID_X = 42;
-    public static final int GRID_Y = 92;
+    /** 第一个完整日期格左上角（含边框） */
+    public static final int GRID_X = 41;
+    public static final int GRID_Y = 87;
 
-    /** 单格可见内容尺寸 */
-    public static final int CELL = 22;
-    /** 相邻格左上角间距（22px 内容 + 3px 间隔） */
+    /** 相邻格左上角间距（22px 主体 + 2px 间隙 + 1px 阴影） */
     public static final int STEP = 25;
-    /** 固定 5 行，6 周月份在渲染时追加第 6 行 */
-    public static final int ROWS = 5;
+    /** 行列数：六行七列（最多 42 格，覆盖所有月份） */
+    public static final int ROWS = 6;
     public static final int COLUMNS = 7;
 
-    /** 日期框贴图尺寸（含 1px 透明边） */
+    /** 格主体尺寸（含边框） */
+    public static final int CELL = 22;
+    /** 格内内容区尺寸（浅黄填充） */
+    public static final int CONTENT = 18;
+    /** 内容区相对格左上的偏移（三重边框 2px + 1px） */
+    public static final int CONTENT_OFFSET = 3;
+
+    /** 日期框贴图尺寸（主体 22px 在贴图 1..22，四周各留 1px） */
     public static final int DAY_FRAME_SIZE = 24;
 
     /** 图标轮播周期（tick） */
