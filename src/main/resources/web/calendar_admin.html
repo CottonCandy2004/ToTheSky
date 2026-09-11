@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>翱翔天际 · 日历管理</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; margin: 24px auto; max-width: 920px; padding: 0 16px; background: #f4f5f7; color: #222; }
+h1 { font-size: 1.25rem; margin: 0 0 4px; }
+#today { color: #666; font-size: .85rem; margin-bottom: 16px; }
+#status { margin: 0 0 12px; min-height: 1.2em; font-size: .9rem; }
+#status.ok { color: #1a7f37; }
+#status.err { color: #c0392b; }
+.card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.09); margin-bottom: 16px; }
+form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px 14px; }
+form .full { grid-column: 1 / -1; }
+label { display: block; font-size: .8rem; color: #555; margin-bottom: 3px; }
+input, select { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 5px; font-size: .9rem; background: #fff; }
+input:focus, select:focus { outline: 2px solid #8ab4f8aa; border-color: #8ab4f8; }
+button { padding: 6px 16px; border: 0; border-radius: 5px; background: #2563eb; color: #fff; cursor: pointer; font-size: .9rem; }
+button:hover { background: #1d4fd8; }
+button.secondary { background: #9aa0a6; }
+button.danger { background: #dc2626; padding: 3px 10px; font-size: .8rem; }
+button.link { background: none; color: #2563eb; padding: 3px 8px; }
+table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.09); border-radius: 8px; overflow: hidden; }
+th, td { padding: 8px 10px; border-bottom: 1px solid #eee; text-align: left; font-size: .9rem; }
+th { background: #fafafa; font-size: .8rem; color: #555; }
+tr:last-child td { border-bottom: 0; }
+.badge { padding: 1px 8px; border-radius: 999px; font-size: .75rem; white-space: nowrap; }
+.badge.festival { background: #fef3c7; color: #92400e; }
+.badge.birthday { background: #fce7f3; color: #9d174d; }
+.date { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.muted { color: #888; font-size: .8rem; }
+img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; margin-right: 4px; }
+</style>
+</head>
+<body>
+<h1>📅 翱翔天际 · 特殊日期管理</h1>
+<div id="today"></div>
+<div id="status"></div>
+
+<div class="card">
+  <form id="eventForm">
+    <div>
+      <label for="name">名称 *</label>
+      <input id="name" required maxlength="64" placeholder="如：建服庆典 / 玩家名">
+    </div>
+    <div>
+      <label for="type">类型</label>
+      <select id="type">
+        <option value="festival">🎉 节日</option>
+        <option value="birthday">🎂 生日</option>
+      </select>
+    </div>
+    <div>
+      <label for="month">月份 (1-12) *</label>
+      <input id="month" type="number" min="1" max="12" required>
+    </div>
+    <div>
+      <label for="day">日期 *</label>
+      <input id="day" type="number" min="1" max="31" required>
+    </div>
+    <div>
+      <label for="iconType">图标类型</label>
+      <select id="iconType">
+        <option value="none">无图标</option>
+        <option value="item">物品</option>
+        <option value="block">方块</option>
+        <option value="player">玩家头</option>
+      </select>
+    </div>
+    <div>
+      <label for="iconId" id="iconIdLabel">图标 ID（未使用）</label>
+      <input id="iconId" maxlength="128" placeholder="">
+    </div>
+    <div class="full">
+      <label for="description">描述（可选）</label>
+      <input id="description" maxlength="256" placeholder="tooltip 里名称下方显示的文字">
+    </div>
+    <div class="full" style="display:flex; gap:8px;">
+      <button type="submit" id="saveBtn">添加</button>
+      <button type="button" class="secondary" id="cancelBtn" hidden>取消编辑</button>
+    </div>
+  </form>
+</div>
+
+<table>
+  <thead>
+    <tr><th>日期</th><th>类型</th><th>名称</th><th>图标</th><th>描述</th><th>操作</th></tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<script>
+'use strict';
+const API = 'api/calendar';
+let editingId = null;
+let lastEvents = [];
+
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
+function setStatus(msg, err) { statusEl.textContent = msg || ''; statusEl.className = msg ? (err ? 'err' : 'ok') : ''; }
+
+function escapeHtml(s) {
+  return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function api(method, path, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let json = {};
+  try { json = await res.json(); } catch (_) { /* 204 等无 body */ }
+  if (!res.ok) throw new Error(json.error || ('HTTP ' + res.status));
+  return json;
+}
+
+function iconHtml(e) {
+  if (e.iconType === 'player' && e.iconId) {
+    return '<img class="head" alt="" src="https://mc-heads.net/avatar/' + encodeURIComponent(e.iconId) + '/32" onerror="this.remove()">'
+        + escapeHtml(e.iconId);
+  }
+  if (e.iconType === 'item' || e.iconType === 'block') {
+    return e.iconId ? '<code>' + escapeHtml(e.iconId) + '</code>' : '<span class="muted">—</span>';
+  }
+  return '<span class="muted">无</span>';
+}
+
+function renderTable(events) {
+  const tbody = $('tbody');
+  tbody.innerHTML = '';
+  events.sort((a, b) => a.month - b.month || a.day - b.day || a.name.localeCompare(b.name) || (a.id < b.id ? -1 : 1));
+  for (const e of events) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="date">' + e.month + ' 月 ' + e.day + ' 日</td>' +
+      '<td><span class="badge ' + e.type + '">' + (e.type === 'birthday' ? '生日' : '节日') + '</span></td>' +
+      '<td>' + escapeHtml(e.name) + '</td>' +
+      '<td>' + iconHtml(e) + '</td>' +
+      '<td>' + (e.description ? escapeHtml(e.description) : '<span class="muted">—</span>') + '</td>' +
+      '<td><button class="link" data-edit="' + e.id + '">编辑</button>' +
+          '<button class="danger" data-del="' + e.id + '">删除</button></td>';
+    tbody.appendChild(tr);
+  }
+}
+
+async function refresh() {
+  try {
+    lastEvents = await api('GET', '/events');
+    renderTable(lastEvents);
+  } catch (err) {
+    setStatus(err.message, true);
+  }
+}
+
+function resetForm() {
+  editingId = null;
+  $('eventForm').reset();
+  $('iconType').dispatchEvent(new Event('change'));
+  $('saveBtn').textContent = '添加';
+  $('cancelBtn').hidden = true;
+}
+
+function startEdit(id) {
+  const e = lastEvents.find(x => x.id === id);
+  if (!e) return;
+  editingId = id;
+  $('name').value = e.name;
+  $('type').value = e.type;
+  $('month').value = e.month;
+  $('day').value = e.day;
+  $('iconType').value = e.iconType;
+  $('iconType').dispatchEvent(new Event('change'));
+  $('iconId').value = e.iconId;
+  $('description').value = e.description;
+  $('saveBtn').textContent = '保存修改';
+  $('cancelBtn').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+$('eventForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const body = {
+    name: $('name').value.trim(),
+    type: $('type').value,
+    month: parseInt($('month').value, 10),
+    day: parseInt($('day').value, 10),
+    iconType: $('iconType').value,
+    iconId: $('iconId').value.trim(),
+    description: $('description').value.trim()
+  };
+  try {
+    if (editingId) {
+      await api('PUT', '/events/' + editingId, body);
+      setStatus('已保存修改');
+    } else {
+      await api('POST', '/events', body);
+      setStatus('已添加');
+    }
+    resetForm();
+    await refresh();
+  } catch (err) {
+    setStatus(err.message, true);
+  }
+});
+
+$('cancelBtn').addEventListener('click', () => { resetForm(); setStatus(); });
+
+$('tbody').addEventListener('click', async ev => {
+  const btn = ev.target.closest('button');
+  if (!btn) return;
+  const editId = btn.getAttribute('data-edit');
+  const delId = btn.getAttribute('data-del');
+  if (editId) {
+    startEdit(editId);
+    setStatus();
+  } else if (delId) {
+    if (!confirm('确定删除这条特殊日期吗？')) return;
+    try {
+      await api('DELETE', '/events/' + delId);
+      if (editingId === delId) resetForm();
+      setStatus('已删除');
+      await refresh();
+    } catch (err) {
+      setStatus(err.message, true);
+    }
+  }
+});
+
+$('iconType').addEventListener('change', () => {
+  const t = $('iconType').value;
+  const label = $('iconIdLabel');
+  const input = $('iconId');
+  if (t === 'none') { label.textContent = '图标 ID（未使用）'; input.placeholder = ''; }
+  else if (t === 'player') { label.textContent = '玩家名 *'; input.placeholder = '如 RiaAED'; }
+  else if (t === 'item') { label.textContent = '物品 ID *'; input.placeholder = '如 minecraft:cake'; }
+  else { label.textContent = '方块 ID *'; input.placeholder = '如 minecraft:grass_block'; }
+});
+
+(async () => {
+  try {
+    const t = await api('GET', '/today');
+    $('today').textContent = '今天是 ' + t.date + (t.events.length
+        ? '，今日活动：' + t.events.map(e => e.name).join('、')
+        : '，今日无活动');
+  } catch (_) { /* 页头信息失败不致命 */ }
+  refresh();
+})();
+</script>
+</body>
+</html>

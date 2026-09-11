@@ -43,6 +43,8 @@ public final class CalendarHttpServer {
             com.sun.net.httpserver.HttpServer http = com.sun.net.httpserver.HttpServer.create(
                     new InetSocketAddress(config.bindAddress, config.port), 0);
             http.createContext(API_PREFIX, exchange -> host.handler.handle(exchange));
+            // 管理页：根路径（/、/index.html）直接返回内嵌 HTML，无需部署任何外部文件
+            http.createContext("/", exchange -> host.serveAdminPage(exchange));
             // 独立小线程池：请求量小，不与游戏线程池混用
             http.setExecutor(Executors.newFixedThreadPool(2, r -> {
                 Thread t = new Thread(r, "ToTheSky-CalendarAPI");
@@ -51,7 +53,8 @@ public final class CalendarHttpServer {
             }));
             http.start();
             host.http = http;
-            ToTheSky.LOGGER.info("[日历API] 已启动：http://{}:{}{}", config.bindAddress, config.port, API_PREFIX);
+            ToTheSky.LOGGER.info("[日历API] 已启动：http://{}:{}/ （管理页） 与 {}*（REST API）",
+                    config.bindAddress, config.port, API_PREFIX);
         } catch (IOException e) {
             ToTheSky.LOGGER.warn("[日历API] 启动失败（{}），HTTP 功能不可用；如需启用请检查端口占用或修改 {}",
                     e.getMessage(), FMLPaths.CONFIGDIR.get().resolve(CONFIG_FILE));
@@ -71,6 +74,40 @@ public final class CalendarHttpServer {
     }
 
     // ---- config ----
+
+    /** 管理页：/ 或 /index.html 返回内嵌 HTML；其余 404 */
+    private void serveAdminPage(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
+        try {
+            String path = exchange.getRequestURI().getPath();
+            if (!"GET".equals(exchange.getRequestMethod())
+                    || !(path.equals("/") || path.equals("/index.html"))) {
+                exchange.sendResponseHeaders(404, -1);
+                return;
+            }
+            byte[] page = ADMIN_PAGE_CACHE != null ? ADMIN_PAGE_CACHE
+                    : (ADMIN_PAGE_CACHE = readAdminPage());
+            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
+            exchange.getResponseHeaders().set("Cache-Control", "no-store");
+            exchange.sendResponseHeaders(200, page.length);
+            try (OutputStream out = exchange.getResponseBody()) {
+                out.write(page);
+            }
+        } finally {
+            exchange.close();
+        }
+    }
+
+    /** 页面缓存（一次性读入 classpath 资源；内容随 jar 固定） */
+    private static volatile byte[] ADMIN_PAGE_CACHE;
+
+    private static byte[] readAdminPage() throws IOException {
+        try (var in = CalendarHttpServer.class.getResourceAsStream("/web/calendar_admin.html")) {
+            if (in == null) {
+                throw new IOException("classpath 资源缺失: /web/calendar_admin.html");
+            }
+            return in.readAllBytes();
+        }
+    }
 
     record Config(int port, String bindAddress) {
     }
