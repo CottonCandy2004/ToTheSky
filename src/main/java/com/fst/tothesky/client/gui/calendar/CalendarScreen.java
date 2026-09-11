@@ -97,9 +97,9 @@ public final class CalendarScreen extends Screen {
         graphics.blit(BACKGROUND, x, y, 0, 0,
                 CalendarConstants.IMAGE_WIDTH, CalendarConstants.IMAGE_HEIGHT);
 
-        // 月份标题（原「上个月」按钮位置）：xxxx·x月
-        graphics.drawString(this.font, shownYear + "·" + shownMonth + "月",
-                x + 16, y + 16 + 4, 0x404040, false);
+        // 月份标题（原「上个月」按钮位置）：xxxx·x
+        graphics.drawString(this.font, shownYear + "·" + shownMonth,
+                x + 16, y + 16 + 4 + 10, 0x404040, false);
 
         YearMonth yearMonth = YearMonth.of(shownYear, shownMonth);
         LocalDate first = LocalDate.of(shownYear, shownMonth, 1);
