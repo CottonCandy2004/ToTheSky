@@ -181,7 +181,8 @@ final class CalendarApiJson {
                     return "iconId required for item icon";
                 }
                 ResourceLocation id = ResourceLocation.tryParse(iconId);
-                if (id == null || ForgeRegistries.ITEMS.getValue(id) == null) {
+                // getValue 对未知 id 返回 AIR（默认值），须用 containsKey 判断存在性
+                if (id == null || !ForgeRegistries.ITEMS.containsKey(id)) {
                     return "unknown item: " + iconId;
                 }
                 return null;
@@ -191,7 +192,7 @@ final class CalendarApiJson {
                     return "iconId required for block icon";
                 }
                 ResourceLocation id = ResourceLocation.tryParse(iconId);
-                if (id == null || ForgeRegistries.BLOCKS.getValue(id) == null) {
+                if (id == null || !ForgeRegistries.BLOCKS.containsKey(id)) {
                     return "unknown block: " + iconId;
                 }
                 return null;

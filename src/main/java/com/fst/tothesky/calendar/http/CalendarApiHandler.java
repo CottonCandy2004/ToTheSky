@@ -59,13 +59,16 @@ public final class CalendarApiHandler {
 
     public void handle(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
         try {
-            if (shuttingDown) {
-                respond(exchange, 503, errorJson("server shutting down"));
-                return;
-            }
             String method = exchange.getRequestMethod();
             String path = exchange.getRequestURI().getPath();
-            // 前缀已由 server 上下文裁掉，path 形如 "/events"、"/events/{id}"、"/today"、""
+            // createContext 挂在 /api/calendar/，但 context path 裁切不可依赖（尾部斜杠行为不一致）——手动剥前缀
+            String prefix = "/api/calendar";
+            if (path.startsWith(prefix)) {
+                path = path.substring(prefix.length());
+            }
+            if (path.isEmpty()) {
+                path = "/";
+            }
             if ("OPTIONS".equals(method)) {
                 exchange.getResponseHeaders().set("Allow", "GET, POST, PUT, DELETE, OPTIONS");
                 respond(exchange, 204, "");

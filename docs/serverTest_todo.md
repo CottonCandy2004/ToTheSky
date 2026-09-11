@@ -224,6 +224,20 @@
 - [ ] **create_confectionery**：缺失时（EffectStack.get）仅 WARN 不崩
 - [ ] **软依赖总检**：依次去掉 kk/fd/create/ultramarine/exposure/kaleidoscope_cookery 各 mod，确认相关功能禁用但不崩溃
 
+## 17. 日历系统（CalendarBlock + GUI + REST API）
+
+- [ ] **方块注册**：`calendar`（日历）可创造获取、可放置；破坏掉落自身；模型暂为紫黑棋盘（贴图未画，预期）
+- [ ] **打开 GUI**：右键日历方块弹出月视图（底图 + 日期格）；「今天」格子白色高亮；日期数字在格子左上角
+- [ ] **翻月按钮**：左上/右上按钮可翻上/下月（跨年正确，12 月→1 月年份 +1）；标题随月份变化
+- [ ] **图标渲染**：经 REST API 添加含 `iconType=item` 的事件后，对应格子显示物品图标（居中）；`iconType=block` 显示方块物品形态；`iconType=player` 显示玩家头（在线玩家立即可见；离线玩家首帧默认皮肤、之后刷新为真皮肤）
+- [ ] **多活动轮播**：同一日期 ≥2 个事件时图标每 2 秒（40t）轮换
+- [ ] **Tooltip**：悬停有事件的格子显示全部活动（🎉/🎂 + 名称 + 描述）
+- [ ] **REST API**（服务器侧已自动化验证，GUI 联动需手测）：`GET/POST/PUT/DELETE http://127.0.0.1:39000/api/calendar/events`、`GET /today`；**网页管理端打开 GUI 时增删事件，GUI 无重开即时刷新**
+- [ ] **崩溃恢复**：服务器强杀后重启，启动日志出现「[日历] 从镜像恢复 N 条事件」（镜像 `world/calendar_events.json`）
+- [ ] **配置**：`config/tothesky_calendar.json` 改 port/bindAddress 后重启生效；端口占用时仅 WARN 不崩服
+
+| | | 17. 日历系统 | | |
+
 ---
 
 ### 测试结果记录

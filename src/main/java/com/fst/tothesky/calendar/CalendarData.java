@@ -5,6 +5,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,23 +19,40 @@ import java.util.UUID;
  * 日历活动数据（服务器级 SavedData，存于主世界 data/ 下）。
  * 与 {@code CheckerIndexData} 相同模式；事件量级小，全量读写。
  * 仅在服务器线程调用（HTTP 层经 server.execute() 提交写操作）。
+ *
+ * <p>崩溃安全：SavedData 依赖 autosave 周期（默认 5 分钟）与正常停服落盘，
+ * 服务器被强杀时未落盘的 REST 变工会丢失。故每次变更同步追加写
+ * {@code world/calendar_events.json}（人类可读镜像）；启动时 SavedData 为空
+ * 且镜像存在则以镜像恢复。事件量级几十条，全量重写开销可忽略。
  */
 public final class CalendarData extends SavedData {
     public static final String DATA_NAME = "tothesky_calendar";
     private static final String TAG_EVENTS = "events";
+    /** 崩溃安全镜像文件名（位于主世界根目录，与 level.dat 同级） */
+    public static final String MIRROR_FILE = "calendar_events.json";
 
-    /** 「月-日」→ 当日事件（稳定排序：生日在前？否——按 name 排序，展示顺序可预期） */
+    /** 「月-日」→ 当日事件 */
     private final Map<Integer, List<CalendarEvent>> byMonthDay = new HashMap<>();
+    /** 主世界根目录（镜像读写用）；构造时未知，首次 get 时注入 */
+    @Nullable
+    private java.nio.file.Path worldDir;
 
     private CalendarData() {
     }
 
-    /** 读取/创建（服务器级：挂在主世界上） */
+    /** 读取/创建（服务器级：挂在主世界上）；SavedData 为空时从镜像恢复 */
     public static CalendarData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(
+        CalendarData data = server.overworld().getDataStorage().computeIfAbsent(
                 CalendarData::read, CalendarData::new, DATA_NAME);
+        if (data.worldDir == null) {
+            data.worldDir = server.getWorldPath(
+                    net.minecraft.world.level.storage.LevelResource.ROOT);
+            if (data.byMonthDay.isEmpty()) {
+                data.restoreFromMirror();
+            }
+        }
+        return data;
     }
-
     private static CalendarData read(CompoundTag tag) {
         CalendarData data = new CalendarData();
         ListTag list = tag.getList(TAG_EVENTS, Tag.TAG_COMPOUND);
@@ -94,6 +112,7 @@ public final class CalendarData extends SavedData {
         remove(event.id);
         put(event);
         setDirty();
+        writeMirror();
         return event;
     }
 
@@ -102,19 +121,89 @@ public final class CalendarData extends SavedData {
         if (remove(id)) {
             put(updated);
             setDirty();
+            writeMirror();
             return updated;
         }
         return null;
     }
+
 
     /** 删除，返回是否删除 */
     public boolean remove(UUID id) {
         for (List<CalendarEvent> day : byMonthDay.values()) {
             if (day.removeIf(e -> e.id.equals(id))) {
                 setDirty();
+                writeMirror();
                 return true;
             }
         }
         return false;
+    }
+
+    // ---- 崩溃安全镜像（world/calendar_events.json） ----
+
+    /** 全量重写镜像（每次变更调用；几十条事件开销可忽略） */
+    private void writeMirror() {
+        if (worldDir == null) {
+            return;
+        }
+        com.google.gson.JsonArray array = new com.google.gson.JsonArray();
+        for (CalendarEvent event : all()) {
+            com.google.gson.JsonObject obj = new com.google.gson.JsonObject();
+            obj.addProperty("id", event.id.toString());
+            obj.addProperty("name", event.name);
+            obj.addProperty("type", event.type);
+            obj.addProperty("month", event.month);
+            obj.addProperty("day", event.day);
+            obj.addProperty("iconType", event.iconType);
+            obj.addProperty("iconId", event.iconId);
+            obj.addProperty("description", event.description);
+            array.add(obj);
+        }
+        try {
+            java.nio.file.Files.writeString(worldDir.resolve(MIRROR_FILE),
+                    new com.google.gson.Gson().toJson(array),
+                    java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            com.fst.tothesky.ToTheSky.LOGGER.warn("[日历] 写镜像文件失败: {}", e.getMessage());
+        }
+    }
+
+    /** 启动恢复：SavedData 为空且镜像存在时从镜像载入 */
+    private void restoreFromMirror() {
+        if (worldDir == null) {
+            return;
+        }
+        java.nio.file.Path file = worldDir.resolve(MIRROR_FILE);
+        if (!java.nio.file.Files.exists(file)) {
+            return;
+        }
+        try {
+            com.google.gson.JsonArray array = com.google.gson.JsonParser.parseString(
+                    java.nio.file.Files.readString(file, java.nio.charset.StandardCharsets.UTF_8))
+                    .getAsJsonArray();
+            for (var element : array) {
+                if (!element.isJsonObject()) {
+                    continue;
+                }
+                com.google.gson.JsonObject obj = element.getAsJsonObject();
+                CalendarEvent event = CalendarEvent.create(
+                        java.util.UUID.fromString(obj.get("id").getAsString()),
+                        obj.get("name").getAsString(),
+                        obj.has("type") ? obj.get("type").getAsString() : CalendarEvent.TYPE_FESTIVAL,
+                        obj.get("month").getAsInt(),
+                        obj.get("day").getAsInt(),
+                        obj.has("iconType") ? obj.get("iconType").getAsString() : CalendarEvent.ICON_NONE,
+                        obj.has("iconId") ? obj.get("iconId").getAsString() : "",
+                        obj.has("description") ? obj.get("description").getAsString() : "");
+                put(event);
+            }
+            if (!byMonthDay.isEmpty()) {
+                setDirty();
+                com.fst.tothesky.ToTheSky.LOGGER.info("[日历] 从镜像恢复 {} 条事件", all().size());
+            }
+        } catch (Exception e) {
+            com.fst.tothesky.ToTheSky.LOGGER.warn("[日历] 镜像恢复失败（忽略，从空数据开始）: {}", e.getMessage());
+        }
     }
 }
