@@ -196,13 +196,14 @@ public final class CalendarScreen extends Screen {
                 if (item == null) {
                     return;
                 }
-                // 16px 图标贴格右下（22px 格留 6px 上边距给数字）
-                graphics.renderItem(new ItemStack(item), cellX + CalendarConstants.CELL - 16,
-                        cellY + CalendarConstants.CELL - 16);
+                // 16px 图标贴格右下再整体左上移 1px（22px 格留 7px 边距给数字）
+                graphics.renderItem(new ItemStack(item),
+                        cellX + CalendarConstants.CELL - 17, cellY + CalendarConstants.CELL - 17);
             }
             case CalendarEvent.ICON_PLAYER ->
+                    // 玩家头像比物品小一圈：14px（右下锚点同样左上移 1px）
                     CalendarHeadRenderer.render(event.iconId, graphics,
-                            cellX + CalendarConstants.CELL - 16, cellY + CalendarConstants.CELL - 16, 16);
+                            cellX + CalendarConstants.CELL - 15, cellY + CalendarConstants.CELL - 15, 14);
         }
     }
 
