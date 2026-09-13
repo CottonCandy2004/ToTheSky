@@ -22,8 +22,10 @@ public class CalendarIconButton extends Button {
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // 默认 1:1 原始颜色；悬停/聚焦略暗、禁用压暗，作为反馈
-        float tint = !this.active ? 0.5F : (this.isHoveredOrFocused() ? 0.85F : 1.0F);
+        // 默认 1:1 原始颜色；悬停略暗、禁用压暗，作为反馈。
+        // 只用 isHovered()：点按后按钮保留键盘焦点，用 isHoveredOrFocused() 会让
+        // 鼠标移开后仍显示按下态（残留变暗）。
+        float tint = !this.active ? 0.5F : (this.isHovered() ? 0.85F : 1.0F);
         graphics.setColor(tint, tint, tint, 1.0F);
         graphics.blit(this.texture, this.getX(), this.getY(), 0.0F, 0.0F,
                 this.textureSize, this.textureSize, this.textureSize, this.textureSize);

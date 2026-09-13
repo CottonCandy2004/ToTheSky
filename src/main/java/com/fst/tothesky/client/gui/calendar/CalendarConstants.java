@@ -34,10 +34,14 @@ public final class CalendarConstants {
 
     /** 翻月按钮贴图尺寸（原图 32×32，1:1 绘制） */
     public static final int BUTTON_SIZE = 32;
-    /** 按钮距底图左右边缘的距离 */
-    public static final int BUTTON_MARGIN = 16;
+    /** 按钮距底图左右边缘的距离（向外平移后为 6px） */
+    public static final int BUTTON_MARGIN = 6;
     /** 按钮距底图上边缘的距离 */
     public static final int BUTTON_Y = 36;
+    /** 标题文字下缘与日期格区第一行上缘的间距（标题在日期第一行上方 13px） */
+    public static final int TITLE_GAP = 13;
+    /** 标题文字渲染高度（MC 字体字形 8px） */
+    public static final int TITLE_HEIGHT = 8;
 
     /** 图标轮播周期（tick） */
     public static final int CAROUSEL_PERIOD = 40;
