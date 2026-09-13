@@ -5,7 +5,6 @@ import com.fst.tothesky.calendar.CalendarEvent;
 import com.fst.tothesky.network.CalendarDataPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -26,10 +25,11 @@ public final class CalendarScreen extends Screen {
             new ResourceLocation(ToTheSky.MODID, "textures/gui/calendar.png");
     private static final ResourceLocation DAY_FRAME =
             new ResourceLocation(ToTheSky.MODID, "textures/gui/calendar_day.png");
-
-    /** 翻月按钮（占位：底图画好后换成贴图箭头） */
-    private static final int BUTTON_W = 42;
-    private static final int BUTTON_H = 14;
+    /** 翻月按钮贴图（32×32，内容偏上：黄色面板 + 棕色斜阴影） */
+    private static final ResourceLocation PREV_BUTTON =
+            new ResourceLocation(ToTheSky.MODID, "textures/gui/calendar_prev.png");
+    private static final ResourceLocation NEXT_BUTTON =
+            new ResourceLocation(ToTheSky.MODID, "textures/gui/calendar_next.png");
 
     /** 当前包数据 */
     private CalendarDataPacket packet;
@@ -65,15 +65,17 @@ public final class CalendarScreen extends Screen {
     protected void init() {
         int left = (this.width - CalendarConstants.IMAGE_WIDTH) / 2;
         int top = (this.height - CalendarConstants.IMAGE_HEIGHT) / 2;
-        // 翻页按钮整体下移 20px；左侧原「上个月」位置由标题文本替代
-        addRenderableWidget(Button.builder(
-                        Component.translatable("gui.tothesky.calendar.prev_month"), b -> shiftMonth(-1))
-                .bounds(left + 16, top + 16 + 20, BUTTON_W, BUTTON_H)
-                .build());
-        addRenderableWidget(Button.builder(
-                        Component.translatable("gui.tothesky.calendar.next_month"), b -> shiftMonth(1))
-                .bounds(left + CalendarConstants.IMAGE_WIDTH - 16 - BUTTON_W, top + 16 + 20, BUTTON_W, BUTTON_H)
-                .build());
+        // 翻页按钮改用贴图箭头（32×32，不绘制文本）
+        addRenderableWidget(new CalendarIconButton(
+                left + CalendarConstants.BUTTON_MARGIN, top + CalendarConstants.BUTTON_Y,
+                CalendarConstants.BUTTON_SIZE, PREV_BUTTON,
+                Component.translatable("gui.tothesky.calendar.prev_month"), b -> shiftMonth(-1)));
+        addRenderableWidget(new CalendarIconButton(
+                left + CalendarConstants.IMAGE_WIDTH - CalendarConstants.BUTTON_MARGIN
+                        - CalendarConstants.BUTTON_SIZE,
+                top + CalendarConstants.BUTTON_Y,
+                CalendarConstants.BUTTON_SIZE, NEXT_BUTTON,
+                Component.translatable("gui.tothesky.calendar.next_month"), b -> shiftMonth(1)));
     }
 
     private void shiftMonth(int delta) {

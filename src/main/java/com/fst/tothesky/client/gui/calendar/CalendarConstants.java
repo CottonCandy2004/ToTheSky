@@ -32,6 +32,13 @@ public final class CalendarConstants {
     /** 日期框贴图尺寸（主体 22px 在贴图 1..22，四周各留 1px） */
     public static final int DAY_FRAME_SIZE = 24;
 
+    /** 翻月按钮贴图尺寸（原图 32×32，1:1 绘制） */
+    public static final int BUTTON_SIZE = 32;
+    /** 按钮距底图左右边缘的距离 */
+    public static final int BUTTON_MARGIN = 16;
+    /** 按钮距底图上边缘的距离 */
+    public static final int BUTTON_Y = 36;
+
     /** 图标轮播周期（tick） */
     public static final int CAROUSEL_PERIOD = 40;
 
