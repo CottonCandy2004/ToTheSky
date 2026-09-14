@@ -1,6 +1,7 @@
 package com.fst.tothesky.registry;
 
 import com.fst.tothesky.ToTheSky;
+import com.fst.tothesky.block.CookedDumplingPlateBlock;
 import com.fst.tothesky.block.PlaceableFoodBlock;
 import com.fst.tothesky.block.DrinkGlassBlock;
 import com.fst.tothesky.block.EmptyGlassBlock;
@@ -37,6 +38,11 @@ public final class ModBlocks {
     // 拉面：右键分五口吃掉，吃完返碗
     public static final RegistryObject<RamenBlock> RAMEN =
             BLOCKS.register("ramen", () -> new RamenBlock(FOOD_BLOCK_PROPS));
+
+    // 一盘熟饺子：bite 0-9 + facing 与旧 KubeJS 方块一致，内容物存在方块实体的 data 标签里（无掉落）
+    public static final RegistryObject<CookedDumplingPlateBlock> COOKED_DUMPLING_PLATE =
+            BLOCKS.register("cooked_dumpling_plate",
+                    () -> new CookedDumplingPlateBlock(FOOD_BLOCK_PROPS.noLootTable()));
 
     // 披萨：右键取片，取完四片消失
     public static final RegistryObject<PizzaBlock> PIZZA_MARGARITA =

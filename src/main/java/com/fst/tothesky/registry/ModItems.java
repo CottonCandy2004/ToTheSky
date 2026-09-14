@@ -157,6 +157,26 @@ public final class ModItems {
                     .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 0), 1.0f)
                     .alwaysEat()
                     .build())));
+    // ---------------- 饺子（仅注册；玩法逻辑仍由脚本提供） ----------------
+    /** 饺子皮：脚本侧长按包制 */
+    public static final RegistryObject<Item> DUMPLING_WRAPPER = simple("dumpling_wrapper", 0);
+    /** 生饺子：带 filling/author NBT，8 个加碗可合成一盘生饺子 */
+    public static final RegistryObject<Item> RAW_DUMPLING = simple("raw_dumpling", 0);
+    /** 一盘生饺子（不可堆叠） */
+    public static final RegistryObject<Item> RAW_DUMPLING_PLATE = ITEMS.register("raw_dumpling_plate",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    /** 饺子：数值对齐旧 kjs（4 饥饿 / 1.0 饱和度 / 快速进食） */
+    public static final RegistryObject<Item> COOKED_DUMPLING = ITEMS.register("cooked_dumpling",
+            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(4).saturationMod(1.0f)
+                    .fast()
+                    .build())));
+    /** 一盘熟饺子（方块物品，不可堆叠；放置时把内容物写入方块实体） */
+    public static final RegistryObject<com.fst.tothesky.item.CookedDumplingPlateItem> COOKED_DUMPLING_PLATE_ITEM =
+            ITEMS.register("cooked_dumpling_plate",
+                    () -> new com.fst.tothesky.item.CookedDumplingPlateItem(ModBlocks.COOKED_DUMPLING_PLATE.get(),
+                            new Item.Properties().stacksTo(1)));
+
     // ---------------- 食材 ----------------
     public static final RegistryObject<Item> CHEESE = simple("cheese", 2);
     public static final RegistryObject<Item> PIZZA_BASE = simple("pizza_base", 3);

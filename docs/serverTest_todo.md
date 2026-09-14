@@ -8,7 +8,11 @@
 
 ## 0. 存档迁移与 kubejs 兼容（MissingMappings）
 
-- [ ] **启动日志无 FAIL 级 MissingMappings**：搜日志 `映射` / `Missing mapping`，kubejs:* 条目应显示 `映射 kubejs:xxx -> tothesky:xxx`（INFO 级）。覆盖方块/物品/流体/流体桶/状态效果/音效/方块实体（`MissingMappingEvents`）
+- [ ] **启动日志无 FAIL 级 MissingMappings**：搜日志 `映射` / `Missing mapping`，kubejs:* 条目应显示 `映射 kubejs:xxx -> tothesky:xxx`（INFO 级）。覆盖方块/物品/流体/流体桶/状态效果/音效（`MissingMappingEvents`）；方块实体类型不走该事件，走 `KjsRegistryAliasEvents` 的注册表别名
+- [ ] **饺子（世界 + 物品栏 NBT 不丢）**：
+  - 物品栏/箱子里的 `kubejs:raw_dumpling`（带 filling/author）、`cooked_dumpling`、`dumpling_wrapper`、`raw_dumpling_plate`、`cooked_dumpling_plate` 变 `tothesky:` 同名物品，馅料/厨师/自定义名/lore 原样保留
+  - 世界里已放置的一盘熟饺子（`kubejs:cooked_dumpling_plate`）显示为 tothesky 方块，`bite`/`facing` 保持，右键仍能逐个取食（馅料来自方块实体的 `data.filling`/`data.author`）
+  - 通过 厨锅/森罗汤锅 的脚本流程（`dumpling_making.js`）走一遍包制→煮→放置→取食，确认注册可用
 - [ ] **已放置方块保留**：旧存档里的售货机/扭蛋机/披萨/拉面/酒坊机器/鸡尾酒杯，外观与位置完好（同名 remap 生效）
 - [ ] **披萨阶段方块**：存档里 `pizza_margarita2/3/4`、`pork_pizza2/3/4`、`apple_pizza2/3/4`（9 个阶段方块）显示为对应缺角模型；右键给切片并进入下一阶段（末阶段变空气）
 - [ ] **售货机/扭蛋机内容物**：打开旧存档的售货机，商品栏位、owner、价格（price1.price2）与已售数据还在

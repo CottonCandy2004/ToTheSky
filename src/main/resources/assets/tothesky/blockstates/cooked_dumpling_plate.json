@@ -3,7 +3,7 @@
         "bite=0,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate"
         },
-        "bite=0,,facing=east": {
+        "bite=0,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate",
             "y": 90
         },
@@ -11,14 +11,14 @@
             "model": "tothesky:block/cooked_dumpling_plate",
             "y": 180
         },
-        "bite=0,,facing=west": {
+        "bite=0,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate",
             "y": 270
         },
         "bite=1,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_1"
         },
-        "bite=1,,facing=east": {
+        "bite=1,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_1",
             "y": 90
         },
@@ -26,14 +26,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_1",
             "y": 180
         },
-        "bite=1,,facing=west": {
+        "bite=1,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_1",
             "y": 270
         },
         "bite=2,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_2"
         },
-        "bite=2,,facing=east": {
+        "bite=2,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_2",
             "y": 90
         },
@@ -41,14 +41,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_2",
             "y": 180
         },
-        "bite=2,,facing=west": {
+        "bite=2,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_2",
             "y": 270
         },
         "bite=3,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_3"
         },
-        "bite=3,,facing=east": {
+        "bite=3,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_3",
             "y": 90
         },
@@ -56,14 +56,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_3",
             "y": 180
         },
-        "bite=3,,facing=west": {
+        "bite=3,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_3",
             "y": 270
         },
         "bite=4,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_4"
         },
-        "bite=4,,facing=east": {
+        "bite=4,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_4",
             "y": 90
         },
@@ -71,14 +71,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_4",
             "y": 180
         },
-        "bite=4,,facing=west": {
+        "bite=4,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_4",
             "y": 270
         },
         "bite=5,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_5"
         },
-        "bite=5,,facing=east": {
+        "bite=5,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_5",
             "y": 90
         },
@@ -86,14 +86,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_5",
             "y": 180
         },
-        "bite=5,,facing=west": {
+        "bite=5,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_5",
             "y": 270
         },
         "bite=6,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_6"
         },
-        "bite=6,,facing=east": {
+        "bite=6,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_6",
             "y": 90
         },
@@ -101,14 +101,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_6",
             "y": 180
         },
-        "bite=6,,facing=west": {
+        "bite=6,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_6",
             "y": 270
         },
         "bite=7,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_7"
         },
-        "bite=7,,facing=east": {
+        "bite=7,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_7",
             "y": 90
         },
@@ -116,14 +116,14 @@
             "model": "tothesky:block/cooked_dumpling_plate_7",
             "y": 180
         },
-        "bite=7,,facing=west": {
+        "bite=7,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_7",
             "y": 270
         },
         "bite=8,facing=north": {
             "model": "tothesky:block/cooked_dumpling_plate_8"
         },
-        "bite=8,,facing=east": {
+        "bite=8,facing=east": {
             "model": "tothesky:block/cooked_dumpling_plate_8",
             "y": 90
         },
@@ -131,7 +131,7 @@
             "model": "tothesky:block/cooked_dumpling_plate_8",
             "y": 180
         },
-        "bite=8,,facing=west": {
+        "bite=8,facing=west": {
             "model": "tothesky:block/cooked_dumpling_plate_8",
             "y": 270
         }

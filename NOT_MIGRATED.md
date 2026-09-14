@@ -90,7 +90,7 @@
 | `place_drink_block.js` | `block/DrinkGlassBlock` + `cocktail/CocktailHelper` |
 | `wine_cabinet_interact.js` | `fstwines` 数据驱动（酒柜方块在 fstwines 模组） |
 | `brewing_barrel_interact.js` | 已被注释禁用 |
-| `dumpling_making.js` | `dumpling/` 包全套 |
+| `dumpling_making.js` | **未取代**（见下，1.20.1 分支只保留注册，玩法逻辑仍在该脚本） |
 | `sell&roll.js` | `event/VendingEvents` |
 | `item_events.js` 采血/竹蜻蜓/收割黑夜/礼花 | `item/HemostixPlusItem` / `CopterItem` / `HarvestTheNightItem` / `SparklerItem` |
 | `dew_of_oblivion_use.js`（PR#56） | `item/DewOfOblivionItem` |
@@ -112,10 +112,23 @@
 | PR#21 按键绑定 `startup_scripts/client/keyBinding.js` | 客户端按键绑定（服务端无逻辑，客户端功能留 kjs） |
 | `startup_scripts/instruments.js` | 乐器注册 + ModSounds |
 
-## 九、kubejs v4Update 分支（RiaFST 4 KubeJS 脚本库的 mod 并行版）
+## 九、饺子（1.20.1 分支只保留注册）
 
+1.21.1 分支的饺子玩法实现（`dumpling/` 包、厨锅会话、盘子方块等）曾在 1.20.1 移植（`ec53c5c`），随后由 `79efe9b` 整体移除。本分支现在**只保留注册**，供 RiaFST 4 仍在使用的 `dumpling_making.js` 与旧存档继续工作：
+
+| 注册 | 位置 | 说明 |
+|------|------|------|
+| `dumpling_wrapper` / `raw_dumpling` / `raw_dumpling_plate` / `cooked_dumpling` / `cooked_dumpling_plate`（物品） | `registry/ModItems` | 数值与旧 kjs 一致（饺子 4 饥饿/1.0 饱和/快速进食、两种盘子不可堆叠） |
+| `cooked_dumpling_plate`（方块） | `registry/ModBlocks` + `block/CookedDumplingPlateBlock` | `bite 0-9` + `facing`，与旧 kjs `cardinal` 方块状态一致，无掉落 |
+| `dumpling_plate`（方块实体） | `registry/ModBlockEntities` + `blockentity/DumplingPlateBlockEntity` | 内容物 NBT（`data.filling` / `data.author`）原样透传 |
+
+- 玩法（包制、下锅、取食、命名）**没有** Java 实现，全部依赖脚本；`MissingMappingEvents` 负责 `kubejs:*` → `tothesky:*` 的存档 remap。
+- 方块实体类型的 kjs→tothesky 映射走 `event/KjsRegistryAliasEvents` 的**注册表别名**，而非 MissingMappingsEvent：该注册表在 Forge 侧 `disableSaving()`，从不写进存档快照，永远不会产生缺失映射事件，而区块里的方块实体是按名字解析的。
+- 资源（贴图 / 方块模型 / blockstate / 物品模型 / lang）已恢复；`cooked_dumpling_plate` 的方块模型带 `render_type: minecraft:cutout`。
+
+## 十、kubejs v4Update 分支（RiaFST 4 KubeJS 脚本库的 mod 并行版）
 RiaFST 4 的 kubejs 脚本库已建 `v4Update` 分支（从 main 分出）：
 - **已删除**：全部迁移到 mod 的注册与逻辑（startup 注册、food/item/block events、售货机、镰刀、检查站、乐器、鸡尾酒放置、雕刻台、遗忘之露、扳手拆除、配方段等），assets/kubejs 仅保留 FPS 活动物品与 player_seat 几何。
 - **保留并改指 tothesky: id**：dumpling_making（汤锅段未迁）、wine_server（酿酒逻辑未迁——WineCraftingTableBlock 仅注册方块形态）、loots、tooltips/jeiModify/ponder、party 脚本。
 - **保留 kubejs: 注册**：fps.js 的 event_item_1~5（活动物品）、seat/player_seat（座椅实体）、guitar_sound 之外的 kjs 端音效无。
-- 旧存档迁移依赖 mod 的 MissingMappingsEvent（`event/MissingMappingEvents`）：kubejs:* → tothesky:* 全注册表 remap（方块/物品/流体/效果/音效/方块实体，含披萨阶段方块与 cooked_dumpling_plate→dumpling_plate 特例）。
+- 旧存档迁移：`event/MissingMappingEvents` 做 kubejs:* → tothesky:* 的注册表 remap（方块/物品/流体/效果/音效，含披萨阶段方块）；方块实体类型因 Forge 侧 `disableSaving()` 不走该事件，由 `event/KjsRegistryAliasEvents` 在 `RegisterEvent` 里加注册表别名（`kubejs:cooked_dumpling_plate` → `tothesky:dumpling_plate` 等）。
