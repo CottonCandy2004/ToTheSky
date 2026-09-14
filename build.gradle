@@ -172,6 +172,16 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    // 1.20.1 分支面向 Java 17：显式钉死字节码版本。
+    // 本分支自 64df0b8 起没有任何 Java 版本设置（迁移时删掉了 NeoForge 的 toolchain 21 却忘了补 17），
+    // javac 于是按 Gradle 守护进程的 JDK 出字节码——本机是 JDK 21 → class file v65，
+    // 而 dev 客户端跑在 JDK 17（D:\Program Files\Java\jdk-17）上，任何**延迟加载**的类
+    // 都会 UnsupportedClassVersionError 崩客户端。踩中的就是右键：
+    // ForgeHooks.onRightClickBlock → ModGameEvents.onRightClickBlock:46 → 首次加载 CocktailHelper，
+    // 表现成「右键方块（含日历）没反应 / 客户端崩溃」。
+    // release 而非 toolchain：不需要额外发现/下载 JDK 17，且顺带把编译期 API 面限制在 17，
+    // 防止误用 18+ 的 API 在 17 运行时变成 NoSuchMethodError。
+    options.release = 17
 }
 
 idea {
