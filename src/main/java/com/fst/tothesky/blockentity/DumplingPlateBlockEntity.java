@@ -3,7 +3,9 @@ package com.fst.tothesky.blockentity;
 import com.fst.tothesky.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -25,7 +27,15 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@code saveWithoutMetadata().getCompound("data")} 返回的对象，只有活引用才会落到存档。
  */
 public class DumplingPlateBlockEntity extends BlockEntity {
+    /** 一盘固定 8 份 */
+    public static final int SLOTS = 8;
+    /** 找不到厨师名时的占位（与旧脚本一致） */
+    public static final String UNKNOWN_AUTHOR = "Unknown";
+
     private static final String TAG_DATA = "data";
+    private static final String TAG_FILLING = "filling";
+    private static final String TAG_AUTHOR = "author";
+    private static final String TAG_NAME = "name";
     /** 过渡版 1.20.1 移植（79efe9b 之前）用的键，读取时一并兼容 */
     private static final String TAG_CONTENTS_LEGACY = "contents";
 
@@ -38,6 +48,31 @@ public class DumplingPlateBlockEntity extends BlockEntity {
     /** 内容物标签的活引用（脚本与会写的调用方直接在其上操作） */
     public CompoundTag data() {
         return data;
+    }
+
+    /** 第 {@code index} 份馅料；缺省或不合法返回 EMPTY */
+    public ItemStack fillingAt(int index) {
+        if (!(data.get(TAG_FILLING) instanceof ListTag list) || index < 0 || index >= list.size()) {
+            return ItemStack.EMPTY;
+        }
+        Tag entry = list.get(index);
+        return entry instanceof CompoundTag compound ? ItemStack.of(compound) : ItemStack.EMPTY;
+    }
+
+    /**
+     * 第 {@code index} 份的厨师名。
+     * 新格式是 {@code {name: "..."}} 复合标签（旧脚本），过渡版移植写的是纯字符串，
+     * 两种都读。
+     */
+    public String authorAt(int index) {
+        if (!(data.get(TAG_AUTHOR) instanceof ListTag list) || index < 0 || index >= list.size()) {
+            return UNKNOWN_AUTHOR;
+        }
+        Tag entry = list.get(index);
+        if (entry instanceof CompoundTag compound && compound.contains(TAG_NAME, Tag.TAG_STRING)) {
+            return compound.getString(TAG_NAME);
+        }
+        return entry.getId() == Tag.TAG_STRING ? entry.getAsString() : UNKNOWN_AUTHOR;
     }
 
     @Override

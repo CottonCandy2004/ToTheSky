@@ -165,9 +165,9 @@ public final class ModItems {
     /** 一盘生饺子（不可堆叠） */
     public static final RegistryObject<Item> RAW_DUMPLING_PLATE = ITEMS.register("raw_dumpling_plate",
             () -> new Item(new Item.Properties().stacksTo(1)));
-    /** 饺子：数值对齐旧 kjs（4 饥饿 / 1.0 饱和度 / 快速进食） */
+    /** 饺子：数值对齐旧 kjs（4 饥饿 / 1.0 饱和度 / 快速进食）；吃下后按馅料生效 */
     public static final RegistryObject<Item> COOKED_DUMPLING = ITEMS.register("cooked_dumpling",
-            () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+            () -> new com.fst.tothesky.item.CookedDumplingItem(new Item.Properties().food(new FoodProperties.Builder()
                     .nutrition(4).saturationMod(1.0f)
                     .fast()
                     .build())));

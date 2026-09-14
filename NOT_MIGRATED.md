@@ -112,9 +112,9 @@
 | PR#21 按键绑定 `startup_scripts/client/keyBinding.js` | 客户端按键绑定（服务端无逻辑，客户端功能留 kjs） |
 | `startup_scripts/instruments.js` | 乐器注册 + ModSounds |
 
-## 九、饺子（1.20.1 分支只保留注册）
+## 九、饺子（1.20.1 分支：注册 + 取食/食用已迁，包制与煮制仍在脚本）
 
-1.21.1 分支的饺子玩法实现（`dumpling/` 包、厨锅会话、盘子方块等）曾在 1.20.1 移植（`ec53c5c`），随后由 `79efe9b` 整体移除。本分支现在**只保留注册**，供 RiaFST 4 仍在使用的 `dumpling_making.js` 与旧存档继续工作：
+1.21.1 分支的饺子玩法实现（`dumpling/` 包、厨锅会话、盘子方块等）曾在 1.20.1 移植（`ec53c5c`），随后由 `79efe9b` 整体移除。本分支重建了注册，并把**取食**与**食用**搬进了 Java：
 
 | 注册 | 位置 | 说明 |
 |------|------|------|
@@ -122,8 +122,22 @@
 | `cooked_dumpling_plate`（方块） | `registry/ModBlocks` + `block/CookedDumplingPlateBlock` | `bite 0-9` + `facing`，与旧 kjs `cardinal` 方块状态一致，无掉落 |
 | `dumpling_plate`（方块实体） | `registry/ModBlockEntities` + `blockentity/DumplingPlateBlockEntity` | 内容物 NBT（`data.filling` / `data.author`）原样透传 |
 
-- 玩法（包制、下锅、取食、命名）**没有** Java 实现，全部依赖脚本；`MissingMappingEvents` 负责 `kubejs:*` → `tothesky:*` 的存档 remap。
-- 方块实体类型的 kjs→tothesky 映射走 `event/KjsRegistryAliasEvents` 的**注册表别名**，而非 MissingMappingsEvent：该注册表在 Forge 侧 `disableSaving()`，从不写进存档快照，永远不会产生缺失映射事件，而区块里的方块实体是按名字解析的。
+已迁入 Java 的逻辑：
+
+| 逻辑 | 实现 | 脚本侧 |
+|------|------|--------|
+| 从一盘熟饺子逐个取出 | `block/CookedDumplingPlateBlock.use`（`bite` 兼作已取份数与下标，第 8 口还碗并移除方块） | 原 `BlockEvents.rightClicked("tothesky:cooked_dumpling_plate")` **已删** |
+| 吃饺子按馅料生效 | `item/CookedDumplingItem.finishUsingItem`（可食用馅料委托其 `finishUsingItem` 让玩家真的吃下，容器回收进背包；不可食用原样给到手） | 原 `ItemEvents.foodEaten("tothesky:cooked_dumpling")` **已删**（含随之失去引用的 `dumpling$spawnFakeTNT`） |
+| 饺子命名/评语/颜色/时长 | `dumpling/DumplingNamer` + `dumpling/DumplingFactory` | 与脚本 `dumpling$processNBT` 同种子同抽取顺序，两边同名 |
+| 放置一盘饺子时搬内容物进方块实体 | `item/CookedDumplingPlateItem#updateCustomBlockEntityTag` | 脚本的「邻位补数据」分支保留（对已放置的盘子仍有效） |
+
+**为何必须删脚本侧那两个处理**：Forge 的 `PlayerInteractEvent.RightClickBlock` 先于 `BlockState.use()` 触发（`ServerPlayerGameMode`），两边都执行会导致**一次右键取出两只饺子**、第 8 口返还两个碗、食用时馅料被吃两遍/给两份。`ItemEvents.foodEaten` 同理与 `finishUsingItem` 叠加。
+
+仍在脚本里的：包制（砧板/长按）、厨锅与森罗汤锅的煮制、饺子的枚举与 lore 生成入口。
+
+**行为差异（按需求刻意为之）**：旧脚本对 `minecraft:tnt` 馅料会生成一个不破坏方块的假 TNT；新实现把 TNT 当普通不可食用物品**直接给到手中**。
+
+- `MissingMappingEvents` 负责 `kubejs:*` → `tothesky:*` 的存档 remap；方块实体类型走 `event/KjsRegistryAliasEvents` 的**注册表别名**（该注册表在 Forge 侧 `disableSaving()`，从不写进存档快照，永远不会产生缺失映射事件，而区块里的方块实体是按名字解析的）。
 - 资源（贴图 / 方块模型 / blockstate / 物品模型 / lang）已恢复；`cooked_dumpling_plate` 的方块模型带 `render_type: minecraft:cutout`。
 
 ## 十、kubejs v4Update 分支（RiaFST 4 KubeJS 脚本库的 mod 并行版）

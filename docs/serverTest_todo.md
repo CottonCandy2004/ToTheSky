@@ -11,8 +11,13 @@
 - [ ] **启动日志无 FAIL 级 MissingMappings**：搜日志 `映射` / `Missing mapping`，kubejs:* 条目应显示 `映射 kubejs:xxx -> tothesky:xxx`（INFO 级）。覆盖方块/物品/流体/流体桶/状态效果/音效（`MissingMappingEvents`）；方块实体类型不走该事件，走 `KjsRegistryAliasEvents` 的注册表别名
 - [ ] **饺子（世界 + 物品栏 NBT 不丢）**：
   - 物品栏/箱子里的 `kubejs:raw_dumpling`（带 filling/author）、`cooked_dumpling`、`dumpling_wrapper`、`raw_dumpling_plate`、`cooked_dumpling_plate` 变 `tothesky:` 同名物品，馅料/厨师/自定义名/lore 原样保留
-  - 世界里已放置的一盘熟饺子（`kubejs:cooked_dumpling_plate`）显示为 tothesky 方块，`bite`/`facing` 保持，右键仍能逐个取食（馅料来自方块实体的 `data.filling`/`data.author`）
+  - 世界里已放置的一盘熟饺子（`kubejs:cooked_dumpling_plate`）显示为 tothesky 方块，`bite`/`facing` 保持
   - 通过 厨锅/森罗汤锅 的脚本流程（`dumpling_making.js`）走一遍包制→煮→放置→取食，确认注册可用
+- [ ] **一盘熟饺子取食（`CookedDumplingPlateBlock.use`）**：右键逐个取出，每次 1 只且 `bite` +1，模型随 {bite} 显示剩余数量；第 8 只取完后 `bite=8`，再右键返还 1 个碗并移除方块；手持另一盘饺子右键时不取食、正常放置；副手右键不触发
+- [ ] **吃熟饺子按馅料生效（`CookedDumplingItem`）**：
+  - 可食用馅料（苹果/面包/金苹果/甜菜汤等）：玩家真的吃下该馅料——食物值按馅料增加，金苹果给吸收+再生、腐肉给饥饿，甜菜汤返还碗，紫颂果等自定义 `finishUsingItem` 逻辑同样生效
+  - 不可食用馅料（钻石等）：原样给到手中（背包满则掉落）
+  - 带馅的饺子吃下后仍按旧 kjs 的 `dumpling_making.js` 包制流程得到的 NBT 生效
 - [ ] **已放置方块保留**：旧存档里的售货机/扭蛋机/披萨/拉面/酒坊机器/鸡尾酒杯，外观与位置完好（同名 remap 生效）
 - [ ] **披萨阶段方块**：存档里 `pizza_margarita2/3/4`、`pork_pizza2/3/4`、`apple_pizza2/3/4`（9 个阶段方块）显示为对应缺角模型；右键给切片并进入下一阶段（末阶段变空气）
 - [ ] **售货机/扭蛋机内容物**：打开旧存档的售货机，商品栏位、owner、价格（price1.price2）与已售数据还在

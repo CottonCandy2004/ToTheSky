@@ -1,13 +1,17 @@
 package com.fst.tothesky.item;
 
 import com.fst.tothesky.blockentity.DumplingPlateBlockEntity;
+import com.fst.tothesky.registry.ModNbt;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * 一盘熟饺子的物品形态：放置成功时把物品 NBT 里的内容物原样搬进方块实体的 {@code data} 标签。
@@ -16,53 +20,39 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  * 脚本侧原本靠 rightClicked 里补邻位方块实体的做法对不可堆叠物品失效（放置时主手已空），
  * 故在 Java 侧可靠地完成转移。
  *
- * <p>兼容两种历史物品 NBT：
- * <ul>
- *   <li>脚本产出的 {@code filling} + {@code author}（挂在根标签）；</li>
- *   <li>过渡版 1.20.1 移植产出的 {@code dumpling_plate}（内含 filling/author 的复合标签）。</li>
- * </ul>
+ * <p>挂 {@link #updateCustomBlockEntityTag} 而不是自己包一层 {@code place()}：
+ * 该钩子由 {@code BlockItem.place} 在方块真正放置成功之后、以**放置位置**调用，
+ * 省掉自己推算落点（右键面、可替换方块）的麻烦，也不会在放置失败时误写。
+ * 仍然先调 {@code super} 保留原版 {@code BlockEntityTag} 的处理。
+ *
+ * <p>键的兼容分支见 {@link ModNbt#plateContents}：新格式是挂在物品根标签上的
+ * {@code filling} + {@code author}，过渡版 1.20.1 移植则包在 {@code dumpling_plate} 里。
  * 只搬运这两个键，不把 {@code display} 等展示信息写进方块实体。
  */
 public class CookedDumplingPlateItem extends BlockItem {
-    private static final String TAG_FILLING = "filling";
-    private static final String TAG_AUTHOR = "author";
-    /** 过渡版 1.20.1 移植（79efe9b 之前）的物品键 */
-    private static final String TAG_PLATE_LEGACY = "dumpling_plate";
-
     public CookedDumplingPlateItem(Block block, Properties properties) {
         super(block, properties);
     }
 
     @Override
-    public InteractionResult place(BlockPlaceContext context) {
-        // super.place 会消耗物品栈，先取快照
-        CompoundTag itemTag = context.getItemInHand().getTag();
-        CompoundTag contents = contentsOf(itemTag == null ? null : itemTag.copy());
-
-        InteractionResult result = super.place(context);
-        if (result.consumesAction() && contents != null && !context.getLevel().isClientSide) {
-            BlockEntity blockEntity = context.getLevel().getBlockEntity(context.getClickedPos());
-            if (blockEntity instanceof DumplingPlateBlockEntity plate) {
-                CompoundTag target = plate.data();
-                for (String key : new String[]{TAG_FILLING, TAG_AUTHOR}) {
-                    if (contents.contains(key)) {
-                        target.put(key, contents.get(key).copy());
-                    }
-                }
-                plate.setChanged();
+    protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player,
+                                                 ItemStack stack, BlockState state) {
+        boolean handled = super.updateCustomBlockEntityTag(pos, level, player, stack, state);
+        CompoundTag contents = ModNbt.plateContents(stack.getTag());
+        if (contents == null) {
+            return handled;
+        }
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof DumplingPlateBlockEntity plate)) {
+            return handled;
+        }
+        CompoundTag target = plate.data();
+        for (String key : new String[]{ModNbt.DUMPLING_FILLING, ModNbt.DUMPLING_AUTHOR}) {
+            if (contents.contains(key)) {
+                target.put(key, contents.get(key).copy());
             }
         }
-        return result;
-    }
-
-    /** 取出承载内容物的复合标签；无内容物返回 null */
-    private static CompoundTag contentsOf(CompoundTag tag) {
-        if (tag == null) {
-            return null;
-        }
-        if (tag.contains(TAG_PLATE_LEGACY, Tag.TAG_COMPOUND)) {
-            return tag.getCompound(TAG_PLATE_LEGACY);
-        }
-        return tag.contains(TAG_FILLING) || tag.contains(TAG_AUTHOR) ? tag : null;
+        plate.setChanged();
+        return true;
     }
 }
