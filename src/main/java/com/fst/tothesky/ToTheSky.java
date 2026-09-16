@@ -45,5 +45,10 @@ public class ToTheSky {
         com.fst.tothesky.registry.ModSounds.SOUNDS.register(modEventBus);
 
         ModNetwork.register();
+
+        // 首次加载即备好 config/tothesky/letters（三份示例 + 默认 birthday.json）：
+        // 放到模组构造期，玩家还没进世界就能改配置。只做文件 IO，不碰注册表，
+        // 且不引用任何 Contact 类，缺 Contact 也照常生成。
+        com.fst.tothesky.contact.LetterLibrary.ensureDefaultFiles();
     }
 }
