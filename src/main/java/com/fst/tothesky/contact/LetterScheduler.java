@@ -54,6 +54,10 @@ import java.util.Set;
  * 不碰磁盘（读 {@code usercache.json} 最坏一天一次，见 {@link #recipientNames}）。
  * 所以改完 json 要跑一次命令——顺带也能立刻投出当天该发的信，方便调试。
  *
+ * <p><b>命令 vs 日常检查的差别</b>：命令会把「本应在今天投递」的信**重新武装再发一次**
+ * （哪怕今天已经投过），日常 60 秒检查则严格按已记录的 {@code nextDue} 判断、绝不重发。
+ * 实现见 {@link #deliverDue} 的 {@code rearmToday}。
+ *
  * <p><b>为什么投递检查是 60 秒</b>：投递粒度是「天」，检查间隔只需保证跨过午夜后能在
  * **第一分钟内**命中——最坏情况是午夜后 59.9 秒扫到，仍在当天第一分钟内。
  *
@@ -116,16 +120,21 @@ public final class LetterScheduler {
             // 本场服务器首轮：读一次配置。目录与默认文件的生成不依赖 Contact，缺 Contact 时也照样备好
             reloadFromDisk();
         }
-        deliverDue(server);
+        // 日常检查：已投过的不重发（nextDue 已推进）
+        deliverDue(server, false);
     }
 
     /**
      * 重读配置并立刻投递一轮（{@code /tothesky reloadletters}）。
+     * <p><b>今天的信会重新投一遍</b>：凡是「本应在今天投递」的信，无论此前是否已经投过，
+     * 这次都重新武装并再发一次（见 {@code rearmToday}）——所以命令跑两次就会收到两份，
+     * 这是给「改完 json 想立刻看到效果 / 手工补发」用的。
+     *
      * <p>必须由服务端线程调用（命令执行天然满足；HTTP 之类的异线程入口需先 {@code server.execute(...)}）。
      */
     public static ReloadResult reload(MinecraftServer server) {
         reloadFromDisk();
-        return new ReloadResult(letters.size(), deliverDue(server), ContactMail.loaded());
+        return new ReloadResult(letters.size(), deliverDue(server, true), ContactMail.loaded());
     }
 
     /** 备好目录与默认文件，然后把目录里的信读进来 */
@@ -134,8 +143,14 @@ public final class LetterScheduler {
         letters = LetterLibrary.reload();
     }
 
-    /** 按当前生效的定义投递所有到期的信；返回投递成功数 */
-    private static int deliverDue(MinecraftServer server) {
+    /**
+     * 按当前生效的定义投递所有到期的信；返回投递成功数。
+     *
+     * @param rearmToday 命令重载时为 {@code true}：「本轮该投的日期正好是今天」的信一律重新武装并重发
+     *                   （哪怕它的 {@code nextDue} 已经被推进到明年）；日常检查传 {@code false}，
+     *                   只按已记录的 {@code nextDue} 判断，绝不重发。
+     */
+    private static int deliverDue(MinecraftServer server, boolean rearmToday) {
         List<FestivalLetter> current = letters;
         if (current == null) {
             return 0;
@@ -159,17 +174,19 @@ public final class LetterScheduler {
                     recipients = recipientNames(server);
                 }
                 for (CalendarEvent festival : bound) {
-                    delivered += deliverFestivalLetter(letter, festival, recipients, state, live, today) ? 1 : 0;
+                    delivered += deliverFestivalLetter(letter, festival, recipients, state, live, today,
+                            rearmToday) ? 1 : 0;
                 }
             } else if (!letter.template()) {
                 if (letter.trigger() == FestivalLetter.Trigger.BIRTHDAY) {
                     for (CalendarEvent event : events) {
                         if (CalendarEvent.TYPE_BIRTHDAY.equals(event.type)) {
-                            delivered += deliverBirthdayLetter(letter, event, state, live, today) ? 1 : 0;
+                            delivered += deliverBirthdayLetter(letter, event, state, live, today,
+                                    rearmToday) ? 1 : 0;
                         }
                     }
                 } else {
-                    delivered += deliverDateLetter(letter, state, live, today) ? 1 : 0;
+                    delivered += deliverDateLetter(letter, state, live, today, rearmToday) ? 1 : 0;
                 }
             }
         }
@@ -194,17 +211,22 @@ public final class LetterScheduler {
 
     /** {@code trigger=date}：收件人与日期来自 json；返回是否投出 */
     private static boolean deliverDateLetter(FestivalLetter letter, LetterStateData state,
-                                             Set<String> live, LocalDate today) {
+                                             Set<String> live, LocalDate today, boolean rearmToday) {
         String id = letter.id();
         live.add(id);
         long todayEpoch = today.toEpochDay();
+        long fresh = letter.nextOccurrenceOn(today);
         String knownSpec = state.spec(id);
         Long due = knownSpec != null && knownSpec.equals(letter.dateSpec())
                 ? state.nextDue(id)
                 : null;
-        if (due == null) {
+        if (rearmToday && fresh == todayEpoch) {
+            // 命令重载：本应今天投的这封信重新武装（原本可能已投并推进到明年），于是重发一次
+            due = todayEpoch;
+            state.put(id, letter.dateSpec(), due);
+        } else if (due == null) {
             // 首次见到，或 JSON 里的日期被改过：以今天为基准重新排期
-            due = letter.nextOccurrenceOn(today);
+            due = fresh;
             state.put(id, letter.dateSpec(), due);
         }
         if (todayEpoch < due) {
@@ -230,7 +252,8 @@ public final class LetterScheduler {
      * 同一人的生日日期改了也不会串味。返回是否投出。
      */
     private static boolean deliverBirthdayLetter(FestivalLetter letter, CalendarEvent birthday,
-                                                 LetterStateData state, Set<String> live, LocalDate today) {
+                                                 LetterStateData state, Set<String> live, LocalDate today,
+                                                 boolean rearmToday) {
         String name = birthday.name;
         MonthDay monthDay = monthDayOf(birthday);
         if (monthDay == null) {
@@ -241,7 +264,7 @@ public final class LetterScheduler {
             warnBadRecipient("生日信 " + letter.id(), name, monthDayText(monthDay));
             return false;
         }
-        return deliverRecurring(letter, name, monthDay, "生日信", state, live, today);
+        return deliverRecurring(letter, name, monthDay, "生日信", state, live, today, rearmToday);
     }
 
     /**
@@ -251,7 +274,7 @@ public final class LetterScheduler {
      */
     private static boolean deliverFestivalLetter(FestivalLetter letter, CalendarEvent festival,
                                                  List<String> recipients, LetterStateData state,
-                                                 Set<String> live, LocalDate today) {
+                                                 Set<String> live, LocalDate today, boolean rearmToday) {
         MonthDay monthDay = monthDayOf(festival);
         if (monthDay == null) {
             warnBadDate("节日信", letter.id(), festival);
@@ -269,7 +292,7 @@ public final class LetterScheduler {
         }
         boolean any = false;
         for (String name : recipients) {
-            if (deliverRecurring(letter, name, monthDay, "节日信", state, live, today)) {
+            if (deliverRecurring(letter, name, monthDay, "节日信", state, live, today, rearmToday)) {
                 any = true;
             }
         }
@@ -280,17 +303,24 @@ public final class LetterScheduler {
      * 给单个收件人投递一封「按日历月-日逐年循环」的信（生日信与节日绑定信共用）：
      * 首次见到按今天排期（已过的今年日期顺延到明年），到期即投，投出后推进到明年。
      * 返回是否投出。
+     *
+     * @param rearmToday 见 {@link #deliverDue}——命令重载时把「正好是今天」的那一次重新武装
      */
     private static boolean deliverRecurring(FestivalLetter letter, String recipient, MonthDay monthDay,
                                             String kind, LetterStateData state, Set<String> live,
-                                            LocalDate today) {
+                                            LocalDate today, boolean rearmToday) {
         String dayText = monthDayText(monthDay);
         String key = recipientKey(letter.id(), recipient, dayText);
         live.add(key);
         long todayEpoch = today.toEpochDay();
+        long fresh = FestivalLetter.nextRecurringOn(monthDay, today);
         Long due = state.nextDue(key);
-        if (due == null) {
-            due = FestivalLetter.nextRecurringOn(monthDay, today);
+        if (rearmToday && fresh == todayEpoch) {
+            // 命令重载：今天这一份重新武装（可能上周目已投并推进到明年），于是再发一次
+            due = todayEpoch;
+            state.put(key, dayText, due);
+        } else if (due == null) {
+            due = fresh;
             state.put(key, dayText, due);
         }
         if (todayEpoch < due) {

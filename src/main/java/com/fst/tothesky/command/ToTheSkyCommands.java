@@ -20,6 +20,10 @@ import net.minecraftforge.fml.common.Mod;
  * 配置不会自动热重载（见 {@link LetterScheduler}），所以「改完 json」到「生效」之间就差这条命令；
  * 顺便它也会马上把当天该发的信投出去，省掉等下一轮 60 秒检查。
  *
+ * <p><b>今天的信会重发</b>：这条命令会把「本应在今天投递」的信重新武装并再发一次——
+ * 哪怕它今天已经投过了。所以连跑两次，收件人就会收到两份；这是给「改完 json 想立刻看到效果 /
+ * 手工补发」用的，日常的 60 秒检查不重发（见 {@link LetterScheduler#reload}）。
+ *
  * <p>权限等级 2（与 {@code /reload} 同级）：重载会改存档里的信件排期。
  */
 @Mod.EventBusSubscriber(modid = ToTheSky.MODID)
