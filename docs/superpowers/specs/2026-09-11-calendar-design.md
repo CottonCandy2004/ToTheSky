@@ -15,7 +15,7 @@
    - 上/下月箭头翻页（1..12 循环），年份数字取服务器现实年份。
    - 「今天」（服务器现实日期）的格子高亮。
    - 日期格渲染图标：物品 / 方块 / 玩家的头。
-3. 后端 REST API（外部网页增删查改）：JDK 内置 HttpServer，默认 `127.0.0.1:39000`，`config/tothesky_calendar.json` 可改端口与绑定地址。
+3. 后端 REST API（外部网页增删查改）：JDK 内置 HttpServer，默认 `127.0.0.1:39000`，`config/tothesky-common.toml` 的 `calendar.port`/`calendar.bindAddress`（Forge COMMON 配置）可改端口与绑定地址。
 4. 数据持久化：Overworld SavedData（随存档保存，与现有 `CheckerIndexData` 模式一致）。
 5. 编辑全走外部 API；游戏内 GUI 只读。
 

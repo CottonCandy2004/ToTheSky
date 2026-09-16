@@ -1,5 +1,6 @@
 package com.fst.tothesky;
 
+import com.fst.tothesky.config.ToTheSkyConfig;
 import com.fst.tothesky.network.ModNetwork;
 import com.fst.tothesky.registry.ModBlockEntities;
 import com.fst.tothesky.registry.ModBlocks;
@@ -12,8 +13,9 @@ import com.fst.tothesky.registry.ModRecipes;
 import com.fst.tothesky.registry.ModTabs;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -24,6 +26,8 @@ public class ToTheSky {
 
     public ToTheSky(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
+
+        context.registerConfig(ModConfig.Type.COMMON, ToTheSkyConfig.SPEC);
 
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
