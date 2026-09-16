@@ -49,9 +49,11 @@ minecraft {
     }
 }
 
-// 数据生成输出随资源打包（与 main 分支一致）
+// 数据生成输出随资源打包（与 main 分支一致）；
+// build/mixin/ 下是 mixin AP 生成的 refmap（打包进 jar，mixins.json 引用）
 sourceSets.main.resources {
     srcDir 'src/generated/resources'
+    srcDir layout.buildDirectory.dir('mixin')
     exclude 'src/generated/**/.cache'
 }
 
@@ -108,6 +110,10 @@ dependencies {
     implementation fg.deobf("nethersdelight:nethersdelight-1.20.1:4.0")
     // Create Crafts & Additions：RiaFST 4 的 createaddition-1.20.1-1.3.3.jar（依赖 create，已接入）
     implementation fg.deobf("createaddition:createaddition-1.20.1:1.3.3")
+    // Contact（往来）：RiaFST 4 的 Contact-forge-1.2.3.jar，硬依赖 oelib（0.1.3+）
+    implementation fg.deobf("contact:contact:1.2.3")
+    // OELib：Contact 的库 mod（json5-java/lunar 以 jarjar 内嵌，无额外外部依赖）
+    implementation fg.deobf("oelib:oelib:0.2.4.1")
 
 
 
@@ -123,8 +129,56 @@ dependencies {
 
 }
 
+// Mixin 注解处理器：生成 official→SRG refmap（生产 obf 环境解析 @Inject 目标必需）
+// build/createSrgToMcp/output.srg 是 ForgeGradle 6 生成的 TSrg v1（CL/FD/MD 行），
+// mixin 0.8.5 AP 以 "srg:" 环境名消费它，输出 refmap 到 build/mixin/
+configurations {
+    mixinProcessor
+}
+dependencies {
+    mixinProcessor "org.spongepowered:mixin:0.8.5"
+    mixinProcessor "com.google.code.gson:gson:2.10.1"
+    mixinProcessor "com.google.guava:guava:31.1-jre"
+    mixinProcessor "org.ow2.asm:asm:9.7"
+    mixinProcessor "org.ow2.asm:asm-tree:9.7"
+    mixinProcessor "org.ow2.asm:asm-commons:9.7"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (name == 'compileJava') {
+        options.annotationProcessorPath = configurations.mixinProcessor
+        options.compilerArgs += [
+                // mappingTypes=tsrg：让 MCP 服务让位、FG3 服务（TSrg2 解析）接管 searge key
+                "-AmappingTypes=tsrg",
+                // FG3 服务：TSrg2 格式，left=official（源码名）right=searge（运行时 SRG 名）
+                "-AreobfTsrgFile=${layout.buildDirectory.file('createMcpToSrg/output.tsrg').get().asFile.absolutePath}",
+                "-AoutRefMapFile=${layout.buildDirectory.file('mixin/tothesky.refmap.json').get().asFile.absolutePath}",
+                // 目标不是原版类（如 Create 的 ChainConveyorBlockEntity）时，AP 在 tsrg 里查不到
+                // 该方法的 obf 映射，会以 Kind.ERROR 报 NO_OBFDATA_FOR_TARGET / FOR_METHOD 并中断编译。
+                // mod 类在生产环境同样不混淆（只有原版成员被 SRG 化），refmap 里本来就不需要这些条目，
+                // 故降级为 NOTE：编译通过且日志仍能看到未映射的 mod 目标。
+                // 目标写错仍会被兜住——mixins.json 的 defaultRequire:1 会让游戏在加载期直接失败。
+                "-AMSG_NO_OBFDATA_FOR_TARGET=note",
+                "-AMSG_NO_OBFDATA_FOR_METHOD=note"
+        ]
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn 'createMcpToSrg'
+    // refmap 是 mixin AP 在编译期写出的文件，必须声明为任务输出。否则：
+    //   1) 构建缓存命中时只恢复 classes，refmap 不恢复（clean 后缓存命中 → build/mixin 空）；
+    //   2) 文件被删掉后 UP-TO-DATE 也不会重建。
+    // 两种情况下 mixins.json 里 "refmap" 指向的文件都不进 jar，
+    // 生产（SRG）环境注入原版方法时会解析不到目标——正是本仓库最怕的「mixin 静默失效」。
+    outputs.file(layout.buildDirectory.file('mixin/tothesky.refmap.json'))
+}
+
 // mods.toml 中的 ${} 占位符在 processResources 展开（ForgeGradle 6 无独立模板任务）
 tasks.named('processResources', ProcessResources).configure {
+    // 资源要收 build/mixin 下的 refmap（见 sourceSets.main.resources 的 srcDir），
+    // 而它由 compileJava 的 AP 产出——不声明依赖时两者顺序未定义。
+    dependsOn 'compileJava'
     var replaceProperties = [
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
