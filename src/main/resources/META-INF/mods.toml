@@ -102,6 +102,13 @@ description='''
     ordering="NONE"
     side="BOTH"
 
+[[dependencies.${mod_id}]]
+    modId="contact"
+    mandatory=false
+    versionRange="[1.2.3,)"
+    ordering="NONE"
+    side="BOTH"
+
 
 
 # 镰刀注册到 kaleidoscope_cookery 命名空间；AFTER 保证其先构造，
