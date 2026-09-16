@@ -109,6 +109,20 @@ public final class CalendarData extends SavedData {
         return null;
     }
 
+    /**
+     * 按类型 + 名称查找（名称大小写不敏感；昵称大小写不重要，玩家不该看到两条自己的生日）。
+     * 同名多条时返回第一条（{@link #all()} 的排序稳定）。找不到返回 null。
+     */
+    @Nullable
+    public CalendarEvent findByName(String type, String name) {
+        for (CalendarEvent event : all()) {
+            if (event.type.equals(type) && event.name.equalsIgnoreCase(name)) {
+                return event;
+            }
+        }
+        return null;
+    }
+
     /** 新增（替换同 id 旧值），返回存入实例 */
     public CalendarEvent add(CalendarEvent event) {
         remove(event.id);
@@ -161,6 +175,7 @@ public final class CalendarData extends SavedData {
             obj.addProperty("iconId", event.iconId);
             obj.addProperty("description", event.description);
             obj.addProperty("letter", event.letter);
+            obj.addProperty("lunar", event.lunar);
             array.add(obj);
         }
         try {
@@ -211,7 +226,8 @@ public final class CalendarData extends SavedData {
                             obj.has("iconType") ? obj.get("iconType").getAsString() : CalendarEvent.ICON_NONE,
                             obj.has("iconId") ? obj.get("iconId").getAsString() : "",
                             obj.has("description") ? obj.get("description").getAsString() : "",
-                            obj.has("letter") ? obj.get("letter").getAsString() : "");
+                            obj.has("letter") ? obj.get("letter").getAsString() : "",
+                            obj.has("lunar") && obj.get("lunar").getAsBoolean());
                     put(event);
                     merged++;
                 } catch (Exception e) {

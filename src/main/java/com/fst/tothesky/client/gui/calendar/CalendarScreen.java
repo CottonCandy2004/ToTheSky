@@ -18,7 +18,9 @@ import java.util.List;
 
 /**
  * 日历主屏幕：底图 + 日期格 + 图标轮播 + tooltip + 翻月按钮。
- * 只读（编辑走 REST API）；「今天」高亮；事件数据来自 S2C 包全量，本地翻月。
+ * 只读（编辑走 REST API 或 {@code /tothesky setbirthday}）；「今天」高亮；事件数据来自 S2C 包全量，本地翻月。
+ * <p>格子是公历的，农历生日要按**当前显示的那一年**换算成公历日才摆得上（见 {@link #monthIndex}）——
+ * 所以同一个农历生日翻到不同年份会落在不同的格子，这正是它该有的样子。
  */
 public final class CalendarScreen extends Screen {
     private static final ResourceLocation BACKGROUND =
@@ -115,6 +117,8 @@ public final class CalendarScreen extends Screen {
         }
         int days = yearMonth.lengthOfMonth();
         boolean isCurrentMonth = shownYear == packet.year && shownMonth == packet.month;
+        // 农历生日要换算成公历日：每帧只算一次，别在 31 个格子上重复换算
+        List<List<CalendarEvent>> byDay = monthIndex(yearMonth);
 
         List<Component> hoveredTooltip = null;
         int hoveredX = 0;
@@ -147,7 +151,7 @@ public final class CalendarScreen extends Screen {
             }
 
             // 当日事件（图标）
-            List<CalendarEvent> events = eventsOn(day);
+            List<CalendarEvent> events = byDay.get(day);
             if (!events.isEmpty()) {
                 CalendarEvent event = events.get(carouselIndex(events.size()));
                 renderIcon(graphics, event, cellX, cellY);
@@ -184,21 +188,34 @@ public final class CalendarScreen extends Screen {
         return size <= 1 ? 0 : (carouselCounter / CalendarConstants.CAROUSEL_PERIOD) % size;
     }
 
-    private List<CalendarEvent> eventsOn(int day) {
-        List<CalendarEvent> result = new ArrayList<>();
+    /**
+     * 当月每天的事件（下标 = day-of-month，0 号位空着）。
+     * <p>逐月问 {@link CalendarEvent#occurrenceIn}：公历事件非本月的直接落空，农历事件按当年换算
+     * （农历月份号与公历无关，同一个农历日子可能落在相邻公历月，也可能某年只有一次——
+     * 按月问才不重不漏，见 {@code CalendarEvent} 类注释）。
+     */
+    private List<List<CalendarEvent>> monthIndex(YearMonth yearMonth) {
+        int days = yearMonth.lengthOfMonth();
+        List<List<CalendarEvent>> byDay = new ArrayList<>(days + 1);
+        for (int day = 0; day <= days; day++) {
+            byDay.add(new ArrayList<>());
+        }
         for (CalendarEvent event : packet.events) {
-            if (event.month == shownMonth && event.day == day) {
-                result.add(event);
+            LocalDate occurrence = event.occurrenceIn(yearMonth);
+            if (occurrence != null) {
+                byDay.get(occurrence.getDayOfMonth()).add(event);
             }
         }
-        return result;
+        return byDay;
     }
 
     private List<Component> tooltipOf(List<CalendarEvent> events) {
         List<Component> lines = new ArrayList<>();
         for (CalendarEvent event : events) {
             String mark = CalendarEvent.TYPE_BIRTHDAY.equals(event.type) ? "🎂 " : "🎉 ";
-            lines.add(Component.literal(mark + event.displayTitle()));
+            // 农历生日摆在公历格子上，顺手把农历日期报出来，免得玩家以为是公历的那天
+            String suffix = event.lunar ? "（" + event.dateText() + "）" : "";
+            lines.add(Component.literal(mark + event.displayTitle() + suffix));
             if (!event.description.isEmpty()) {
                 lines.add(Component.literal("  " + event.description));
             }

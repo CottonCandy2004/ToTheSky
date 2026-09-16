@@ -46,6 +46,10 @@ public final class CalendarApiHandler {
     private static final Gson GSON = new Gson();
     private static final long SERVER_EXECUTE_TIMEOUT_SECONDS = 5;
 
+    /** PUT 的结果：{@code error} 非空 = 400，{@code event} 为 null = 404 */
+    private record Update(CalendarEvent event, String error) {
+    }
+
     private final MinecraftServer server;
 
     /** 服务器停机中：拒绝新请求（生命周期事件置位） */
@@ -191,7 +195,7 @@ public final class CalendarApiHandler {
         CalendarEvent created = submitOnServer(() -> {
             CalendarData data = CalendarData.get(server);
             CalendarEvent event = CalendarEvent.create(UUID.randomUUID(), v.name, v.type,
-                    v.month, v.day, v.iconType, v.iconId, v.description, v.letter);
+                    v.month, v.day, v.iconType, v.iconId, v.description, v.letter, v.lunar);
             data.add(event);
             broadcast();
             return event;
@@ -217,23 +221,37 @@ public final class CalendarApiHandler {
             respond(exchange, 400, errorJson(patch.error));
             return;
         }
-        CalendarEvent updated = submitOnServer(() -> {
+        Update result = submitOnServer(() -> {
             CalendarData data = CalendarData.get(server);
             CalendarEvent existing = data.find(id);
             if (existing == null) {
-                return null;
+                return new Update(null, null);
             }
             CalendarEvent merged = existing.with(patch.name, patch.type, patch.month, patch.day,
-                    patch.iconType, patch.iconId, patch.description, patch.letter);
+                    patch.iconType, patch.iconId, patch.description, patch.letter, patch.lunar);
+            // 部分更新拼出来的月-日可能不搭（只改 lunar 或只改 day 最容易）：合并后再校验一次，
+            // 免得存进一个排不了期、也算不出落在哪天的活动（农历月最多 30 天，公历 2 月最多 29）
+            if (!merged.hasValidDate()) {
+                return new Update(null, "invalid date for the merged event: "
+                        + (merged.lunar ? "农历" : "") + merged.month + "-" + merged.day);
+            }
             data.update(id, merged);
             broadcast();
-            return merged;
+            return new Update(merged, null);
         });
-        if (updated == null) {
+        if (result == null) {
+            respond(exchange, 503, errorJson("server busy"));
+            return;
+        }
+        if (result.error() != null) {
+            respond(exchange, 400, errorJson(result.error()));
+            return;
+        }
+        if (result.event() == null) {
             respond(exchange, 404, errorJson("event not found"));
             return;
         }
-        respond(exchange, 200, GSON.toJson(CalendarApiJson.eventObject(updated)));
+        respond(exchange, 200, GSON.toJson(CalendarApiJson.eventObject(result.event())));
     }
 
     private void handleDelete(com.sun.net.httpserver.HttpExchange exchange, String idPart) throws IOException {

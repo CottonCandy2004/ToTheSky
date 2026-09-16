@@ -14,6 +14,9 @@ import java.util.function.Supplier;
 /**
  * S2C：日历数据（open 标志 + 年 + 月 + 今天的 day-of-month + 全量事件）。
  * 客户端处理经 DistExecutor 隔离，专用服安全。
+ *
+ * <p>{@code lunar} 要传：日历 GUI 只有公历格子，农历生日得在客户端换算成当年的公历日才放得上去
+ * （{@code CalendarEvent.occurrenceIn}）。{@code letter} 不传——那是纯服务端投递行为，GUI 不展示。
  */
 public final class CalendarDataPacket {
     public final boolean open;
@@ -51,6 +54,7 @@ public final class CalendarDataPacket {
             buf.writeUtf(event.iconType, 32);
             buf.writeUtf(event.iconId, 256);
             buf.writeUtf(event.description, 1024);
+            buf.writeBoolean(event.lunar);
         }
     }
 
@@ -70,8 +74,10 @@ public final class CalendarDataPacket {
             String iconType = buf.readUtf(32);
             String iconId = buf.readUtf(256);
             String description = buf.readUtf(1024);
+            boolean lunar = buf.readBoolean();
             // letter（节日绑定的信件）是纯服务端行为，客户端 GUI 不展示，故不上线传输
-            events.add(CalendarEvent.create(id, name, type, m, d, iconType, iconId, description, ""));
+            events.add(CalendarEvent.create(id, name, type, m, d, iconType, iconId, description,
+                    "", lunar));
         }
         return new CalendarDataPacket(open, year, month, todayDay, events);
     }

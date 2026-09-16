@@ -17,6 +17,8 @@ h1 { font-size: 1.25rem; margin: 0 0 4px; }
 form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px 14px; }
 form .full { grid-column: 1 / -1; }
 label { display: block; font-size: .8rem; color: #555; margin-bottom: 3px; }
+label.inline { display: flex; align-items: center; gap: 6px; font-size: .9rem; color: #222; margin: 0; }
+label.inline input { width: auto; }
 input, select { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 5px; font-size: .9rem; background: #fff; }
 input:focus, select:focus { outline: 2px solid #8ab4f8aa; border-color: #8ab4f8; }
 button { padding: 6px 16px; border: 0; border-radius: 5px; background: #2563eb; color: #fff; cursor: pointer; font-size: .9rem; }
@@ -59,8 +61,12 @@ img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; 
       <input id="month" type="number" min="1" max="12" required>
     </div>
     <div>
-      <label for="day">日期 *</label>
+      <label for="day" id="dayLabel">日期 *</label>
       <input id="day" type="number" min="1" max="31" required>
+    </div>
+    <div>
+      <label for="lunar">农历</label>
+      <label class="inline"><input id="lunar" type="checkbox"> 生日按农历算</label>
     </div>
     <div>
       <label for="iconType">图标类型</label>
@@ -141,7 +147,7 @@ function renderTable(events) {
   for (const e of events) {
     const tr = document.createElement('tr');
     tr.innerHTML =
-      '<td class="date">' + e.month + ' 月 ' + e.day + ' 日</td>' +
+      '<td class="date">' + (e.lunar ? '农历 ' : '') + e.month + ' 月 ' + e.day + ' 日</td>' +
       '<td><span class="badge ' + e.type + '">' + (e.type === 'birthday' ? '生日' : '节日') + '</span></td>' +
       '<td>' + escapeHtml(e.type === 'birthday' ? e.name + '的生日' : e.name) + '</td>' +
       '<td>' + iconHtml(e) + '</td>' +
@@ -170,11 +176,22 @@ function syncLetterField() {
   if (!isFestival) $('letter').value = '';
 }
 
+function syncLunarField() {
+  // 只有生日能是农历（后端也会挡）；顺带把日期上限改成农历的 30 天，免得填 31 被拒
+  const isBirthday = $('type').value === 'birthday';
+  $('lunar').disabled = !isBirthday;
+  if (!isBirthday) $('lunar').checked = false;
+  const lunar = isBirthday && $('lunar').checked;
+  $('day').max = lunar ? '30' : '31';
+  $('dayLabel').textContent = lunar ? '日期（农历，1-30）*' : '日期 *';
+}
+
 function resetForm() {
   editingId = null;
   $('eventForm').reset();
   $('iconType').dispatchEvent(new Event('change'));
   syncLetterField();
+  syncLunarField();
   $('saveBtn').textContent = '添加';
   $('cancelBtn').hidden = true;
 }
@@ -187,6 +204,7 @@ function startEdit(id) {
   $('type').value = e.type;
   $('month').value = e.month;
   $('day').value = e.day;
+  $('lunar').checked = !!e.lunar;
   $('iconType').value = e.iconType;
   $('iconType').dispatchEvent(new Event('change'));
   $('iconId').value = e.iconId;
@@ -205,6 +223,7 @@ $('eventForm').addEventListener('submit', async ev => {
     type: $('type').value,
     month: parseInt($('month').value, 10),
     day: parseInt($('day').value, 10),
+    lunar: $('lunar').checked,
     iconType: $('iconType').value,
     iconId: $('iconId').value.trim(),
     letter: $('type').value === 'festival' ? $('letter').value.trim() : '',
@@ -248,7 +267,8 @@ $('tbody').addEventListener('click', async ev => {
   }
 });
 
-$('type').addEventListener('change', syncLetterField);
+$('type').addEventListener('change', () => { syncLetterField(); syncLunarField(); });
+$('lunar').addEventListener('change', syncLunarField);
 
 $('iconType').addEventListener('change', () => {
   const t = $('iconType').value;
@@ -262,6 +282,7 @@ $('iconType').addEventListener('change', () => {
 
 (async () => {
   syncLetterField();
+  syncLunarField();
   try {
     const t = await api('GET', '/today');
     $('today').textContent = '今天是 ' + t.date + (t.events.length

@@ -20,9 +20,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,7 +37,8 @@ import java.util.Set;
  * <ul>
  *   <li>{@code trigger=date}（默认）——收件人与日期写在 json 里，排期键 = 文件名；</li>
  *   <li>{@code trigger=birthday}——收件人与日期都取自日历里 {@code type=birthday} 的活动
- *       （活动名 = 玩家昵称、月-日逐年循环）。<b>一个生日信文件服务全服</b>：
+ *       （活动名 = 玩家昵称、月-日逐年循环，农历生日按 {@code LunarCalendar} 逐年换算成公历日）。
+ *       <b>一个生日信文件服务全服</b>：
  *       当天过生日的每位玩家各投一份，排期按「信件 + 收件人 + 生日」逐人独立记账，
  *       所以改日历里某个生日的日期只影响那一个人；</li>
  *   <li><b>模板信</b>（既无 {@code player} 又无 {@code date}）——自己不排期，只能由**日历节日**的
@@ -255,16 +254,16 @@ public final class LetterScheduler {
                                                  LetterStateData state, Set<String> live, LocalDate today,
                                                  boolean rearmToday) {
         String name = birthday.name;
-        MonthDay monthDay = monthDayOf(birthday);
-        if (monthDay == null) {
+        Recurrence recurrence = recurrenceOf(birthday, today);
+        if (recurrence == null) {
             warnBadDate("生日信", letter.id(), birthday);
             return false;
         }
         if (!ScheduledMailData.isValidPlayerName(name)) {
-            warnBadRecipient("生日信 " + letter.id(), name, monthDayText(monthDay));
+            warnBadRecipient("生日信 " + letter.id(), name, recurrence.dayText());
             return false;
         }
-        return deliverRecurring(letter, name, monthDay, "生日信", state, live, today, rearmToday);
+        return deliverRecurring(letter, name, recurrence, "生日信", state, live, today, rearmToday);
     }
 
     /**
@@ -275,12 +274,12 @@ public final class LetterScheduler {
     private static boolean deliverFestivalLetter(FestivalLetter letter, CalendarEvent festival,
                                                  List<String> recipients, LetterStateData state,
                                                  Set<String> live, LocalDate today, boolean rearmToday) {
-        MonthDay monthDay = monthDayOf(festival);
-        if (monthDay == null) {
+        Recurrence recurrence = recurrenceOf(festival, today);
+        if (recurrence == null) {
             warnBadDate("节日信", letter.id(), festival);
             return false;
         }
-        String dayText = monthDayText(monthDay);
+        String dayText = recurrence.dayText();
         // 保留「同一天同一封信」的既有记录：名单里暂时没有的人（未进过服/缓存过期）
         // 不该因为这一轮没被枚举到就被当成没发过——否则他回来会再收一份。
         String prefix = letter.id() + '|';
@@ -292,7 +291,7 @@ public final class LetterScheduler {
         }
         boolean any = false;
         for (String name : recipients) {
-            if (deliverRecurring(letter, name, monthDay, "节日信", state, live, today, rearmToday)) {
+            if (deliverRecurring(letter, name, recurrence, "节日信", state, live, today, rearmToday)) {
                 any = true;
             }
         }
@@ -306,14 +305,14 @@ public final class LetterScheduler {
      *
      * @param rearmToday 见 {@link #deliverDue}——命令重载时把「正好是今天」的那一次重新武装
      */
-    private static boolean deliverRecurring(FestivalLetter letter, String recipient, MonthDay monthDay,
-                                            String kind, LetterStateData state, Set<String> live,
-                                            LocalDate today, boolean rearmToday) {
-        String dayText = monthDayText(monthDay);
+    private static boolean deliverRecurring(FestivalLetter letter, String recipient,
+                                            Recurrence recurrence, String kind, LetterStateData state,
+                                            Set<String> live, LocalDate today, boolean rearmToday) {
+        String dayText = recurrence.dayText();
         String key = recipientKey(letter.id(), recipient, dayText);
         live.add(key);
         long todayEpoch = today.toEpochDay();
-        long fresh = FestivalLetter.nextRecurringOn(monthDay, today);
+        long fresh = recurrence.nextOn();
         Long due = state.nextDue(key);
         if (rearmToday && fresh == todayEpoch) {
             // 命令重载：今天这一份重新武装（可能上周目已投并推进到明年），于是再发一次
@@ -334,8 +333,8 @@ public final class LetterScheduler {
             return false;
         }
         REPORTED.remove(key);
-        // 逐年循环：今年这份已投出，下一次是明年的这天（+1 天避开「今天仍 >= due」）
-        state.put(key, dayText, FestivalLetter.nextRecurringOn(monthDay, today.plusDays(1)));
+        // 逐年循环：今年这份已投出，下一次是明年的这天（从明天起算，避开「今天仍 >= due」）
+        state.put(key, dayText, recurrence.nextAfterToday());
         ToTheSky.LOGGER.info("[节日信] {} {} 已投递：{} → {}（{}，{}）",
                 kind, letter.id(), ContactMail.SYSTEM_SENDER, recipient, letter.type().id(), dayText);
         return true;
@@ -470,8 +469,8 @@ public final class LetterScheduler {
 
     private static void warnBadDate(String kind, String letterId, CalendarEvent event) {
         if (REPORTED.add("日历:" + event.id)) {
-            ToTheSky.LOGGER.warn("[节日信] {} {} 跳过日历里的「{}」：月 {} / 日 {} 不是合法日期",
-                    kind, letterId, event.displayTitle(), event.month, event.day);
+            ToTheSky.LOGGER.warn("[节日信] {} {} 跳过日历里的「{}」：{} 不是合法日期",
+                    kind, letterId, event.displayTitle(), event.dateText());
         }
     }
 
@@ -501,32 +500,41 @@ public final class LetterScheduler {
     }
 
     /**
-     * 逐年投递的排期键：{@code 信件名|收件人|月-日}（如 {@code birthday|Steve|10-24}、{@code chunjie|Alex|01-01}）——
+     * 逐年投递的排期键：{@code 信件名|收件人|日期}（如 {@code birthday|Steve|10-24}、{@code chunjie|Alex|01-01}，
+     * 农历生日为 {@code birthday|Steve|农历08-06}）——
      * 一眼能看出这封信是给谁的、哪天发，直接看 {@code tothesky_letters.dat} 也能懂。
      * <p>生日信与节日绑定信共用这套键（都是「信件 + 收件人 + 某个月-日」）：
      * 同一天被多个节日绑定的同一封信只会发一次。
      * <p>分隔符 {@code |} 不会出现在昵称里（昵称白名单见 {@link ScheduledMailData#isValidPlayerName}），
      * 也不会出现在文件名里（Windows 不允许，REST 也挡掉了），故键无歧义。
-     * <p>{@link LetterStateData} 的 {@code spec} 记的就是其中的 {@code MM-DD}——它已含在键里，
+     * <p>{@link LetterStateData} 的 {@code spec} 记的就是其中的日期（{@code MM-DD} 或 {@code 农历MM-DD}）——它已含在键里，
      * 仅用于让存档自解释；日期改了 = 换键 = 从头排期。
      */
-    static String recipientKey(String letterId, String name, String monthDay) {
-        return letterId + '|' + name + '|' + monthDay;
+    static String recipientKey(String letterId, String name, String dayText) {
+        return letterId + '|' + name + '|' + dayText;
     }
 
-    /** 月-日的文本形式（{@code MM-DD}），与信件文件里的 {@code date} 写法一致 */
-    private static String monthDayText(MonthDay monthDay) {
-        return String.format("%02d-%02d", monthDay.getMonthValue(), monthDay.getDayOfMonth());
-    }
-
-    /** 日历条目的「月-日」（用于逐年排期）；月/日非法（手改存档等）返回 null */
+    /**
+     * 一封「逐年循环」的信的日期来源：不早于今天的下一次发生 + 从明天起算的下一次 + 排期键里的日期文本。
+     * <p>{@code nextOn} 用来判断今天该不该投，{@code nextAfterToday} 用来在投出后推进排期
+     * （从明天起算，这样推进后的 {@code nextDue} 一定大于今天）。
+     *
+     * @return 日期非法（手改存档等）或超出农历表范围时返回 null
+     */
     @Nullable
-    private static MonthDay monthDayOf(CalendarEvent event) {
-        try {
-            return MonthDay.of(event.month, event.day);
-        } catch (DateTimeException e) {
+    private static Recurrence recurrenceOf(CalendarEvent event, LocalDate today) {
+        long nextOn = event.nextOccurrenceOn(today);
+        if (nextOn == Long.MAX_VALUE) {
             return null;
         }
+        long nextAfterToday = event.nextOccurrenceOn(today.plusDays(1));
+        if (nextAfterToday == Long.MAX_VALUE) {
+            return null;
+        }
+        return new Recurrence(nextOn, nextAfterToday, event.dayText());
+    }
+
+    private record Recurrence(long nextOn, long nextAfterToday, String dayText) {
     }
 
     /**
