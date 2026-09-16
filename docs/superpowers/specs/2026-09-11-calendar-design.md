@@ -28,7 +28,7 @@
 | GUI 交互 | 只读 + 翻月；悬停 tooltip；今天高亮 |
 | 多活动显示 | 单图标轮播（MC 物品 16px 已几乎填满 22px 格） |
 | 占位图 | 用户已提供（日历.png 256×256、日期框.png 24×24） |
-| 方块形态 | 完整立方体（16×16×16） |
+| 方块形态 | **改定 2026-09-16**：贴墙悬挂的四向朝向方块（自定义碰撞箱，非完整立方体）。`facing` = 正面法线，模型背板贴方块南缘 ⟹ `facing=north` 不旋转；原决策为完整立方体（16×16×16） |
 
 ## 架构
 
@@ -90,7 +90,7 @@ SavedData `tothesky_calendar` 挂 Overworld（`server.overworld().getDataStorage
 ## 资源
 
 - `assets/tothesky/textures/gui/calendar.png`、`calendar_day.png` ← 用户 Downloads 占位图拷贝。
-- `blockstates/calendar.json` + `models/block/calendar.json` + `models/item/calendar.json`：JSON 齐全但引用不存在的贴图 `tothesky:block/calendar`（模型留空约定，后续画好贴图即完成）。
+- `blockstates/calendar.json`（facing 四变体，`y` = 0/90/180/270）+ `models/block/calendar.json` + `models/item/calendar.json` + `textures/block/calendar.png`：模型与贴图已由用户完成（12×13×3px 挂墙挂牌，背板贴方块南缘）。
 - `data/tothesky/loot_tables/blocks/calendar.json`：破坏掉落物品。
 - 语言：`block.tothesky.calendar` = 日历 / Calendar。
 

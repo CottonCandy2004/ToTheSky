@@ -212,10 +212,10 @@ public final class ModBlocks {
                     BlockBehaviour.Properties.of().strength(1.0f).noOcclusion()));
 
     // ---------------- 日历 ----------------
-    /** 日历：右键打开月视图 GUI（活动数据经 REST API 管理） */
+    /** 日历：贴墙悬挂的四向朝向方块，右键打开月视图 GUI（活动数据经 REST API 管理） */
     public static final RegistryObject<Block> CALENDAR =
             BLOCKS.register("calendar", () -> new com.fst.tothesky.block.CalendarBlock(
-                    BlockBehaviour.Properties.of().sound(SoundType.WOOD).strength(1.0f)));
+                    BlockBehaviour.Properties.of().sound(SoundType.WOOD).strength(1.0f).noOcclusion()));
 
     // ---------------- PR#58 可放置食物方块 ----------------
     private static java.util.List<double[]> boxes(double[]... b) {

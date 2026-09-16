@@ -1,1 +1,8 @@
-{ "variants": { "": { "model": "tothesky:block/calendar" } } }
+{
+  "variants": {
+    "facing=north": { "model": "tothesky:block/calendar" },
+    "facing=east": { "model": "tothesky:block/calendar", "y": 90 },
+    "facing=south": { "model": "tothesky:block/calendar", "y": 180 },
+    "facing=west": { "model": "tothesky:block/calendar", "y": 270 }
+  }
+}
