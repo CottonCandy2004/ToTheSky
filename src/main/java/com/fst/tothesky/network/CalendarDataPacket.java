@@ -70,7 +70,8 @@ public final class CalendarDataPacket {
             String iconType = buf.readUtf(32);
             String iconId = buf.readUtf(256);
             String description = buf.readUtf(1024);
-            events.add(CalendarEvent.create(id, name, type, m, d, iconType, iconId, description));
+            // letter（节日绑定的信件）是纯服务端行为，客户端 GUI 不展示，故不上线传输
+            events.add(CalendarEvent.create(id, name, type, m, d, iconType, iconId, description, ""));
         }
         return new CalendarDataPacket(open, year, month, todayDay, events);
     }

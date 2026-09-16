@@ -191,7 +191,7 @@ public final class CalendarApiHandler {
         CalendarEvent created = submitOnServer(() -> {
             CalendarData data = CalendarData.get(server);
             CalendarEvent event = CalendarEvent.create(UUID.randomUUID(), v.name, v.type,
-                    v.month, v.day, v.iconType, v.iconId, v.description);
+                    v.month, v.day, v.iconType, v.iconId, v.description, v.letter);
             data.add(event);
             broadcast();
             return event;
@@ -224,7 +224,7 @@ public final class CalendarApiHandler {
                 return null;
             }
             CalendarEvent merged = existing.with(patch.name, patch.type, patch.month, patch.day,
-                    patch.iconType, patch.iconId, patch.description);
+                    patch.iconType, patch.iconId, patch.description, patch.letter);
             data.update(id, merged);
             broadcast();
             return merged;

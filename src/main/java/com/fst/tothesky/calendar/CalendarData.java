@@ -160,6 +160,7 @@ public final class CalendarData extends SavedData {
             obj.addProperty("iconType", event.iconType);
             obj.addProperty("iconId", event.iconId);
             obj.addProperty("description", event.description);
+            obj.addProperty("letter", event.letter);
             array.add(obj);
         }
         try {
@@ -209,7 +210,8 @@ public final class CalendarData extends SavedData {
                             obj.get("day").getAsInt(),
                             obj.has("iconType") ? obj.get("iconType").getAsString() : CalendarEvent.ICON_NONE,
                             obj.has("iconId") ? obj.get("iconId").getAsString() : "",
-                            obj.has("description") ? obj.get("description").getAsString() : "");
+                            obj.has("description") ? obj.get("description").getAsString() : "",
+                            obj.has("letter") ? obj.get("letter").getAsString() : "");
                     put(event);
                     merged++;
                 } catch (Exception e) {

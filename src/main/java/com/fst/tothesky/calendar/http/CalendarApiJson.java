@@ -14,8 +14,11 @@ import java.util.List;
 /**
  * REST API 的 JSON DTO 与校验。
  * 字段：id / name / type(festival|birthday) / month(1-12) / day(按月校验，2 月允许 29) /
- * iconType(none|item|block|player) / iconId / description。
+ * iconType(none|item|block|player) / iconId / description / letter(仅 festival)。
  * item/block 时 iconId 必须能从 ForgeRegistries 解析。
+ * letter 是绑定信件 id（{@code config/tothesky/letters} 里的文件名去 {@code .json}），
+ * 空 = 未绑定；是否真有这封信由 {@code contact.LetterScheduler} 在投递时判定
+ * （信件目录可以独立于日历变动，这里不做存在性校验）。
  */
 final class CalendarApiJson {
 
@@ -34,6 +37,7 @@ final class CalendarApiJson {
         obj.addProperty("iconType", event.iconType);
         obj.addProperty("iconId", event.iconId);
         obj.addProperty("description", event.description);
+        obj.addProperty("letter", event.letter);
         return obj;
     }
 
@@ -63,6 +67,7 @@ final class CalendarApiJson {
         String iconType;
         String iconId;
         String description;
+        String letter;
     }
 
     /** PUT 用：null 字段保留原值 */
@@ -75,6 +80,7 @@ final class CalendarApiJson {
         String iconType;
         String iconId;
         String description;
+        String letter;
     }
 
     static Validated validateCreate(JsonObject body) {
@@ -111,6 +117,18 @@ final class CalendarApiJson {
         v.description = optString(body, "description");
         if (v.description == null) {
             v.description = "";
+        }
+        v.letter = optString(body, "letter");
+        if (v.letter == null) {
+            v.letter = "";
+        }
+        v.error = validateLetter(v.letter);
+        if (v.error != null) {
+            return v;
+        }
+        if (!v.letter.isEmpty() && !CalendarEvent.TYPE_FESTIVAL.equals(v.type)) {
+            v.error = "letter is only for festival events";
+            return v;
         }
         return v;
     }
@@ -164,7 +182,45 @@ final class CalendarApiJson {
         if (body.has("description")) {
             p.description = optString(body, "description");
         }
+        if (body.has("letter")) {
+            p.letter = optString(body, "letter");
+            if (p.letter == null) {
+                p.letter = "";
+            }
+            p.error = validateLetter(p.letter);
+            if (p.error != null) {
+                return p;
+            }
+            // 同一请求里既改类型又绑信件时能立刻判死；只改类型的冲突由 CalendarEvent 清掉绑定
+            if (!p.letter.isEmpty() && CalendarEvent.TYPE_BIRTHDAY.equals(p.type)) {
+                p.error = "letter is only for festival events";
+                return p;
+            }
+        }
         return p;
+    }
+
+    /**
+     * 绑定信件字段：空 = 未绑定；非空必须是信件 id（{@code config/tothesky/letters} 里的文件名去 {@code .json}）。
+     * <p>只挡「不可能是文件名」的写法（Windows 不允许的字符、路径分隔符、状态键分隔符 {@code |}），
+     * 中文名等合法文件名一律放行；信件是否存在留给投递时判定。
+     */
+    private static String validateLetter(String letter) {
+        if (letter.isEmpty()) {
+            return null;
+        }
+        if (letter.endsWith(".json")) {
+            return "letter 填文件名去掉 .json（如 chunjie），实为 " + letter;
+        }
+        if (letter.length() > 64) {
+            return "letter 过长（最多 64 字符）";
+        }
+        for (int i = 0; i < letter.length(); i++) {
+            if ("\\/:*?\"<>|".indexOf(letter.charAt(i)) >= 0) {
+                return "letter 含文件名不允许的字符：" + letter;
+            }
+        }
+        return null;
     }
 
     /** iconType 合法性；item/block 时 iconId 必须能从 registry 解析 */

@@ -76,6 +76,10 @@ img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; 
       <input id="iconId" maxlength="128" placeholder="">
     </div>
     <div class="full">
+      <label for="letter" id="letterLabel">绑定信件（可选，仅节日）</label>
+      <input id="letter" maxlength="64" placeholder="信件文件名去掉 .json，如 chunjie">
+    </div>
+    <div class="full">
       <label for="description">描述（可选）</label>
       <input id="description" maxlength="256" placeholder="tooltip 里名称下方显示的文字">
     </div>
@@ -88,7 +92,7 @@ img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; 
 
 <table>
   <thead>
-    <tr><th>日期</th><th>类型</th><th>名称</th><th>图标</th><th>描述</th><th>操作</th></tr>
+    <tr><th>日期</th><th>类型</th><th>名称</th><th>图标</th><th>绑定信件</th><th>描述</th><th>操作</th></tr>
   </thead>
   <tbody id="tbody"></tbody>
 </table>
@@ -141,6 +145,7 @@ function renderTable(events) {
       '<td><span class="badge ' + e.type + '">' + (e.type === 'birthday' ? '生日' : '节日') + '</span></td>' +
       '<td>' + escapeHtml(e.type === 'birthday' ? e.name + '的生日' : e.name) + '</td>' +
       '<td>' + iconHtml(e) + '</td>' +
+      '<td>' + (e.letter ? '<code>' + escapeHtml(e.letter) + '</code>' : '<span class="muted">—</span>') + '</td>' +
       '<td>' + (e.description ? escapeHtml(e.description) : '<span class="muted">—</span>') + '</td>' +
       '<td><button class="link" data-edit="' + e.id + '">编辑</button>' +
           '<button class="danger" data-del="' + e.id + '">删除</button></td>';
@@ -157,10 +162,19 @@ async function refresh() {
   }
 }
 
+function syncLetterField() {
+  // 只有节日能绑定信件（后端也会挡），生日时直接禁用并清空，免得提交一个必然被拒的字段
+  const isFestival = $('type').value === 'festival';
+  $('letter').disabled = !isFestival;
+  $('letter').placeholder = isFestival ? '信件文件名去掉 .json，如 chunjie' : '仅节日可绑定信件';
+  if (!isFestival) $('letter').value = '';
+}
+
 function resetForm() {
   editingId = null;
   $('eventForm').reset();
   $('iconType').dispatchEvent(new Event('change'));
+  syncLetterField();
   $('saveBtn').textContent = '添加';
   $('cancelBtn').hidden = true;
 }
@@ -176,7 +190,9 @@ function startEdit(id) {
   $('iconType').value = e.iconType;
   $('iconType').dispatchEvent(new Event('change'));
   $('iconId').value = e.iconId;
+  $('letter').value = e.letter;
   $('description').value = e.description;
+  syncLetterField();
   $('saveBtn').textContent = '保存修改';
   $('cancelBtn').hidden = false;
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -191,6 +207,7 @@ $('eventForm').addEventListener('submit', async ev => {
     day: parseInt($('day').value, 10),
     iconType: $('iconType').value,
     iconId: $('iconId').value.trim(),
+    letter: $('type').value === 'festival' ? $('letter').value.trim() : '',
     description: $('description').value.trim()
   };
   try {
@@ -231,6 +248,8 @@ $('tbody').addEventListener('click', async ev => {
   }
 });
 
+$('type').addEventListener('change', syncLetterField);
+
 $('iconType').addEventListener('change', () => {
   const t = $('iconType').value;
   const label = $('iconIdLabel');
@@ -242,6 +261,7 @@ $('iconType').addEventListener('change', () => {
 });
 
 (async () => {
+  syncLetterField();
   try {
     const t = await api('GET', '/today');
     $('today').textContent = '今天是 ' + t.date + (t.events.length
