@@ -1,0 +1,34 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "culturaldelights:tortilla"
+  },
+  "loops": 50,
+  "results": [
+    {
+      "item": "tothesky:incomplete_tortilla"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "culturaldelights:tortilla"
+        },
+        {
+          "tag": "farmersdelight:tools/knives"
+        }
+      ],
+      "keepHeldItem": true,
+      "results": [
+        {
+          "item": "culturaldelights:tortilla"
+        }
+      ]
+    }
+  ],
+  "transitionalItem": {
+    "item": "culturaldelights:tortilla"
+  }
+}
