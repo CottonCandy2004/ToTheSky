@@ -65,7 +65,7 @@
 
 - [ ] 下界合金产线：`impure_alloy_base` / `raw_alloy_base` / `incomplete_netherite_ingot` / `witch_factor` / `activated_witch_factor`（可放置/可合成，数值与 kjs 一致）
 - [ ] 钻石产线：`diamond_core` / `uncomplete_diamond`
-- [ ] 图腾/石墨产线：`emerald_nugget` / `raw_totem` / `incomplete_totem` / `fiber_mixture` / `frother_mixture` / `incomplete_tortilla` / `he_graphite` / `small_crystal` / `faded_small_crystal`
+- [ ] 图腾/石墨产线：`emerald_nugget` / `raw_totem` / `incomplete_totem` / `fiber_mixture` / `frother_mixture` / `he_graphite` / `small_crystal` / `faded_small_crystal`（`incomplete_tortilla` 已改为唱片，见第 4 节）
 - [ ] 经济系统：`delta_coin`（10Δ）/ `delta_coin_chip`（1Δ）/ `delta_dust` / `delta_porridge` 关联
 - [ ] 披萨食材：`cheese` / `pizza_base` / `raw_pizza_margarita` / `raw_pork_pizza` / `raw_apple_pizza` / `raw_sunshine_cod`
 - [ ] 其他：`soy_sause_bottle` / `soy_bean_oil`（酱油瓶/大豆油瓶，作烹饪油/食材）
@@ -81,6 +81,7 @@
 - [ ] **血瓶** `blood_bottle`：堆叠 1、合成余物为玻璃瓶；下界溶液原料
 - [ ] **包装颜料** `packed_colors`：NBT StoredColors 记录染料列表；潜行右键拆包返还全部染料（播放拾取音）；tooltip 列出内含颜料
 - [ ] **遗忘之露** `dew_of_oblivion`：对驯服生物右键；是主人 → 解绑（setOwnerUUID null、取消驯服、16 点附魔粒子 + 附魔桌音效 + actionbar「它忘记了一切……」、消耗 1）；非主人红字「它的主人好像不是你呢……」
+- [ ] **刻痕玉米饼（唱片）** `incomplete_tortilla`：右键唱片机 → 播放 "Never gonna give you up"（stream 音轨，约 70.8 s 后自动停止）；物品提示第二行为灰色 `Never gonna give you up - Rick Astley`；比较器输出 1；漏斗可插入（物品已加入 `minecraft:music_discs` 标签，标签缺失时唱片机会拒收）
 
 ## 5. 乐器系统
 

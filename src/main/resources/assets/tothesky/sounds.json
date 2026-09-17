@@ -6,5 +6,13 @@
                 "stream": false
             }
         ]
+    },
+    "music.never_gonna_give_you_up": {
+        "sounds": [
+            {
+                "name": "tothesky:never_gonna_give_you_up",
+                "stream": true
+            }
+        ]
     }
 }

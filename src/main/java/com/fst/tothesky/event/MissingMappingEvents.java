@@ -103,9 +103,10 @@ public final class MissingMappingEvents {
             "fair_play", "rewind", "hot_potato", "madness"
     );
 
-    /** kjs 音效注册名（instruments.js） */
+    /** kjs 音效注册名（instruments.js + registry.js 的唱片音轨） */
     private static final List<String> MIGRATED_SOUNDS = List.of(
-            "guitar_sound"
+            "guitar_sound",
+            "music.never_gonna_give_you_up"
     );
 
     /** kubejs: 命名空间 */

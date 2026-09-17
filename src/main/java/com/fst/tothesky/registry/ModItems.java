@@ -10,6 +10,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.RecordItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -235,7 +236,16 @@ public final class ModItems {
     public static final RegistryObject<Item> INCOMPLETE_TOTEM = simple("incomplete_totem", 0);
     public static final RegistryObject<Item> FIBER_MIXTURE = simple("fiber_mixture", 0);
     public static final RegistryObject<Item> FROTHER_MIXTURE = simple("frother_mixture", 0);
-    public static final RegistryObject<Item> INCOMPLETE_TORTILLA = simple("incomplete_tortilla", 0);
+    /**
+     * 刻痕玉米饼：旧 KubeJS 玉米饼产线的过渡件，同时作为唱片——右键唱片机播放
+     * Never gonna give you up（旧脚本 registry.js 注释掉的 {@code event.create('tortilla', "music_disc")} 段）。
+     * 唱片必须落在 {@code minecraft:music_discs} 物品标签里，否则 {@code JukeboxBlockEntity} 的 setItem 会拒收
+     * （见 data/minecraft/tags/items/music_discs.json）；comparator 输出沿用旧脚本的 index + 1 = 1。
+     * 音轨 70.80 s（ogg 末页 granule 3122176 / 44100 Hz），唱片机按 tick 数判定结束，故取 1416 tick。
+     */
+    public static final RegistryObject<Item> INCOMPLETE_TORTILLA = ITEMS.register("incomplete_tortilla",
+            () -> new RecordItem(1, ModSounds.MUSIC_NEVER_GONNA_GIVE_YOU_UP,
+                    new Item.Properties().stacksTo(1), 1416));
     public static final RegistryObject<Item> HE_GRAPHITE = simple("he_graphite", 0);
     public static final RegistryObject<Item> SMALL_CRYSTAL = simple("small_crystal", 0);
     public static final RegistryObject<Item> FADED_SMALL_CRYSTAL = simple("faded_small_crystal", 0);
