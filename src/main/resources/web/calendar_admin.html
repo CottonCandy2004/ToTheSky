@@ -3,29 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>翱翔天际 · 日历管理</title>
+<title>翱翔天际 · 特殊日期与信件管理</title>
 <style>
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
 body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; margin: 24px auto; max-width: 920px; padding: 0 16px; background: #f4f5f7; color: #222; }
 h1 { font-size: 1.25rem; margin: 0 0 4px; }
+h2 { font-size: 1rem; margin: 26px 0 8px; color: #444; }
 #today { color: #666; font-size: .85rem; margin-bottom: 16px; }
-#status { margin: 0 0 12px; min-height: 1.2em; font-size: .9rem; }
-#status.ok { color: #1a7f37; }
-#status.err { color: #c0392b; }
+#status, #letterStatus { margin: 0 0 12px; min-height: 1.2em; font-size: .9rem; }
+#status.ok, #letterStatus.ok { color: #1a7f37; }
+#status.err, #letterStatus.err { color: #c0392b; }
 .card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.09); margin-bottom: 16px; }
 form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px 14px; }
 form .full { grid-column: 1 / -1; }
 label { display: block; font-size: .8rem; color: #555; margin-bottom: 3px; }
 label.inline { display: flex; align-items: center; gap: 6px; font-size: .9rem; color: #222; margin: 0; }
 label.inline input { width: auto; }
-input, select { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 5px; font-size: .9rem; background: #fff; }
-input:focus, select:focus { outline: 2px solid #8ab4f8aa; border-color: #8ab4f8; }
+input, select, textarea { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 5px; font-size: .9rem; background: #fff; }
+textarea { font-family: Consolas, "Courier New", monospace; font-size: .82rem; }
+input:focus, select:focus, textarea:focus { outline: 2px solid #8ab4f8aa; border-color: #8ab4f8; }
+input:disabled { background: #f1f1f1; color: #666; }
 button { padding: 6px 16px; border: 0; border-radius: 5px; background: #2563eb; color: #fff; cursor: pointer; font-size: .9rem; }
 button:hover { background: #1d4fd8; }
 button.secondary { background: #9aa0a6; }
+button.secondary:hover { background: #7f858b; }
 button.danger { background: #dc2626; padding: 3px 10px; font-size: .8rem; }
+button.danger:hover { background: #b91c1c; }
 button.link { background: none; color: #2563eb; padding: 3px 8px; }
+button.link:hover { background: none; text-decoration: underline; }
 table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.09); border-radius: 8px; overflow: hidden; }
 th, td { padding: 8px 10px; border-bottom: 1px solid #eee; text-align: left; font-size: .9rem; }
 th { background: #fafafa; font-size: .8rem; color: #555; }
@@ -33,16 +39,28 @@ tr:last-child td { border-bottom: 0; }
 .badge { padding: 1px 8px; border-radius: 999px; font-size: .75rem; white-space: nowrap; }
 .badge.festival { background: #fef3c7; color: #92400e; }
 .badge.birthday { background: #fce7f3; color: #9d174d; }
+.badge.on { background: #dcfce7; color: #166534; }
+.badge.off { background: #eef0f2; color: #6b7280; }
+.badge.broken { background: #fee2e2; color: #991b1b; }
+.badge.template { background: #e0e7ff; color: #3730a3; }
 .date { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .muted { color: #888; font-size: .8rem; }
+.hint { font-size: .78rem; color: #888; }
+.hint.warn { color: #b45309; }
+.hint.bad { color: #c0392b; }
 img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; margin-right: 4px; }
+.itemRow { display: flex; gap: 8px; margin-bottom: 6px; }
+.itemRow .itemId { flex: 1; }
+.itemRow .count { width: 84px; flex: none; }
+.itemRow button { padding: 5px 10px; flex: none; }
 </style>
 </head>
 <body>
-<h1>📅 翱翔天际 · 特殊日期管理</h1>
+<h1>📅 翱翔天际 · 特殊日期与信件管理</h1>
 <div id="today"></div>
 <div id="status"></div>
 
+<h2>特殊日期（日历）</h2>
 <div class="card">
   <form id="eventForm">
     <div>
@@ -66,7 +84,7 @@ img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; 
     </div>
     <div>
       <label for="lunar">农历</label>
-      <label class="inline"><input id="lunar" type="checkbox"> 生日按农历算</label>
+      <label class="inline"><input id="lunar" type="checkbox"> 日期按农历算（春节/中秋等）</label>
     </div>
     <div>
       <label for="iconType">图标类型</label>
@@ -83,7 +101,8 @@ img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; 
     </div>
     <div class="full">
       <label for="letter" id="letterLabel">绑定信件（可选，仅节日）</label>
-      <input id="letter" maxlength="64" placeholder="信件文件名去掉 .json，如 chunjie">
+      <input id="letter" maxlength="64" list="letterIds" placeholder="信件 id，如 chunjie（在下方「信件」区新建）">
+      <datalist id="letterIds"></datalist>
     </div>
     <div class="full">
       <label for="description">描述（可选）</label>
@@ -103,22 +122,85 @@ img.head { width: 20px; height: 20px; vertical-align: -4px; border-radius: 3px; 
   <tbody id="tbody"></tbody>
 </table>
 
+<h2>信件（config/tothesky/letters）</h2>
+<div id="letterStatus"></div>
+<div class="card">
+  <form id="letterForm">
+    <div>
+      <label for="letterId">文件 id *（= 文件名去掉 .json）</label>
+      <input id="letterId" maxlength="64" placeholder="如 zhongqiu">
+    </div>
+    <div>
+      <label for="letterEnabled">投递</label>
+      <label class="inline"><input id="letterEnabled" type="checkbox" checked> 启用（不勾 = 只存档不投递）</label>
+    </div>
+    <div>
+      <label for="letterType">类型</label>
+      <select id="letterType">
+        <option value="postcard">明信片</option>
+        <option value="parcel">包裹</option>
+        <option value="red_packet">红包</option>
+      </select>
+    </div>
+    <div class="full" id="letterHint"></div>
+    <div class="full" id="styleWrap">
+      <label for="letterStyle">明信片款式 *</label>
+      <input id="letterStyle" maxlength="128" list="styleIds" placeholder="如 contact:new_year_2023">
+      <datalist id="styleIds"></datalist>
+    </div>
+    <div class="full" id="itemsWrap">
+      <label>内容物 <span class="hint" id="itemsHint"></span></label>
+      <div id="items"></div>
+      <button type="button" class="secondary" id="addItemBtn">＋ 添加物品</button>
+    </div>
+    <div class="full" id="textWrap">
+      <label for="letterText">正文 / 祝福语</label>
+      <input id="letterText" maxlength="512" placeholder="可用 ${player}（收件人）、${date}（投递日）；红包还可 ${item}">
+    </div>
+    <div class="full" id="rawWrap" hidden>
+      <label for="letterRawText">原始 JSON —— 这个文件现在解析不过去，直接改它（存前会在浏览器里先做一次语法检查）</label>
+      <textarea id="letterRawText" rows="10" spellcheck="false"></textarea>
+    </div>
+    <div class="full" id="letterNotes"></div>
+    <div class="full" style="display:flex; gap:8px;">
+      <button type="submit" id="letterSaveBtn">新建 / 保存</button>
+      <button type="button" class="secondary" id="letterCancelBtn">清空（新建）</button>
+    </div>
+  </form>
+</div>
+
+<table>
+  <thead>
+    <tr><th>id</th><th>状态</th><th>类型</th><th>内容</th><th>谁调用它</th><th>操作</th></tr>
+  </thead>
+  <tbody id="letterTbody"></tbody>
+</table>
+
 <script>
 'use strict';
-const API = 'api/calendar';
+const CAL = 'api/calendar';
+const LET = 'api/letters';
 let editingId = null;
 let lastEvents = [];
+let lastLetters = [];
+let letterMeta = { types: [], triggers: [], styles: [], parcelCapacity: 4, redPacketCapacity: 1, contact: true };
+let editingLetterId = null;
+/** 编辑中的信件原始 JSON（保存时作底稿，手写的 _comment 之类字段才不会丢） */
+let baseRaw = null;
+/** 该信件的原文解析不过去：只能改原文 */
+let rawMode = false;
 
 const $ = id => document.getElementById(id);
-const statusEl = $('status');
-function setStatus(msg, err) { statusEl.textContent = msg || ''; statusEl.className = msg ? (err ? 'err' : 'ok') : ''; }
+function setStatus(msg, err) { setLine($('status'), msg, err); }
+function setLetterStatus(msg, err) { setLine($('letterStatus'), msg, err); }
+function setLine(el, msg, err) { el.textContent = msg || ''; el.className = msg ? (err ? 'err' : 'ok') : ''; }
 
 function escapeHtml(s) {
   return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-async function api(method, path, body) {
-  const res = await fetch(API + path, {
+async function api(base, method, path, body) {
+  const res = await fetch(base + path, {
     method,
     headers: body ? { 'Content-Type': 'application/json' } : {},
     body: body ? JSON.stringify(body) : undefined
@@ -128,6 +210,8 @@ async function api(method, path, body) {
   if (!res.ok) throw new Error(json.error || ('HTTP ' + res.status));
   return json;
 }
+
+// ==================== 日历 ====================
 
 function iconHtml(e) {
   if (e.iconType === 'player' && e.iconId) {
@@ -151,7 +235,9 @@ function renderTable(events) {
       '<td><span class="badge ' + e.type + '">' + (e.type === 'birthday' ? '生日' : '节日') + '</span></td>' +
       '<td>' + escapeHtml(e.type === 'birthday' ? e.name + '的生日' : e.name) + '</td>' +
       '<td>' + iconHtml(e) + '</td>' +
-      '<td>' + (e.letter ? '<code>' + escapeHtml(e.letter) + '</code>' : '<span class="muted">—</span>') + '</td>' +
+      '<td>' + (e.letter
+          ? '<button class="link" data-letter="' + escapeHtml(e.letter) + '">' + escapeHtml(e.letter) + '</button>'
+          : '<span class="muted">—</span>') + '</td>' +
       '<td>' + (e.description ? escapeHtml(e.description) : '<span class="muted">—</span>') + '</td>' +
       '<td><button class="link" data-edit="' + e.id + '">编辑</button>' +
           '<button class="danger" data-del="' + e.id + '">删除</button></td>';
@@ -161,8 +247,9 @@ function renderTable(events) {
 
 async function refresh() {
   try {
-    lastEvents = await api('GET', '/events');
+    lastEvents = await api(CAL, 'GET', '/events');
     renderTable(lastEvents);
+    renderLetters(lastLetters);
   } catch (err) {
     setStatus(err.message, true);
   }
@@ -172,16 +259,13 @@ function syncLetterField() {
   // 只有节日能绑定信件（后端也会挡），生日时直接禁用并清空，免得提交一个必然被拒的字段
   const isFestival = $('type').value === 'festival';
   $('letter').disabled = !isFestival;
-  $('letter').placeholder = isFestival ? '信件文件名去掉 .json，如 chunjie' : '仅节日可绑定信件';
+  $('letter').placeholder = isFestival ? '信件 id，如 chunjie（在下方「信件」区新建）' : '仅节日可绑定信件';
   if (!isFestival) $('letter').value = '';
 }
 
 function syncLunarField() {
-  // 只有生日能是农历（后端也会挡）；顺带把日期上限改成农历的 30 天，免得填 31 被拒
-  const isBirthday = $('type').value === 'birthday';
-  $('lunar').disabled = !isBirthday;
-  if (!isBirthday) $('lunar').checked = false;
-  const lunar = isBirthday && $('lunar').checked;
+  // 农历与类型无关（节日、生日都可能是农历）；只调日期上限，免得填 31 被后端拒
+  const lunar = $('lunar').checked;
   $('day').max = lunar ? '30' : '31';
   $('dayLabel').textContent = lunar ? '日期（农历，1-30）*' : '日期 *';
 }
@@ -205,6 +289,7 @@ function startEdit(id) {
   $('month').value = e.month;
   $('day').value = e.day;
   $('lunar').checked = !!e.lunar;
+  syncLunarField();
   $('iconType').value = e.iconType;
   $('iconType').dispatchEvent(new Event('change'));
   $('iconId').value = e.iconId;
@@ -215,6 +300,262 @@ function startEdit(id) {
   $('cancelBtn').hidden = false;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ==================== 信件 ====================
+
+function addItemRow(item, count) {
+  const row = document.createElement('div');
+  row.className = 'itemRow';
+  row.innerHTML = '<input class="itemId" maxlength="128" placeholder="物品 id，如 minecraft:cake">' +
+      '<input class="count" type="number" min="1" max="64">' +
+      '<button type="button" class="danger">移除</button>';
+  $('items').appendChild(row);
+  row.querySelector('.itemId').value = item || '';
+  row.querySelector('.count').value = count || 1;
+  row.querySelector('button').addEventListener('click', () => row.remove());
+}
+
+function itemRows() {
+  return Array.from($('items').children).map(row => ({
+    item: row.querySelector('.itemId').value.trim(),
+    count: parseInt(row.querySelector('.count').value, 10) || 1
+  }));
+}
+
+/** 字段可见性：随类型（明信片/包裹/红包）与「是否只能改原文」变化 */
+function syncLetterFields() {
+  const raw = rawMode;
+  const type = $('letterType').value;
+  $('rawWrap').hidden = !raw;
+  for (const id of ['styleWrap', 'itemsWrap', 'textWrap']) {
+    $(id).hidden = raw;
+  }
+  $('letterId').disabled = raw || editingLetterId !== null;
+  if (raw) {
+    return;
+  }
+  $('styleWrap').hidden = type !== 'postcard';
+  $('itemsWrap').hidden = type === 'postcard';
+  $('textWrap').hidden = type === 'parcel';
+  const capacity = type === 'parcel' ? letterMeta.parcelCapacity : letterMeta.redPacketCapacity;
+  if (type !== 'postcard' && $('items').children.length === 0) {
+    addItemRow();  // 刚从明信片切过来时列表是空的，先给一行空位，省得对着空白猜怎么加
+  }
+  $('itemsHint').textContent = type === 'parcel'
+      ? '（包裹最多 ' + capacity + ' 件）'
+      : '（红包最多 ' + capacity + ' 件；红包正文里可用 ${item} 列出内容物）';
+  $('letterHint').innerHTML = hintFor($('letterId').value.trim());
+}
+
+/** 与后端 CalendarEvent.displayTitle() 一致：生日显示「xxx的生日」 */
+function eventTitle(e) {
+  return e.type === 'birthday' ? e.name + '的生日' : e.name;
+}
+
+/** 这封信会被谁调用：生日信文件名固定；其余信件只能被日历里的节日绑定 */
+function hintFor(id) {
+  if (isBirthdayId(id)) {
+    return '<span class="hint">这是<b>生日信</b>（文件名固定）：日历里每条 <b>type=birthday</b> 的活动当天都发它，'
+        + '收件人 = 活动名 = 玩家昵称，当天过生日的每人一份。</span>';
+  }
+  if (!id) {
+    return '<span class="hint">信件只描述「送什么」。存好之后，在日历里给某个节日填「绑定信件」= 它的文件名，'
+        + '节日当天就会发给全服每位玩家。</span>';
+  }
+  const bound = (lastEvents || []).filter(e => e.letter === id).map(eventTitle);
+  if (bound.length) {
+    return '<span class="hint">被节日绑定：<b>' + bound.map(escapeHtml).join('、') + '</b>——当天发给全服每位玩家。</span>';
+  }
+  return '<span class="hint">还没有任何节日绑定它，<b>当前不会投递</b>。要发出去：在日历里给某个节日填「绑定信件」= '
+      + escapeHtml(id) + '（改名后记得重新绑定）。</span>';
+}
+
+function isBirthdayId(id) {
+  return (letterMeta.birthdayId || 'birthday') === id;
+}
+
+function fillLetterForm(letter) {
+  editingLetterId = letter.id;
+  baseRaw = letter.raw || null;
+  rawMode = !letter.raw;
+  $('letterId').value = letter.id;
+  $('items').innerHTML = '';
+  $('letterNotes').innerHTML = '';
+  if (rawMode) {
+    $('letterRawText').value = letter.rawText;
+  } else {
+    const r = letter.raw;
+    $('letterEnabled').checked = r.enabled !== false;
+    $('letterType').value = r.type || 'postcard';
+    $('letterStyle').value = r.style || '';
+    $('letterText').value = r.text || '';
+    const items = Array.isArray(r.items) ? r.items : [];
+    items.forEach(it => addItemRow(it.item, it.count));
+  }
+  if (letter.error) {
+    $('letterNotes').innerHTML = '<span class="hint bad">这个文件现在解析不过去：' + escapeHtml(letter.error) + '</span>';
+  } else if (letter.notes && letter.notes.length) {
+    $('letterNotes').innerHTML = letter.notes.map(n => '<span class="hint warn">' + escapeHtml(n) + '</span>').join('<br>');
+  }
+  syncLetterFields();
+  $('letterSaveBtn').textContent = '保存修改';
+  setLetterStatus('正在编辑「' + letter.id + '」');
+  window.scrollTo({ top: $('letterForm').offsetTop - 20, behavior: 'smooth' });
+}
+
+function resetLetterForm() {
+  editingLetterId = null;
+  baseRaw = null;
+  rawMode = false;
+  $('letterForm').reset();
+  $('letterEnabled').checked = true;
+  $('letterType').value = 'postcard';
+  $('items').innerHTML = '';
+  $('letterNotes').innerHTML = '';
+  $('letterRawText').value = '';
+  addItemRow();  // 内容物总留一行空位，切到包裹/红包时直接填
+  syncLetterFields();
+  $('letterSaveBtn').textContent = '新建 / 保存';
+}
+
+/** 新建一封信（可带预设 id，从日历的「绑定信件」点过来时用） */
+function startNewLetter(id) {
+  resetLetterForm();
+  $('letterId').value = id || '';
+  syncLetterFields();
+  setLetterStatus(id ? '新建信件「' + id + '」' : '');
+  window.scrollTo({ top: $('letterForm').offsetTop - 20, behavior: 'smooth' });
+}
+
+/** 从表单拼出要写盘的信件 JSON；rawMode 下直接用原文 */
+function letterBodyFromForm() {
+  if (rawMode) {
+    const text = $('letterRawText').value.trim();
+    if (!text) throw new Error('原始 JSON 不能为空');
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      throw new Error('JSON 语法错：' + e.message);
+    }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new Error('信件必须是一个 JSON 对象');
+    }
+    return parsed;
+  }
+  // 以载入时的原文为底稿：_comment 之类手写字段原样保留
+  const body = Object.assign({}, baseRaw || {});
+  body.enabled = $('letterEnabled').checked;
+  body.type = $('letterType').value;
+  // 废弃字段（旧版本的 trigger/player/date）随手写内容一起清掉，免得留在文件里被反复提醒
+  delete body.trigger;
+  delete body.player;
+  delete body.date;
+  if (body.type === 'postcard') {
+    body.style = $('letterStyle').value.trim();
+    delete body.items;
+  } else {
+    delete body.style;
+    const items = itemRows().filter(it => it.item || it.count !== 1);
+    if (items.some(it => !it.item)) throw new Error('内容物里有空物品 id（填上，或点「移除」）');
+    body.items = items;
+  }
+  const text = $('letterText').value.trim();
+  if (body.type === 'parcel') {
+    // 包裹没有正文这个字段（表单里也不显示），所以**不动**文件里原有的 text：
+    // 删掉是无声丢内容，留着只会多一条「text 已忽略」的提醒——后者才是诚实的
+  } else if (text) {
+    body.text = text;
+  } else {
+    delete body.text;
+  }
+  return body;
+}
+
+function renderLetters(letters) {
+  const tbody = $('letterTbody');
+  tbody.innerHTML = '';
+  for (const l of letters) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><code>' + escapeHtml(l.id) + '</code></td>' +
+      '<td>' + statusBadge(l) + '</td>' +
+      '<td>' + typeCell(l) + '</td>' +
+      '<td>' + contentCell(l) + '</td>' +
+      '<td>' + callerCell(l) + '</td>' +
+      '<td><button class="link" data-letter-edit="' + escapeHtml(l.id) + '">编辑</button>' +
+          '<button class="danger" data-letter-del="' + escapeHtml(l.id) + '">删除</button></td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function statusBadge(l) {
+  if (!l.valid) {
+    return '<span class="badge broken" title="' + escapeHtml(l.error) + '">无效</span>';
+  }
+  return l.enabled ? '<span class="badge on">启用</span>' : '<span class="badge off">停用</span>';
+}
+
+function typeCell(l) {
+  if (!l.valid) {
+    return '<span class="muted">—</span>';
+  }
+  const name = { postcard: '明信片', parcel: '包裹', red_packet: '红包' }[l.type] || l.type;
+  const birthday = l.birthday ? ' <span class="badge template">生日信</span>' : '';
+  return escapeHtml(name) + birthday;
+}
+
+/** 谁调用这封信：生日信由所有生日活动调用；其余只能被节日绑定 */
+function callerCell(l) {
+  const bound = (lastEvents || []).filter(e => e.letter === l.id).map(eventTitle);
+  const parts = [];
+  if (l.birthday) {
+    parts.push('<span class="badge birthday">生日</span> <span class="muted">当天每人一份</span>');
+  }
+  if (bound.length) {
+    parts.push(bound.map(escapeHtml).join('、') + ' <span class="muted">（全服）</span>');
+  }
+  if (!parts.length) {
+    parts.push('<span class="hint warn">没有节日绑定，不会投递</span>');
+  }
+  return parts.join('<br>');
+}
+
+function contentCell(l) {
+  if (!l.valid) {
+    return '<span class="hint bad">' + escapeHtml(l.error) + '</span>';
+  }
+  const parts = [];
+  if (l.style) {
+    parts.push('<code>' + escapeHtml(l.style) + '</code>');
+  }
+  if (l.items && l.items.length) {
+    parts.push(l.items.map(it => escapeHtml(it.item) + '×' + it.count).join('、'));
+  }
+  if (l.text) {
+    parts.push('<span class="muted">' + escapeHtml(l.text.length > 40 ? l.text.slice(0, 40) + '…' : l.text) + '</span>');
+  }
+  return parts.length ? parts.join(' <br>') : '<span class="muted">—</span>';
+}
+
+async function refreshLetters() {
+  try {
+    const data = await api(LET, 'GET', '');
+    lastLetters = data.letters || [];
+    letterMeta = data;
+    renderLetters(lastLetters);
+    // 日期格里的「绑定信件」下拉 & 明信片款式下拉都跟着信件列表走
+    $('letterIds').innerHTML = lastLetters.map(l => '<option value="' + escapeHtml(l.id) + '"></option>').join('');
+    $('styleIds').innerHTML = (data.styles || []).map(s => '<option value="' + escapeHtml(s) + '"></option>').join('');
+    if (data.contact === false) {
+      setLetterStatus('未安装 Contact：信件会照常保存，但暂时投递不出去（装回后自动补投）', true);
+    }
+  } catch (err) {
+    setLetterStatus(err.message, true);
+  }
+}
+
+// ==================== 表单事件 ====================
 
 $('eventForm').addEventListener('submit', async ev => {
   ev.preventDefault();
@@ -231,10 +572,10 @@ $('eventForm').addEventListener('submit', async ev => {
   };
   try {
     if (editingId) {
-      await api('PUT', '/events/' + editingId, body);
+      await api(CAL, 'PUT', '/events/' + editingId, body);
       setStatus('已保存修改');
     } else {
-      await api('POST', '/events', body);
+      await api(CAL, 'POST', '/events', body);
       setStatus('已添加');
     }
     resetForm();
@@ -251,23 +592,32 @@ $('tbody').addEventListener('click', async ev => {
   if (!btn) return;
   const editId = btn.getAttribute('data-edit');
   const delId = btn.getAttribute('data-del');
+  const letterId = btn.getAttribute('data-letter');
   if (editId) {
     startEdit(editId);
     setStatus();
   } else if (delId) {
     if (!confirm('确定删除这条特殊日期吗？')) return;
     try {
-      await api('DELETE', '/events/' + delId);
+      await api(CAL, 'DELETE', '/events/' + delId);
       if (editingId === delId) resetForm();
       setStatus('已删除');
       await refresh();
     } catch (err) {
       setStatus(err.message, true);
     }
+  } else if (letterId) {
+    const letter = lastLetters.find(l => l.id === letterId);
+    if (letter) {
+      fillLetterForm(letter);
+    } else {
+      startNewLetter(letterId);
+      setLetterStatus('还没有「' + letterId + '」这封信——填好内容保存即可创建', true);
+    }
   }
 });
 
-$('type').addEventListener('change', () => { syncLetterField(); syncLunarField(); });
+$('type').addEventListener('change', syncLetterField);
 $('lunar').addEventListener('change', syncLunarField);
 
 $('iconType').addEventListener('change', () => {
@@ -280,15 +630,73 @@ $('iconType').addEventListener('change', () => {
   else { label.textContent = '方块 ID *'; input.placeholder = '如 minecraft:grass_block'; }
 });
 
+$('letterForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const id = $('letterId').value.trim();
+  if (!id) {
+    setLetterStatus('文件 id 不能为空', true);
+    return;
+  }
+  let body;
+  try {
+    body = letterBodyFromForm();
+  } catch (err) {
+    setLetterStatus(err.message, true);
+    return;
+  }
+  try {
+    const saved = await api(LET, 'PUT', '/' + encodeURIComponent(id), body);
+    await refreshLetters();
+    await refresh();
+    const fresh = lastLetters.find(l => l.id === id) || saved;
+    fillLetterForm(fresh);
+    setLetterStatus('已保存「' + saved.id + '」（' + (saved.enabled ? '启用' : '停用')
+        + (saved.valid ? '' : '，但配置有问题：' + saved.error) + '）', !saved.valid);
+  } catch (err) {
+    setLetterStatus(err.message, true);
+  }
+});
+
+$('letterCancelBtn').addEventListener('click', () => { resetLetterForm(); setLetterStatus(); });
+$('addItemBtn').addEventListener('click', () => addItemRow());
+$('letterType').addEventListener('change', syncLetterFields);
+$('letterId').addEventListener('input', syncLetterFields);
+
+$('letterTbody').addEventListener('click', async ev => {
+  const btn = ev.target.closest('button');
+  if (!btn) return;
+  const editId = btn.getAttribute('data-letter-edit');
+  const delId = btn.getAttribute('data-letter-del');
+  if (editId) {
+    const letter = lastLetters.find(l => l.id === editId);
+    if (letter) fillLetterForm(letter);
+  } else if (delId) {
+    const bindings = lastEvents.filter(e => e.letter === delId).map(e => e.name);
+    const warn = bindings.length ? '\n它正被这些节日绑定：' + bindings.join('、') + '（删除后这些节日不再投递信件）' : '';
+    if (!confirm('确定删除信件「' + delId + '」？' + warn)) return;
+    try {
+      await api(LET, 'DELETE', '/' + encodeURIComponent(delId));
+      if (editingLetterId === delId) resetLetterForm();
+      setLetterStatus('已删除「' + delId + '」');
+      await refreshLetters();
+      await refresh();
+    } catch (err) {
+      setLetterStatus(err.message, true);
+    }
+  }
+});
+
 (async () => {
   syncLetterField();
   syncLunarField();
+  resetLetterForm();
   try {
-    const t = await api('GET', '/today');
+    const t = await api(CAL, 'GET', '/today');
     $('today').textContent = '今天是 ' + t.date + (t.events.length
         ? '，今日活动：' + t.events.map(e => e.type === 'birthday' ? e.name + '的生日' : e.name).join('、')
         : '，今日无活动');
   } catch (_) { /* 页头信息失败不致命 */ }
+  await refreshLetters();
   refresh();
 })();
 </script>

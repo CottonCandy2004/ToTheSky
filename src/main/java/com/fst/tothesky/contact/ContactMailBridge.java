@@ -57,6 +57,11 @@ final class ContactMailBridge {
         return PostcardDataManager.getPostcards().isEmpty() || PostcardDataManager.hasPostcard(style);
     }
 
+    /** 当前可用的明信片款式 id（供网页编辑下拉；数据包尚未装载时为空） */
+    static List<String> postcardStyles() {
+        return PostcardDataManager.getPostcardIds().stream().map(ResourceLocation::toString).sorted().toList();
+    }
+
     static ItemStack postcard(ResourceLocation style, String text) {
         ItemStack card = PostcardItem.setText(PostcardItem.getPostcard(style, false), text);
         card.getOrCreateTag().putString(TAG_SENDER, ContactMail.SYSTEM_SENDER);

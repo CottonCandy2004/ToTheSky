@@ -146,10 +146,25 @@ public final class ContactMail {
     }
 
     /**
-     * {@link ContactMailScheduler} 的开关：Contact 不在场时不消费已排期的任务（装上后照常投递）
+     * Contact 是否在场：{@link ContactMailScheduler} 用它决定要不要消费已排期的任务
+     * （不在场时保留排期，装上后照常投递）；网页管理端也用它提示「现在投不出去」。
      */
-    static boolean loaded() {
+    public static boolean loaded() {
         return CONTACT_LOADED;
+    }
+
+    /**
+     * 明信片款式是否可用（网页保存信件时校验，避免存进一份「永远投不出去」的配置）。
+     * <p>Contact 未安装、或款式表尚未装载时一律返回 {@code true}：判定留给投递那一刻，
+     * 与 {@link ContactMailBridge#hasPostcard} 同一个态度——不把未知当非法。
+     */
+    public static boolean styleAvailable(ResourceLocation style) {
+        return !CONTACT_LOADED || ContactMailBridge.hasPostcard(style);
+    }
+
+    /** 当前可用的明信片款式 id（网页编辑下拉用）；Contact 未安装时为空列表 */
+    public static List<String> postcardStyles() {
+        return CONTACT_LOADED ? ContactMailBridge.postcardStyles() : List.of();
     }
 
     /** 排期：邮件本体已经拼好，这里只负责落 SavedData */

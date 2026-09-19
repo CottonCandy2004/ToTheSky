@@ -10,49 +10,35 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 一条节日信的定义——{@code config/tothesky/letters/*.json} 解析后的不可变结果
+ * 一封信件的内容定义——{@code config/tothesky/letters/*.json} 解析后的不可变结果
  * （解析见 {@link LetterLibrary}）。字段全部经过校验，拿到实例即可直接投递。
  *
- * <p><b>JSON 格式</b>（一个文件 = 一封信；未知字段忽略）：
+ * <p><b>信件只描述「送什么」，不描述「送给谁、什么时候送」</b>——触发一律来自日历：
+ * <ul>
+ *   <li><b>节日</b>：节日活动的 {@code letter} 字段指向某封信（见 {@code calendar.CalendarEvent}），
+ *       节日当天发给**全服每位玩家**；同一封信可被多个节日绑定，各按自己的日子发；</li>
+ *   <li><b>生日</b>：日历里 {@code type=birthday} 的活动当天，收件人（活动名 = 玩家昵称）收到
+ *       {@code birthday.json}（文件名固定，见 {@link LetterLibrary#BIRTHDAY_ID}）——一封生日信服务全服。</li>
+ * </ul>
+ * 因此文件里没有 {@code trigger} / {@code player} / {@code date} 这类字段；
+ * 写了也只会被忽略并提醒一次（旧版本的遗留写法）。没人调用的信就是一叠摆设，不会被投递。
+ *
+ * <p><b>JSON 格式</b>（一个文件 = 一封信；未知字段忽略，手写的 {@code _comment} 会原样保留）：
  * <pre>{@code
  * {
  *   "enabled": true,                                        // 可选，默认 true；false = 不投递
- *   "trigger": "date",                                      // 可选，默认 date；birthday = 生日信（见下）
  *   "type": "postcard",                                     // 必填：postcard / parcel / red_packet
- *   "player": "Steve",                                      // 独立信必填：收件人昵称（与 date 成对）
- *   "date": "10-24",                                        // 独立信必填：MM-DD = 每年该日；YYYY-MM-DD = 只投一次
  *   "style": "contact:new_year_2023",                       // type=postcard 必填：明信片款式
  *   "items": [{"item": "minecraft:cake", "count": 3}],      // type=parcel/red_packet 必填，count 默认 1
  *   "text": "祝${player}生日快乐！"                           // postcard/red_packet 可选：正文 / 红包祝福语
  * }
  * }</pre>
- *
- * <p><b>两种形态</b>——由「有没有 {@code player} + {@code date}」决定：
- * <ul>
- *   <li><b>独立信</b>（{@code trigger=date} 且两个字段齐全）——按自己写的日期、发给写好的收件人；</li>
- *   <li><b>模板信</b>（两个字段都省略）——自己不排期，**只由绑定了它的日历节日投递**
- *       （节日的 {@code letter} 字段指向本文件；当天发给全服每位玩家，见 {@code calendar.CalendarEvent}）。
- *       被绑定的信一律不按自身 trigger 投递，故没有人收双份。</li>
- * </ul>
- * 只写其中一个（{@code player} 或 {@code date}）视为配置错误，整封跳过。
- *
- * <p><b>{@code trigger}</b>决定「谁、什么时候收」：
- * <ul>
- *   <li>{@link Trigger#DATE}（默认）——收件人与日期写在文件里（{@code player} + {@code date}），
- *       适合节日信、活动信；</li>
- *   <li>{@link Trigger#BIRTHDAY}——收件人与日期都取自日历里 {@code type=birthday} 的活动
- *       （活动名 = 玩家昵称，按「月-日」逐年循环，见 {@code calendar.CalendarData}）：
- *       文件里只写「送什么」，{@code player} / {@code date} 写了也会被忽略。
- *       同一个文件对**每个**当天过生日的玩家各投一份（一封生日信服务全服，见 {@code birthday.json}）。</li>
- * </ul>
  *
  * <p>字段名与三类邮件一一对应：明信片 = 样式 + 正文，包裹 = 内容物（Contact 的包裹没有正文），
  * 红包 = 内容物 + 祝福语。
@@ -68,9 +54,8 @@ import java.util.List;
  *       所以专用服务器上会是服务端语言的叫法（没有语言包时为英文）。</li>
  * </ul>
  *
- * <p><b>日期语义</b>（{@link Trigger#DATE} 的信）：{@code MM-DD} 每年循环，{@code YYYY-MM-DD} 只投一次
- * （投递后不再触发）；两者都在「投递日 00:00 后的首次检查」投递。
- * 这里只做日期计算，何时检查、如何投递见 {@link LetterScheduler}。
+ * <p>日期与投递时机一概由日历活动决定（逐年循环、农历换算见 {@code calendar.CalendarEvent}），
+ * 这里只管内容；何时检查、如何投递见 {@link LetterScheduler}。
  */
 public final class FestivalLetter {
     /** 收件人占位符 → 被送的玩家昵称 */
@@ -111,49 +96,11 @@ public final class FestivalLetter {
     }
 
     /**
-     * 投递时机（JSON 的 {@code trigger}）：决定「谁、什么时候收」。
+     * 文件名去掉 {@code .json}；改文件名 = 换了一封信（排期状态从头算）。
+     * <p>被节日绑定用的是这个 id（{@code calendar.CalendarEvent.letter}）。
      */
-    public enum Trigger {
-        /** 收件人与日期写在文件里（{@code player} + {@code date}） */
-        DATE("date"),
-        /** 收件人与日期取自日历里 {@code type=birthday} 的活动（活动名 = 玩家昵称） */
-        BIRTHDAY("birthday");
-
-        private final String id;
-
-        Trigger(String id) {
-            this.id = id;
-        }
-
-        public String id() {
-            return id;
-        }
-
-        /** 未知取值返回 null（由调用方报错） */
-        @Nullable
-        static Trigger byId(String id) {
-            for (Trigger trigger : values()) {
-                if (trigger.id.equals(id)) {
-                    return trigger;
-                }
-            }
-            return null;
-        }
-    }
-
-    /** 文件名去掉 {@code .json}；改文件名 = 换了一封信（排期状态从头算） */
     private final String id;
     private final Type type;
-    private final Trigger trigger;
-    /** {@link Trigger#DATE} 的收件人；生日信为 null（收件人来自日历） */
-    @Nullable
-    private final String player;
-    /** JSON 里的原始日期字符串，用于判断「日期被改过」；生日信为 null */
-    @Nullable
-    private final String dateSpec;
-    /** 生日信为 null（日期来自日历） */
-    @Nullable
-    private final DateSpec date;
     /** 仅 {@link Type#POSTCARD} */
     @Nullable
     private final ResourceLocation style;
@@ -163,15 +110,10 @@ public final class FestivalLetter {
     @Nullable
     private final String text;
 
-    private FestivalLetter(String id, Type type, Trigger trigger, @Nullable String player,
-                           @Nullable String dateSpec, @Nullable DateSpec date,
-                           @Nullable ResourceLocation style, List<ItemStack> items, @Nullable String text) {
+    private FestivalLetter(String id, Type type, @Nullable ResourceLocation style,
+                           List<ItemStack> items, @Nullable String text) {
         this.id = id;
         this.type = type;
-        this.trigger = trigger;
-        this.player = player;
-        this.dateSpec = dateSpec;
-        this.date = date;
         this.style = style;
         this.items = items;
         this.text = text;
@@ -185,35 +127,9 @@ public final class FestivalLetter {
         return type;
     }
 
-    /** 投递时机：日期写在文件里，还是取自日历生日 */
-    public Trigger trigger() {
-        return trigger;
-    }
-
-    /** 仅 {@link Trigger#DATE} 非 null */
-    @Nullable
-    public String player() {
-        return player;
-    }
-
-    /** 文件里的日期字符串；仅 {@link Trigger#DATE} 非 null */
-    @Nullable
-    public String dateSpec() {
-        return dateSpec;
-    }
-
-    /** 排期是否每年循环（{@code MM-DD}）；生日信恒为 false（循环由日历驱动） */
-    public boolean recurring() {
-        return date != null && date.recurring();
-    }
-
-    /**
-     * 是否**模板信**：既没有 {@code player} 也没有 {@code date}，自己不排期，
-     * 只能由绑定了本文件的日历节日投递（见类注释的「两种形态」）。
-     * <p>{@code trigger=birthday} 的信不算模板（它由生日活动驱动）。
-     */
-    public boolean template() {
-        return trigger == Trigger.DATE && player == null && dateSpec == null;
+    /** 是否生日信（文件名固定为 {@code birthday.json}，见 {@link LetterLibrary#BIRTHDAY_ID}） */
+    public boolean birthday() {
+        return LetterLibrary.BIRTHDAY_ID.equals(id);
     }
 
     /** 仅明信片非 null */
@@ -234,30 +150,11 @@ public final class FestivalLetter {
     }
 
     /**
-     * 不早于 {@code from} 的首次投递日（epochDay）；生日信没有日期，返回 {@link Long#MAX_VALUE}（不由日期驱动）。
-     */
-    public long nextOccurrenceOn(LocalDate from) {
-        return date == null ? Long.MAX_VALUE : date.nextOn(from);
-    }
-
-    /**
-     * 下一个不早于 {@code from} 的「月-日」（epochDay）——生日信用：日历里的生日同样是逐年循环的月-日。
-     * <p>闰日（{@code 02-29}）在平年顺延到 2 月 28 日，所以这种生日每年都投，不会隔三年才发一次。
-     */
-    public static long nextRecurringOn(MonthDay day, LocalDate from) {
-        LocalDate candidate = day.atYear(from.getYear());
-        if (candidate.isBefore(from)) {
-            candidate = day.atYear(from.getYear() + 1);
-        }
-        return candidate.toEpochDay();
-    }
-
-    /**
      * 渲染正文：替换 {@value #PLACEHOLDER_PLAYER}、{@value #PLACEHOLDER_DATE}；
      * {@code forItems} 非 null 时再替换 {@value #PLACEHOLDER_ITEM}（即只有红包传内容物）。
      * <p>物品清单最后替换，物品名里万一有别的占位符也不会被二次替换。
      *
-     * @param recipient 收件人昵称（日期触发的信就是 {@link #player()}，生日信是当天过生日的那位）
+     * @param recipient 收件人昵称（节日绑定信是名单里的这一位，生日信是当天过生日的那位）
      */
     public String renderText(LocalDate today, String recipient, @Nullable List<ItemStack> forItems) {
         String rendered = (text == null ? "" : text)
@@ -287,53 +184,61 @@ public final class FestivalLetter {
     // ==================== 解析 ====================
 
     /**
-     * 解析一个 JSON 文件。任何一处不合法都返回 null 并打一条 WARN——
-     * 宁可不投递，也不要把半成品信件发出去。
+     * 解析结果（不落日志，供网页编辑回显）。
+     * <ul>
+     *   <li>{@code error} 非 null = 配置非法，此时 {@code letter} 必为 null；</li>
+     *   <li>{@code error} 为 null 而 {@code letter} 非 null = 校验通过，内容可用；
+     *       {@code enabled} 决定它是否会真的投递；</li>
+     *   <li>三个字段都「空」（{@code letter} 为 null、{@code enabled} 为 false、无错）= 加载路径上被跳过的
+     *       停用信——不校验也不投递，写坏了也没人收到。</li>
+     * </ul>
+     * {@code notes} 是「某个字段不生效」之类的提醒（如「包裹没有正文，text 已忽略」），不影响投递。
      */
-    @Nullable
-    static FestivalLetter parse(String id, JsonObject json) {
-        if (Boolean.FALSE.equals(bool(json, "enabled"))) {
+    public record Outcome(@Nullable FestivalLetter letter, boolean enabled, @Nullable String error,
+                          List<String> notes) {
+    }
+
+    /**
+     * 按加载语义把 {@link Outcome} 打成日志（成功不打）。
+     * <p>「同一个文件内容只报一次」由 {@code LetterLibrary} 的内容缓存保证。
+     */
+    public static void logOutcome(String id, Outcome outcome) {
+        if (outcome.error() != null) {
+            warn(id, outcome.error());
+            return;
+        }
+        if (!outcome.enabled()) {
             ToTheSky.LOGGER.info("[节日信] {} 已禁用（enabled=false），跳过", id);
-            return null;
+            return;
+        }
+        for (String message : outcome.notes()) {
+            note(id, message);
+        }
+    }
+
+    /**
+     * 解析一个 JSON 对象（不落日志）。任何一处不合法都只把原因放进 {@link Outcome#error()}——
+     * 宁可不投递，也不要把半成品信件发出去。
+     *
+     * @param validateDisabled {@code true} 时即使 {@code enabled=false} 也完整校验（网页保存用：
+     *                         停用不等于可以存进一份「重新启用就投不出去」的配置）；
+     *                         加载传 {@code false}——停用的信既不校验也不投递，写坏了没人会收到。
+     */
+    public static Outcome parseOutcome(String id, JsonObject json, boolean validateDisabled) {
+        List<String> notes = new ArrayList<>();
+        boolean enabled = !Boolean.FALSE.equals(bool(json, "enabled"));
+        if (!enabled && !validateDisabled) {
+            return new Outcome(null, false, null, notes);
         }
         String typeId = string(json, "type");
         Type type = typeId == null ? null : Type.byId(typeId);
         if (type == null) {
-            warn(id, "type 缺失或未知（可用 postcard / parcel / red_packet），实为 " + typeId);
-            return null;
+            return invalid("type 缺失或未知（可用 postcard / parcel / red_packet），实为 " + typeId);
         }
-        String rawTrigger = string(json, "trigger");
-        Trigger trigger = rawTrigger == null ? Trigger.DATE : Trigger.byId(rawTrigger);
-        if (trigger == null) {
-            warn(id, "trigger 未知（可用 date / birthday），实为 " + rawTrigger);
-            return null;
-        }
-        String player = null;
-        String dateSpec = null;
-        DateSpec date = null;
-        if (trigger == Trigger.DATE) {
-            player = string(json, "player");
-            dateSpec = string(json, "date");
-            if (player != null || dateSpec != null) {
-                // 独立信：player + date 成对出现
-                if (!ScheduledMailData.isValidPlayerName(player)) {
-                    warn(id, "player 缺失或不是合法玩家昵称（模板信请把 player 和 date 都去掉），实为 " + player);
-                    return null;
-                }
-                date = dateSpec == null ? null : DateSpec.parse(dateSpec);
-                if (date == null) {
-                    warn(id, "date 缺失或格式不对（MM-DD 每年循环 / YYYY-MM-DD 只投一次），实为 " + dateSpec);
-                    return null;
-                }
-            }
-            // 两者都没有 = 模板信：不排期，只等日历节日绑定（见 LetterScheduler）
-        } else {
-            // 收件人与日期都来自日历，文件里写了也没用；报出来免得对着不生效的字段猜
-            if (json.has("player")) {
-                note(id, "生日信的收件人来自日历（type=birthday 的活动名），player 已忽略");
-            }
-            if (json.has("date")) {
-                note(id, "生日信的日期来自日历，date 已忽略");
+        // 旧版本的触发字段：信件现在只由日历调用，这些字段一律无效——提醒一次，免得对着不生效的配置猜
+        for (String legacy : List.of("trigger", "player", "date")) {
+            if (json.has(legacy)) {
+                notes.add(legacy + " 已废弃（信件不再自己排期，改由节日绑定或生日调用），已忽略");
             }
         }
         String text = string(json, "text");
@@ -343,75 +248,79 @@ public final class FestivalLetter {
         switch (type) {
             case POSTCARD -> {
                 String styleId = string(json, "style");
-                style = styleId == null ? null : ResourceLocation.tryParse(styleId);
+                // 空串会被 tryParse 解析成 `minecraft:`（一个永远投不出去的假款式），必须按「缺失」处理
+                style = styleId == null || styleId.isBlank() ? null : ResourceLocation.tryParse(styleId);
                 if (style == null) {
-                    warn(id, "明信片缺少 style（款式 id，如 contact:new_year_2023），实为 " + styleId);
-                    return null;
+                    return invalid("明信片缺少 style（款式 id，如 contact:new_year_2023），实为 " + styleId);
                 }
             }
             case PARCEL, RED_PACKET -> {
                 int capacity = type == Type.PARCEL ? ContactMail.PARCEL_CAPACITY : ContactMail.RED_PACKET_CAPACITY;
-                items = parseItems(id, json, capacity);
-                if (items == null) {
-                    return null;
+                ItemsResult parsed = parseItems(json, capacity);
+                if (parsed.error() != null) {
+                    return invalid(parsed.error());
                 }
+                items = parsed.items();
                 if (type == Type.PARCEL && text != null) {
-                    note(id, "包裹没有正文，text 已忽略");
+                    notes.add("包裹没有正文，text 已忽略");
                 }
             }
         }
-        return new FestivalLetter(id, type, trigger, player, dateSpec, date, style, items, text);
+        // 走到这里说明配置本身没问题（停用的信在 validateDisabled 时才到这）；enabled 只决定投不投
+        return new Outcome(new FestivalLetter(id, type, style, items, text), enabled, null, notes);
     }
 
-    /** 解析 items；不合法返回 null */
-    @Nullable
-    private static List<ItemStack> parseItems(String id, JsonObject json, int capacity) {
+    private static Outcome invalid(String message) {
+        return new Outcome(null, false, message, List.of());
+    }
+
+    /** {@link #parseItems} 的结果：内容物，或错因 */
+    private record ItemsResult(List<ItemStack> items, @Nullable String error) {
+    }
+
+    /** 解析 items；不合法返回错因 */
+    private static ItemsResult parseItems(JsonObject json, int capacity) {
         JsonElement element = json.get("items");
         if (element == null) {
-            warn(id, "缺少 items（内容物数组，元素形如 {\"item\": \"minecraft:cake\", \"count\": 3}）");
-            return null;
+            return new ItemsResult(null, "缺少 items（内容物数组，元素形如 {\"item\": \"minecraft:cake\", \"count\": 3}）");
         }
         if (!element.isJsonArray()) {
-            warn(id, "items 必须是数组");
-            return null;
+            return new ItemsResult(null, "items 必须是数组");
         }
         JsonArray array = element.getAsJsonArray();
         if (array.size() > capacity) {
-            warn(id, "items 有 " + array.size() + " 项，超过上限 " + capacity + " 件（Contact 的容量限制）");
-            return null;
+            return new ItemsResult(null, "items 有 " + array.size() + " 项，超过上限 " + capacity + " 件（Contact 的容量限制）");
         }
         List<ItemStack> items = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
             JsonElement child = array.get(i);
             if (!child.isJsonObject()) {
-                warn(id, "items[" + i + "] 必须是 {\"item\": ..., \"count\": ...} 对象");
-                return null;
+                return new ItemsResult(null, "items[" + i + "] 必须是 {\"item\": ..., \"count\": ...} 对象");
             }
             JsonObject entry = child.getAsJsonObject();
             String itemId = string(entry, "item");
             ResourceLocation key = itemId == null ? null : ResourceLocation.tryParse(itemId);
-            Item item = key == null ? null : ForgeRegistries.ITEMS.getValue(key);
-            if (item == null) {
-                warn(id, "items[" + i + "] 未知物品 " + itemId);
-                return null;
+            // getValue 对未知 id 返回默认值（空气），判存在性必须用 containsKey——否则「拼错的物品 id」会被
+            // 报成「不能是空气」，对着错因怎么改都改不对
+            if (key == null || !ForgeRegistries.ITEMS.containsKey(key)) {
+                return new ItemsResult(null, "items[" + i + "] 未知物品 " + itemId);
             }
+            Item item = ForgeRegistries.ITEMS.getValue(key);
             int count = 1;
             if (entry.has("count")) {
                 Integer parsed = integer(entry, "count");
                 if (parsed == null || parsed < 1 || parsed > 64) {
-                    warn(id, "items[" + i + "] 的 count 必须是 1..64 的整数");
-                    return null;
+                    return new ItemsResult(null, "items[" + i + "] 的 count 必须是 1..64 的整数");
                 }
                 count = parsed;
             }
             ItemStack stack = new ItemStack(item, count);
             if (stack.isEmpty()) {
-                warn(id, "items[" + i + "] 不能是空气");
-                return null;
+                return new ItemsResult(null, "items[" + i + "] 不能是空气");
             }
             items.add(stack);
         }
-        return items;
+        return new ItemsResult(items, null);
     }
 
     @Nullable
@@ -443,52 +352,5 @@ public final class FestivalLetter {
     /** 可继续投递的配置问题：某个字段不生效（信照发，只是那个字段被忽略） */
     private static void note(String id, String message) {
         ToTheSky.LOGGER.warn("[节日信] {}：{}", id, message);
-    }
-
-    /**
-     * 投递日：{@code MM-DD}（{@link MonthDay}，每年循环）或 {@code YYYY-MM-DD}（{@link LocalDate}，一次性）。
-     */
-    private static final class DateSpec {
-        /** 每年循环时为非 null */
-        @Nullable
-        private final MonthDay recurring;
-        /** 一次性日期，epochDay */
-        private final long oneOff;
-
-        private DateSpec(@Nullable MonthDay recurring, long oneOff) {
-            this.recurring = recurring;
-            this.oneOff = oneOff;
-        }
-
-        boolean recurring() {
-            return recurring != null;
-        }
-
-        /**
-         * 不早于 {@code from} 的首次投递日（epochDay）；一次性日期已过则返回该过去日期（会被视为立即到期）。
-         */
-        long nextOn(LocalDate from) {
-            return recurring == null ? oneOff : nextRecurringOn(recurring, from);
-        }
-
-        /** 解析 {@code MM-DD} 或 {@code YYYY-MM-DD}，失败返回 null */
-        @Nullable
-        static DateSpec parse(String raw) {
-            String trimmed = raw.trim();
-            String[] parts = trimmed.split("-");
-            try {
-                if (parts.length == 2) {
-                    return new DateSpec(MonthDay.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1])), 0L);
-                }
-                if (parts.length == 3) {
-                    LocalDate date = LocalDate.of(Integer.parseInt(parts[0]),
-                            Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
-                    return new DateSpec(null, date.toEpochDay());
-                }
-            } catch (NumberFormatException | DateTimeException e) {
-                return null;
-            }
-            return null;
-        }
     }
 }

@@ -31,27 +31,24 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 节日信/生日信投递：每 60 秒检查一次到期的信，交给 {@link ContactMail}。
+ * 信件投递：每 60 秒检查一次到期的信，交给 {@link ContactMail}。
  *
- * <p><b>三种驱动方式</b>：
+ * <p><b>信件自己不排期</b>——「谁、什么时候收」全部来自日历，所以投递只有两条路径：
  * <ul>
- *   <li>{@code trigger=date}（默认）——收件人与日期写在 json 里，排期键 = 文件名；</li>
- *   <li>{@code trigger=birthday}——收件人与日期都取自日历里 {@code type=birthday} 的活动
- *       （活动名 = 玩家昵称、月-日逐年循环，农历生日按 {@code LunarCalendar} 逐年换算成公历日）。
- *       <b>一个生日信文件服务全服</b>：
- *       当天过生日的每位玩家各投一份，排期按「信件 + 收件人 + 生日」逐人独立记账，
- *       所以改日历里某个生日的日期只影响那一个人；</li>
- *   <li><b>模板信</b>（既无 {@code player} 又无 {@code date}）——自己不排期，只能由**日历节日**的
- *       {@code letter} 字段绑定：该节日当天把信发给**全服每位玩家**（{@link #recipientNames}）。
- *       多个节日可绑同一封信，各按自己的日子发。</li>
+ *   <li><b>节日绑定</b>——节日活动的 {@code letter} 字段指向某封信：节日当天发给**全服每位玩家**
+ *       （{@link #recipientNames}：当前在线 ∪ {@code usercache.json}）。同一封信可被多个节日绑定，
+ *       各按自己的日子发；同一天被多个节日绑定只发一次（排期键天然去重）。</li>
+ *   <li><b>生日</b>——日历里每条 {@code type=birthday} 的活动当天，收件人（活动名 = 玩家昵称）收到
+ *       {@code birthday.json}（id 固定为 {@link LetterLibrary#BIRTHDAY_ID}，见 {@code ensureDefaultFiles}）。
+ *       <b>一个生日信文件服务全服</b>：当天过生日的每位玩家各投一份，
+ *       排期按「信件 + 收件人 + 生日」逐人独立记账，所以改日历里某个生日的日期只影响那一个人。</li>
  * </ul>
- * <b>被任何节日绑定的信，一律不按自身 trigger 投递</b>（避免同一封信发两遍）：
- * 若它同时还写了 {@code player}/{@code date}/{@code trigger=birthday}，那些设置会被忽略并告警一次。
+ * 没有任何节日绑定、又不是生日信的文件不会被投递（配置诊断会提醒一次）。
  *
- * <p><b>配置何时生效</b>：{@code config/tothesky/letters} 只在**服务器启动后的首轮检查**与
- * {@code /tothesky reloadletters}（{@link #reload}）时被读取；平时的 60 秒检查只用已读入的定义，
- * 不碰磁盘（读 {@code usercache.json} 最坏一天一次，见 {@link #recipientNames}）。
- * 所以改完 json 要跑一次命令——顺带也能立刻投出当天该发的信，方便调试。
+ * <p><b>配置何时生效</b>：{@code config/tothesky/letters} 只在**服务器启动后的首轮检查**、
+ * {@code /tothesky reloadletters}（{@link #reload}）与**网页保存信件之后**（{@link #reloadDefinitions}）
+ * 被读取；平时的 60 秒检查只用已读入的定义，不碰磁盘（读 {@code usercache.json} 最坏一天一次，
+ * 见 {@link #recipientNames}）。所以手写改完 json 要跑一次命令——顺带也能立刻投出当天该发的信，方便调试。
  *
  * <p><b>命令 vs 日常检查的差别</b>：命令会把「本应在今天投递」的信**重新武装再发一次**
  * （哪怕今天已经投过），日常 60 秒检查则严格按已记录的 {@code nextDue} 判断、绝不重发。
@@ -62,11 +59,9 @@ import java.util.Set;
  *
  * <p><b>排期算法</b>（状态见 {@link LetterStateData}，键见 {@link #recipientKey}）：
  * <ol>
- *   <li>{@code date} 信的日期字符串变了（或首次见到）→ 按今天重算 {@code nextDueDay}——所以当天写下的
- *       「日期 = 今天」的信会立刻投递，而今天补写的「元旦 01-01」会等到明年元旦；</li>
+ *   <li>首次见到某个「信件 + 收件人 + 日期」→ 按今天算下一次（已过的今年日期顺延到明年）；</li>
  *   <li>{@code today >= nextDueDay} → 投递（服务器停机错过日期时这里就补投）；</li>
- *   <li>投递成功 → 循环日期（{@code MM-DD}、生日与节日绑定都是逐年循环）推进到下一次，
- *       一次性日期（{@code YYYY-MM-DD}）置为永不再投；</li>
+ *   <li>投递成功 → 排期推进到下一个周期（逐年循环：下一次是明年同一天，农历日期按农历年换算）；</li>
  *   <li>投递失败（例如款式写错、Contact 缺席、收件人还没进过服）→ <b>保留</b> {@code nextDueDay}，
  *       下一轮重试；失败日志每个排期键每进程只报一次，避免每分钟刷屏。</li>
  * </ol>
@@ -136,6 +131,19 @@ public final class LetterScheduler {
         return new ReloadResult(letters.size(), deliverDue(server, true), ContactMail.loaded());
     }
 
+    /**
+     * 只重读配置、不投递（网页保存信件后调用）：新定义立刻生效，但**不重发今天已投过的信**。
+     * <p>要连今天的信一起重发，用 {@code /tothesky reloadletters}（见 {@link #reload}）——
+     * 「网页改完内容，希望今天的人再收一份」是显式动作，不该由一次保存偷偷触发。
+     * <p>必须由服务端线程调用（HTTP 入口需先 {@code server.execute(...)}）。
+     *
+     * @return 生效的（启用中的）信件数
+     */
+    public static int reloadDefinitions() {
+        reloadFromDisk();
+        return letters.size();
+    }
+
     /** 备好目录与默认文件，然后把目录里的信读进来 */
     private static void reloadFromDisk() {
         LetterLibrary.ensureDefaultFiles();
@@ -156,7 +164,7 @@ public final class LetterScheduler {
         }
         List<CalendarEvent> events = CalendarData.get(server).all();
         Map<String, List<CalendarEvent>> bindings = festivalBindings(events);
-        // 配置诊断与 Contact 无关：没装 Contact 也照样把「绑定写错 / 模板没人绑」报出来
+        // 配置诊断与 Contact 无关：没装 Contact 也照样把「绑定写错 / 没人调用」报出来
         warnConfigIssues(current, bindings);
         if (!ContactMail.loaded()) {
             return 0;
@@ -166,6 +174,9 @@ public final class LetterScheduler {
         LocalDate today = LocalDate.now();
         int delivered = 0;
         List<String> recipients = null; // 全服名单：只有真有绑定才去枚举
+        List<CalendarEvent> birthdays = events.stream()
+                .filter(event -> CalendarEvent.TYPE_BIRTHDAY.equals(event.type))
+                .toList();
         for (FestivalLetter letter : current) {
             List<CalendarEvent> bound = bindings.get(letter.id());
             if (bound != null) {
@@ -176,77 +187,34 @@ public final class LetterScheduler {
                     delivered += deliverFestivalLetter(letter, festival, recipients, state, live, today,
                             rearmToday) ? 1 : 0;
                 }
-            } else if (!letter.template()) {
-                if (letter.trigger() == FestivalLetter.Trigger.BIRTHDAY) {
-                    for (CalendarEvent event : events) {
-                        if (CalendarEvent.TYPE_BIRTHDAY.equals(event.type)) {
-                            delivered += deliverBirthdayLetter(letter, event, state, live, today,
-                                    rearmToday) ? 1 : 0;
-                        }
-                    }
-                } else {
-                    delivered += deliverDateLetter(letter, state, live, today, rearmToday) ? 1 : 0;
+            }
+            // 生日信（文件名固定）由每一条生日活动调用；它同时也可以被节日绑定，两条路径互不干扰
+            if (letter.birthday()) {
+                for (CalendarEvent birthday : birthdays) {
+                    delivered += deliverBirthdayLetter(letter, birthday, state, live, today, rearmToday) ? 1 : 0;
                 }
             }
         }
-        // 目录里已删掉的信、日历里已删掉的生日/绑定，排期状态一并丢掉；日后放回时按新信处理
+        // 日历里已删掉的生日/绑定，排期状态一并丢掉；日后放回时按新信处理
         state.retain(live);
         return delivered;
     }
 
-    /** 配置级诊断：绑定指向不存在的信、模板信无人绑定、被绑定的信自身排期不生效 */
+    /** 配置级诊断：绑定指向不存在的信、没有任何节日调用又不是生日信（写了也不会投递） */
     private static void warnConfigIssues(List<FestivalLetter> current,
                                          Map<String, List<CalendarEvent>> bindings) {
         warnMissingBoundLetters(bindings, current);
         for (FestivalLetter letter : current) {
-            List<CalendarEvent> bound = bindings.get(letter.id());
-            if (bound != null) {
-                noteOwnScheduleIgnored(letter, bound);
-            } else if (letter.template()) {
-                warnUnboundTemplate(letter);
+            if (!letter.birthday() && !bindings.containsKey(letter.id()) && REPORTED.add("idle:" + letter.id())) {
+                ToTheSky.LOGGER.warn("[节日信] {} 没有任何节日绑定它，也不会被生日调用，当前不会投递"
+                        + "（在日历里给某个节日填 letter = {}）", letter.id(), letter.id());
             }
         }
-    }
-
-    /** {@code trigger=date}：收件人与日期来自 json；返回是否投出 */
-    private static boolean deliverDateLetter(FestivalLetter letter, LetterStateData state,
-                                             Set<String> live, LocalDate today, boolean rearmToday) {
-        String id = letter.id();
-        live.add(id);
-        long todayEpoch = today.toEpochDay();
-        long fresh = letter.nextOccurrenceOn(today);
-        String knownSpec = state.spec(id);
-        Long due = knownSpec != null && knownSpec.equals(letter.dateSpec())
-                ? state.nextDue(id)
-                : null;
-        if (rearmToday && fresh == todayEpoch) {
-            // 命令重载：本应今天投的这封信重新武装（原本可能已投并推进到明年），于是重发一次
-            due = todayEpoch;
-            state.put(id, letter.dateSpec(), due);
-        } else if (due == null) {
-            // 首次见到，或 JSON 里的日期被改过：以今天为基准重新排期
-            due = fresh;
-            state.put(id, letter.dateSpec(), due);
-        }
-        if (todayEpoch < due) {
-            return false;
-        }
-        String player = letter.player();
-        if (!deliver(letter, today, player)) {
-            if (REPORTED.add(id)) {
-                ToTheSky.LOGGER.warn("[节日信] {} 投递失败（收件人 {}），保留排期待下轮重试", id, player);
-            }
-            return false;
-        }
-        REPORTED.remove(id);
-        state.put(id, letter.dateSpec(), nextDueAfter(letter, today));
-        ToTheSky.LOGGER.info("[节日信] {} 已投递：{} → {}（{}）",
-                id, ContactMail.SYSTEM_SENDER, player, letter.type().id());
-        return true;
     }
 
     /**
-     * {@code trigger=birthday}：收件人与生日都来自日历里的一条 {@code type=birthday} 活动。
+     * 生日信（文件名固定为 {@code birthday.json}）：收件人与生日都来自日历里的一条
+     * {@code type=birthday} 活动。
      * <p>排期键含「收件人 + 生日」（见 {@link #recipientKey}），所以同一天过生日的多人各收一份，
      * 同一人的生日日期改了也不会串味。返回是否投出。
      */
@@ -267,7 +235,7 @@ public final class LetterScheduler {
     }
 
     /**
-     * 日历节日绑定的信（模板信或「被绑定」的独立信）：节日当天发给全服每位玩家。
+     * 日历节日绑定的信：节日当天发给全服每位玩家。
      * <p>多个节日可绑同一封信，各自按自己的月-日发；同一天被多个节日绑定只算一次
      * （排期键是「信件 + 收件人 + 日期」，天然去重）。
      */
@@ -317,10 +285,10 @@ public final class LetterScheduler {
         if (rearmToday && fresh == todayEpoch) {
             // 命令重载：今天这一份重新武装（可能上周目已投并推进到明年），于是再发一次
             due = todayEpoch;
-            state.put(key, dayText, due);
+            state.put(key, due);
         } else if (due == null) {
             due = fresh;
-            state.put(key, dayText, due);
+            state.put(key, due);
         }
         if (todayEpoch < due) {
             return false;
@@ -334,7 +302,7 @@ public final class LetterScheduler {
         }
         REPORTED.remove(key);
         // 逐年循环：今年这份已投出，下一次是明年的这天（从明天起算，避开「今天仍 >= due」）
-        state.put(key, dayText, recurrence.nextAfterToday());
+        state.put(key, recurrence.nextAfterToday());
         ToTheSky.LOGGER.info("[节日信] {} {} 已投递：{} → {}（{}，{}）",
                 kind, letter.id(), ContactMail.SYSTEM_SENDER, recipient, letter.type().id(), dayText);
         return true;
@@ -448,25 +416,6 @@ public final class LetterScheduler {
         }
     }
 
-    /** 被绑定的信还有自己的排期设置：那些设置不生效，告警一次免得对着不生效的字段猜 */
-    private static void noteOwnScheduleIgnored(FestivalLetter letter, List<CalendarEvent> bound) {
-        if (letter.template() || !REPORTED.add("bound:" + letter.id())) {
-            return;
-        }
-        ToTheSky.LOGGER.warn("[节日信] {} 已被节日「{}」绑定，其自身 {} 不生效：收件人与日期改由该节日决定",
-                letter.id(), bound.get(0).displayTitle(),
-                letter.trigger() == FestivalLetter.Trigger.BIRTHDAY ? "trigger=birthday"
-                        : letter.player() != null && letter.dateSpec() != null ? "player/date" : "排期设置");
-    }
-
-    /** 模板信没有任何节日绑定：告警一次（多半是日历里忘了填 letter） */
-    private static void warnUnboundTemplate(FestivalLetter letter) {
-        if (REPORTED.add("template:" + letter.id())) {
-            ToTheSky.LOGGER.warn("[节日信] {} 是模板信（没写 player/date），但没有节日绑定它，不会投递"
-                    + "（在日历里给某个节日填 letter = {}）", letter.id(), letter.id());
-        }
-    }
-
     private static void warnBadDate(String kind, String letterId, CalendarEvent event) {
         if (REPORTED.add("日历:" + event.id)) {
             ToTheSky.LOGGER.warn("[节日信] {} {} 跳过日历里的「{}」：{} 不是合法日期",
@@ -494,14 +443,9 @@ public final class LetterScheduler {
         };
     }
 
-    /** 投递成功后的下次投递日：循环日期推进到下一年，一次性日期永不再投 */
-    private static long nextDueAfter(FestivalLetter letter, LocalDate today) {
-        return letter.recurring() ? letter.nextOccurrenceOn(today.plusDays(1)) : Long.MAX_VALUE;
-    }
-
     /**
      * 逐年投递的排期键：{@code 信件名|收件人|日期}（如 {@code birthday|Steve|10-24}、{@code chunjie|Alex|01-01}，
-     * 农历生日为 {@code birthday|Steve|农历08-06}）——
+     * 农历日期为 {@code birthday|Steve|农历08-06}）——
      * 一眼能看出这封信是给谁的、哪天发，直接看 {@code tothesky_letters.dat} 也能懂。
      * <p>生日信与节日绑定信共用这套键（都是「信件 + 收件人 + 某个月-日」）：
      * 同一天被多个节日绑定的同一封信只会发一次。

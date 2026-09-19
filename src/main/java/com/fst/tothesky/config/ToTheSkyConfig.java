@@ -4,14 +4,14 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
  * ToTheSky 通用配置（Forge {@code ModConfig.Type.COMMON}，文件 {@code config/tothesky-common.toml}）。
- * 在模组构造期注册，供 {@code CalendarHttpServer} 在 ServerStarted 读取；
+ * 在模组构造期注册，供 {@code web.WebApiServer} 在 ServerStarted 读取；
  * 因此改动需重启（或重载配置后重启服务器）才生效。
  */
 public final class ToTheSkyConfig {
 
-    /** 日历 HTTP API 与自带管理页的监听端口 */
+    /** 本地 Web API（管理页 + 日历/信件 REST）的监听端口 */
     public static final ForgeConfigSpec.IntValue CALENDAR_PORT;
-    /** 日历 HTTP API 的绑定地址（默认仅本机） */
+    /** 本地 Web API 的绑定地址（默认仅本机） */
     public static final ForgeConfigSpec.ConfigValue<String> CALENDAR_BIND_ADDRESS;
 
     public static final ForgeConfigSpec SPEC;
