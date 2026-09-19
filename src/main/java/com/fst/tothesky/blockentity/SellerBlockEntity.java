@@ -1,8 +1,11 @@
 package com.fst.tothesky.blockentity;
 
+import com.fst.tothesky.registry.ModNbt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -33,6 +36,9 @@ public class SellerBlockEntity extends BlockEntity {
     private static final String TAG_OWNER_NAME = "owner_name";
     private static final String TAG_PRICE1 = "price1";
     private static final String TAG_PRICE2 = "price2";
+    /** kjs 时代（ForgeData）里的价格键：值是 double，但脚本只按整数位/小数位加减，必定落在 int 域 */
+    private static final String LEGACY_PRICE1 = "price1";
+    private static final String LEGACY_PRICE2 = "price2";
 
     @Nullable private UUID ownerUuid;
     private String ownerName = "";
@@ -52,7 +58,19 @@ public class SellerBlockEntity extends BlockEntity {
     }
 
     public boolean isOwner(Player player) {
-        return ownerUuid != null && ownerUuid.equals(player.getUUID());
+        if (ownerUuid != null) {
+            return ownerUuid.equals(player.getUUID());
+        }
+        // kjs 时代只写了玩家名（ForgeData.owner，无 UUID）：名字命中即认作拥有者，
+        // 并在服务器侧把 UUID 补写进新结构，之后一律走 UUID 比较
+        if (ownerName.isEmpty() || !ownerName.equals(player.getName().getString())) {
+            return false;
+        }
+        if (player instanceof ServerPlayer serverPlayer && level != null && !level.isClientSide) {
+            ownerUuid = serverPlayer.getUUID();
+            setChanged();
+        }
+        return true;
     }
 
     @Nullable public UUID ownerUuid() { return ownerUuid; }
@@ -286,5 +304,28 @@ public class SellerBlockEntity extends BlockEntity {
         ownerName = tag.getString(TAG_OWNER_NAME);
         price1 = tag.getInt(TAG_PRICE1);
         price2 = tag.getInt(TAG_PRICE2);
+        migrateFromKjs(tag);
+    }
+
+    /**
+     * 迁移 kjs 时代留在 {@code ForgeData} 里的售货机数据（owner / price1 / price2）。
+     * 旧键存在时以它为准：已迁移过的存档里本类的新键还是空的默认值，真实状态只在旧键里。
+     */
+    private void migrateFromKjs(CompoundTag tag) {
+        CompoundTag legacy = ModNbt.kjsData(tag);
+        if (legacy == null) {
+            return;
+        }
+        if (legacy.contains(ModNbt.KJS_OWNER, Tag.TAG_STRING)) {
+            ownerName = legacy.getString(ModNbt.KJS_OWNER);
+            ownerUuid = null;
+        }
+        if (legacy.get(LEGACY_PRICE1) instanceof NumericTag integerPart) {
+            price1 = Math.max(0, (int) integerPart.getAsDouble());
+        }
+        if (legacy.get(LEGACY_PRICE2) instanceof NumericTag tenth) {
+            price2 = Math.min(9, Math.max(0, (int) tenth.getAsDouble()));
+        }
+        ModNbt.clearKjsKeys(this, tag, ModNbt.KJS_OWNER, LEGACY_PRICE1, LEGACY_PRICE2);
     }
 }

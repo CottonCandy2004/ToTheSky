@@ -9,6 +9,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -36,6 +37,40 @@ public final class ModNbt {
     public static final String REWIND_POS = "rewind_pos";
 
     private ModNbt() {
+    }
+
+    // ---------------- kjs 时代方块实体的 persistentData ----------------
+
+    /**
+     * kjs 时代（{@code BlockEntityJS}）的 {@code block.entity.persistentData} 落在 Forge 的
+     * {@code ForgeData} 下而非 KJS 自己的 {@code data} 里——旧存档中售货机/扭蛋机的
+     * owner、价格、抽奖券 key 都写在那里（KJS 的 {@code data} 是空的）。
+     * 与饺子馅料同样是「读旧键、写新结构」的一次性迁移：迁移后旧键即被清除，状态只有一个来源。
+     */
+    public static final String KJS_FORGE_DATA = "ForgeData";
+    /** kjs 记录的机器拥有者（值是玩家名——kjs 不记录 UUID） */
+    public static final String KJS_OWNER = "owner";
+
+    /** 只读探测方块实体存档里的 kjs 旧数据；无旧键返回 {@code null}（不创建空标签） */
+    @Nullable
+    public static CompoundTag kjsData(CompoundTag blockEntityTag) {
+        CompoundTag legacy = blockEntityTag.getCompound(KJS_FORGE_DATA);
+        return legacy.isEmpty() ? null : legacy;
+    }
+
+    /**
+     * 清掉已迁移的 kjs 旧键。传入的存档标签与 Forge 保存时写回的活引用（{@code getPersistentData()}）
+     * 都清一遍——两者通常是同一个对象，但不必假设。
+     */
+    public static void clearKjsKeys(BlockEntity be, CompoundTag blockEntityTag, String... keys) {
+        CompoundTag legacy = blockEntityTag.getCompound(KJS_FORGE_DATA);
+        CompoundTag live = be.getPersistentData();
+        for (String key : keys) {
+            legacy.remove(key);
+            if (live != legacy) {
+                live.remove(key);
+            }
+        }
     }
 
     // ---------------- 饺子馅料 / 厨师名 ----------------

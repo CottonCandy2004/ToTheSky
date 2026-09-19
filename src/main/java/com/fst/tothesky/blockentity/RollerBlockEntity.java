@@ -2,9 +2,12 @@ package com.fst.tothesky.blockentity;
 
 import com.fst.tothesky.registry.ModBlockEntities;
 import com.fst.tothesky.registry.ModItems;
+import com.fst.tothesky.registry.ModNbt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -42,6 +45,10 @@ import java.util.concurrent.ThreadLocalRandom;
  * </ul>
  *
  * 1.20.1 适配：抽奖券的绑定 key 直接存物品 NBT 根 tag（1.21 走 CUSTOM_DATA 组件）。
+ *
+ * <p>key 是 {@code double} 而非 long，与 kjs 保持一致（{@code Math.random()}）：旧存档里
+ * 已绑定的抽奖券把 key 以 double 写在物品 NBT 上，券散落在箱子/背包/物流存储里无法枚举重写，
+ * 只有机器侧也用 double 才能继续匹配上。
  */
 public class RollerBlockEntity extends BlockEntity {
 
@@ -51,7 +58,7 @@ public class RollerBlockEntity extends BlockEntity {
 
     @Nullable private UUID ownerUuid;
     private String ownerName = "";
-    private long key = ThreadLocalRandom.current().nextLong();
+    private double key = ThreadLocalRandom.current().nextDouble();
 
     public RollerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ROLLER.get(), pos, state);
@@ -66,12 +73,24 @@ public class RollerBlockEntity extends BlockEntity {
     }
 
     public boolean isOwner(Player player) {
-        return ownerUuid != null && ownerUuid.equals(player.getUUID());
+        if (ownerUuid != null) {
+            return ownerUuid.equals(player.getUUID());
+        }
+        // kjs 时代只写了玩家名（ForgeData.owner，无 UUID）：名字命中即认作拥有者，
+        // 并在服务器侧把 UUID 补写进新结构，之后一律走 UUID 比较
+        if (ownerName.isEmpty() || !ownerName.equals(player.getName().getString())) {
+            return false;
+        }
+        if (player instanceof ServerPlayer serverPlayer && level != null && !level.isClientSide) {
+            ownerUuid = serverPlayer.getUUID();
+            setChanged();
+        }
+        return true;
     }
 
     @Nullable public UUID ownerUuid() { return ownerUuid; }
     public String ownerName() { return ownerName; }
-    public long key() { return key; }
+    public double key() { return key; }
 
     // ---- 交互 ----
 
@@ -84,8 +103,8 @@ public class RollerBlockEntity extends BlockEntity {
                 player.sendSystemMessage(Component.literal("无法覆盖已绑定的抽奖券"));
                 return InteractionResult.PASS;
             }
-            // 写入 NBT key
-            mainHand.getOrCreateTag().putLong(TAG_KEY, key);
+            // 写入 NBT key（与 kjs 同为 double，旧券才匹配得上）
+            mainHand.getOrCreateTag().putDouble(TAG_KEY, key);
 
             // 附魔光效（kjs: enchanted = true）——1.20.1 NBT：Enchantments 列表 + 隐藏附魔 flag 显示光效
             CompoundTag enchantTag = new CompoundTag();
@@ -124,10 +143,10 @@ public class RollerBlockEntity extends BlockEntity {
                 player.sendSystemMessage(Component.literal("你需要手持抽奖券！"));
                 return InteractionResult.PASS;
             }
-            // 检查券的 key
+            // 检查券的 key：旧券写的是 double（kjs Math.random()），新券也是 double
             CompoundTag ticketTag = mainHand.getTag();
             if (ticketTag == null || !ticketTag.contains(TAG_KEY)
-                    || ticketTag.getLong(TAG_KEY) != key) {
+                    || ticketTag.getDouble(TAG_KEY) != key) {
                 player.sendSystemMessage(Component.literal("抽奖券与扭蛋机不匹配"));
                 return InteractionResult.PASS;
             }
@@ -192,7 +211,7 @@ public class RollerBlockEntity extends BlockEntity {
             tag.putUUID(TAG_OWNER_UUID, ownerUuid);
         }
         tag.putString(TAG_OWNER_NAME, ownerName);
-        tag.putLong(TAG_KEY, key);
+        tag.putDouble(TAG_KEY, key);
     }
 
     @Override
@@ -202,6 +221,28 @@ public class RollerBlockEntity extends BlockEntity {
             ownerUuid = tag.getUUID(TAG_OWNER_UUID);
         }
         ownerName = tag.getString(TAG_OWNER_NAME);
-        key = tag.getLong(TAG_KEY);
+        if (tag.get(TAG_KEY) instanceof NumericTag stored) {
+            key = stored.getAsDouble();
+        }
+        migrateFromKjs(tag);
+    }
+
+    /**
+     * 迁移 kjs 时代留在 {@code ForgeData} 里的扭蛋机数据（owner / key）。
+     * 旧键存在时以它为准：已迁移过的存档里本类的新键还是空的默认值，真实状态只在旧键里。
+     */
+    private void migrateFromKjs(CompoundTag tag) {
+        CompoundTag legacy = ModNbt.kjsData(tag);
+        if (legacy == null) {
+            return;
+        }
+        if (legacy.contains(ModNbt.KJS_OWNER, Tag.TAG_STRING)) {
+            ownerName = legacy.getString(ModNbt.KJS_OWNER);
+            ownerUuid = null;
+        }
+        if (legacy.get(TAG_KEY) instanceof NumericTag stored) {
+            key = stored.getAsDouble();
+        }
+        ModNbt.clearKjsKeys(this, tag, ModNbt.KJS_OWNER, TAG_KEY);
     }
 }
