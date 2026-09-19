@@ -30,6 +30,9 @@
 | 占位图 | 用户已提供（日历.png 256×256、日期框.png 24×24） |
 | 方块形态 | **改定 2026-09-16**：贴墙悬挂的四向朝向方块（自定义碰撞箱，非完整立方体）。`facing` = 正面法线，模型背板贴方块南缘 ⟹ `facing=north` 不旋转；原决策为完整立方体（16×16×16） |
 | 农历生日 | **新增 2026-09-16**：`birthday` 活动可标 `lunar`，月-日按农历解释，逐年换算成公历日子展示与投递。换算用 `LunarCalendar` 查表（1900-2100，位压缩 `int` 数组），闰月不参与；登记入口为 `/tothesky setbirthday <month> <day> [isnongli]`（**所有玩家可用，只能改自己**） |
+| 农历节日 | **改定 2026-09-19**：`lunar` 原本被构造函数限定为生日专有（节日恒 `false`），现与类型解耦——节日同样可标农历，春节/中秋等不必每年手改日期。REST 去掉「lunar 仅生日」校验，管理页农历勾选常驻，`/today` 改走 `occurrenceIn` 按公历日命中 |
+| 网页信件编辑 | **新增 2026-09-19**：管理页下半页可增删改 `config/tothesky/letters/*.json`（`/api/letters`）。HTTP 宿主从 `calendar.http.CalendarHttpServer` 提为 `web.WebApiServer`（挂 `/api/calendar`、`/api/letters`、管理页三块），公共管道抽到 `web.WebHttp`。信件编辑器以文件原文为准、保存即重读定义（不重发今天的信） |
+| 信件只管内容 | **改定 2026-09-19**：删除信件自己的排期——`trigger`/`player`/`date` 三个字段连同 `FestivalLetter.Trigger`/`DateSpec`/`nextOccurrenceOn` 一起删掉，**信件只描述「送什么」**。投递只剩两条路径：① 节日活动的 `letter` 绑定（当天发全服）② `type=birthday` 活动调用**文件名固定**的 `birthday.json`（当天每人一份）。旧文件里的这三个字段被忽略并提醒一次；`LetterStateData` 也不再存日期字符串（键里已含）。`/tothesky reloadletters` 与「重发今天已投过的信」的语义不变 |
 
 ## 架构
 
@@ -40,11 +43,17 @@ CalendarBlock（方块，use() → 服务端发包开屏）
 CalendarData（SavedData，服务器权威，事件 CRUD）
         ▲                              ▲
         │ server.execute()             │ 读取/写入
-CalendarHttpServer ── REST CRUD ──┘
-        │ 变更后广播
+WebApiServer（本机 HTTP 宿主）         │
+ ├─ /api/calendar ─ CalendarApiHandler ┘
+ ├─ /api/letters  ─ LetterApiHandler ──▶ LetterLibrary（config/tothesky/letters/*.json）
+ └─ /              ─ 内嵌管理页 web/calendar_admin.html
+        │ 日历变更后广播
         ▼
 ModNetwork（SimpleChannel）──S2C CalendarDataPacket──▶ CalendarScreen（客户端 GUI）
 ```
+
+> 公共管道（JSON 编解码、CORS 头、请求体读取、`server.execute` 提交）在 `web/WebHttp`；
+> 各域的字段校验与路由留在各自的 `http` 包里。
 
 ### 数据模型 `CalendarEvent`
 

@@ -184,7 +184,8 @@ lang 用 `fstwines.david` → `CocktailProperty.id` 应为 `fstwines:david`（`g
 
 - `src/main/java/com/fst/tothesky/effect/HotPotatoEffect.java`（新增）— 继承 `MobEffect`：
   - 时钟**编码在效果 duration 里**（`DURATION=1200` tick / 60s）。谁持有效果谁就是当前受害者，多场并发 = 各自的 `MobEffectInstance` 独立计时，互不干扰。
-  - `applyEffectTick` 每 tick 检查：每 200 tick（10s）全服广播「xxx身上的击鼓传花还剩余xx秒」；剩余 `<=1` 时击杀持有者并广播「没能及时把好运传给下一个人」。
+  - `applyEffectTick` 每 tick 检查：每 200 tick（10s）全服广播「xxx身上的击鼓传花还剩余xx秒」；剩余 `<=1` 时对持有者结算 **200 点伤害**（`player.hurt(damageSources().generic(), HotPotatoEffect.EXPIRE_DAMAGE)`）并广播「没能及时把好运传给下一个人」。
+  - **不再用 `kill()`**（2026-09-17 调整）：`LivingEntity.kill()` 走 `generic_kill` 伤害源，该类型属 `bypasses_invulnerability` 标签，而 `checkTotemDeathProtection` 首行即因该标签返回 false → 不死图腾、死亡回溯等免死手段全部失效（硬杀）。改用 200 点 `minecraft:generic`：正常走 `hurt()` 伤害管线，图腾/死亡回溯可规避；`generic` 属 `bypasses_armor`（护甲不减免，只被抗性/保护附魔削减），故 200 点对正常配装玩家仍是致命伤。
   - **关键修复**：必须用 `BuiltInRegistries.MOB_EFFECT.wrapAsHolder(this)` 查询 `activeEffects`（返回注册表 reference holder），不能用 `Holder.direct(this)`——后者 `kind()==Direct`，而 `activeEffects` 的 key 是 REFERENCE holder（`addEffect` 存入 `ModEffects.HOT_POTATO`），NeoForge 覆写的 `Holder.Reference.equals` 只与 REFERENCE holder 相等，`Holder.direct` 永远查不到实例 → 无广播、无击杀。
   - `shouldApplyEffectTickThisTick` 返回 true，确保每 tick 都进来检查到期。
 - `src/main/java/com/fst/tothesky/registry/ModEffects.java` — 注册 `HOT_POTATO`（HARMFUL，`0xFF6D37`）。
@@ -208,7 +209,7 @@ lang 用 `fstwines.david` → `CocktailProperty.id` 应为 `fstwines:david`（`g
 - 未做游戏内实际喝一杯的 UI 冒烟（需启动完整客户端）。
 
 ### 待办
-- 进游戏实际喝一杯验证 buff + 4 个自定义效果 + 击鼓传花全流程（开场广播 / 每 10s 剩余 / 传递 / 超时击杀）。
+- 进游戏实际喝一杯验证 buff + 4 个自定义效果 + 击鼓传花全流程（开场广播 / 每 10s 剩余 / 传递 / 超时 200 伤害结算 / 持不死图腾免死）。
 - 见 `docs/serverTest_todo.md`（危险派对多人模式测试）。
 
 ### 复用工具

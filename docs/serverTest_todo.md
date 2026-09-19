@@ -8,7 +8,7 @@
 
 ## 0. 存档迁移与 kubejs 兼容（MissingMappings）
 
-- [ ] **启动日志无 FAIL 级 MissingMappings**：搜日志 `映射` / `Missing mapping`，kubejs:* 条目应显示 `映射 kubejs:xxx -> tothesky:xxx`（INFO 级）。覆盖方块/物品/流体/流体桶/状态效果/音效（`MissingMappingEvents`）；方块实体类型不走该事件，走 `KjsRegistryAliasEvents` 的注册表别名
+- [ ] **启动日志无 FAIL 级 MissingMappings**：搜日志 `映射` / `Missing mapping`，kubejs:* 条目应显示 `映射 kubejs:xxx -> tothesky:xxx`（INFO 级）。覆盖方块/物品/流体/流体桶/状态效果/音效（`MissingMappingEvents`）；方块实体类型不走该事件，走 `RegistryAliasEvents` 的注册表别名
 - [ ] **饺子（世界 + 物品栏 NBT 不丢）**：
   - 物品栏/箱子里的 `kubejs:raw_dumpling`（带 filling/author）、`cooked_dumpling`、`dumpling_wrapper`、`raw_dumpling_plate`、`cooked_dumpling_plate` 变 `tothesky:` 同名物品，馅料/厨师/自定义名/lore 原样保留
   - 世界里已放置的一盘熟饺子（`kubejs:cooked_dumpling_plate`）显示为 tothesky 方块，`bite`/`facing` 保持
@@ -149,7 +149,7 @@
 - [ ] **绿玩** `fair_play`：效果存续期间每 200t 让 1~20 格内其他实体发光 7 秒（140t持）
 - [ ] **死亡回溯** `rewind`：受到致命伤（剩余血量≤1）时取消伤害、血量置 1、传送到记录点（rewind_pos，登录时刷新），播放图腾动画(35)与音效
 - [ ] **谵妄** `madness`：效果期间玩家无法发言（`ServerChatEvent` 取消）；平均约 250t 一次全服「说胡话」（随机语录）
-- [ ] **击鼓传花** `hot_potato`：duration 编码本场剩余时长；每 10s 广播剩余秒数；剩余 1t 时击杀持有者并广播「没能及时把好运传给下一个人」；持有者攻击别人时把效果+发光+致盲+迟缓传给受害者（见 §13.1）
+- [ ] **击鼓传花** `hot_potato`：duration 编码本场剩余时长；每 10s 广播剩余秒数；剩余 1t 时对持有者结算 200 点伤害（`generic`，走 `hurt()` 管线：持不死图腾触发免死并清场、有死亡回溯则回溯；护甲不减免，抗性/保护附魔可削减）并广播「没能及时把好运传给下一个人」；持有者攻击别人时把效果+发光+致盲+迟缓传给受害者（见 §13.1）
 
 ## 9. 流体（6 种，全部 `noBlock`，仅供 Create 配方/桶搬运）
 
@@ -225,6 +225,13 @@
 
 ## 16. 与其他模组的兼容
 
+- [ ] **Create: Crystal Clear 移植（32 方块 + 旧存档 remap）**：
+  - 旧存档（`crystal_clear:` / `create_crystal_clear:` 命名空间）打开后，已放置的玻璃机壳/包裹传动杆/齿轮/脚手架原地显示为 tothesky 方块，朝向与状态不丢；启动日志逐条 `方块映射 crystal_clear:xxx -> tothesky:xxx`、`物品映射 ...`（INFO 级）；`create_crystal_clear:steel_*` 三条（上游 2.1 已删）仍按 Forge 默认策略报缺失，属预期
+  - 包裹传动杆/齿轮所在方块的**方块实体**解析为 `tothesky:glass_encased_shaft` / `glass_encased_cog` / `glass_encased_large_cog`（`RegistryAliasEvents` 注册表别名；不产生 MissingMappings 日志），旋转速度/网络不断
+  - 创造栏出现 8 种玻璃机壳 + 6 种玻璃脚手架（包裹传动杆/齿轮无物品形态，与上游一致）
+  - 玻璃机壳对传动杆/齿轮右键装壳 → 得到包裹方块；扳手右键脱壳 → 返还传动杆/齿轮 + 机壳
+  - 连接纹理：相邻同种玻璃机壳之间纹理相连；包裹方块与相邻的玻璃相连；旋转中的传动杆/齿轮用 Flywheel 渲染（F3 无重复轴）
+  - 玻璃脚手架可攀爬（`climbable`）、可被扳手旋转；`create:casing` 方块/物品 tag 含 8 种玻璃机壳（装壳机制依赖）
 - [ ] **kitchenkarrot**：鸡尾酒系统（酒保/调酒/饮后效果）正常
 - [ ] **farmersdelight**：滋养效果/切割/烹饪配方（豆腐切割、麻婆豆腐锅）——FD 缺失时滋养效果被跳过，不崩溃
 - [ ] **Create 6.0.8**：部署器润滑、混合器、序列装配全部 kjs 配方等价物；扳手/检查点子方块协作
@@ -244,7 +251,7 @@
 - [ ] **图标渲染**：图标贴内容区右下再整体左上移 1px；`iconType=item` 物品图标 16px、`iconType=block` 方块物品形态、`iconType=player` 玩家头 14px（比物品小一圈）；头像皮肤经 `SkullBlockEntity.updateGameprofile` + `SkinManager.registerSkins` 异步解析（AW 模特同款流程），未就绪时默认皮肤占位、约 0.5s 内刷新为真皮肤；离线玩家解析后也显示正确皮肤
 - [ ] **多活动轮播**：同一日期 ≥2 个事件时图标每 2 秒（40t）轮换
 - [ ] **Tooltip**：悬停有事件的格子显示全部活动；**生日显示「xxx的生日」**（🎉 节日用原名 / 🎂 生日加后缀），描述在名称下方
-- [ ] **管理页**（`http://127.0.0.1:39000/`，mod 自带）：表格名称列生日显示「xxx的生日」、页头今日活动同规则；编辑表单回填原始 name；增删改与游戏 GUI 即时同步
+- [ ] **管理页**（`http://127.0.0.1:39000/`，mod 自带，上半页是日历、下半页是信件编辑器见 20b）：表格名称列生日显示「xxx的生日」、页头今日活动同规则；编辑表单回填原始 name；增删改与游戏 GUI 即时同步
 - [ ] **REST API**（服务器侧已自动化验证，GUI 联动需手测）：`GET/POST/PUT/DELETE http://127.0.0.1:39000/api/calendar/events`、`GET /today`；**网页管理端打开 GUI 时增删事件，GUI 无重开即时刷新**
 - [ ] **崩溃恢复**：服务器强杀后重启，启动日志出现「[日历] 从镜像合并 N 条 SavedData 缺失的事件」（镜像 `<世界>/calendar_events.json`，与 SavedData 按 id 并集合并，两侧新增都不丢）
 - [ ] **配置**：`config/tothesky-common.toml` 的 `calendar.port`（默认 39000）/ `calendar.bindAddress`（默认 127.0.0.1）改后重启服务器生效；端口占用时仅 WARN 不崩服（**同机开客户端+专用服务器时只有一个进程能绑 39000**——后启动的 HTTP 禁用，属预期，可改端口或把其中一个改绑其它端口）
@@ -301,49 +308,76 @@
 
 ---
 
-## 20. 节日信（config/tothesky/letters）
+## 20. 信件（config/tothesky/letters）
 
-> 实现：`contact/LetterLibrary`（目录重读 + 首启生成示例 + 按内容缓存）、`contact/FestivalLetter`（JSON 解析 / 占位符 / 日期 / 模板形态）、`contact/LetterStateData`（主世界 SavedData `tothesky_letters`，记每封信的下次投递日）、`contact/LetterScheduler`（每 60s 检查到期的信，转发给 `ContactMail` 三个入口）、`command/ToTheSkyCommands`（`/tothesky reloadletters`）。
-> **配置何时生效**：目录只在**服务器启动后的首轮检查**与 **`/tothesky reloadletters`** 时读取；平时每 60 秒只检查「到期没」、不碰磁盘。所以改完 json 要跑一次 `/tothesky reloadletters`（权限等级 2），该命令顺带会立刻投一轮——当天该发的信不用再等下一次检查。**日历里的节日绑定（见下）改动后同样要重载才生效。**
-> 格式（一个 `*.json` = 一封信，未知字段忽略）：
-> `{ "enabled": true, "trigger": "date|birthday", "type": "postcard|parcel|red_packet", "player": "昵称", "date": "MM-DD 或 YYYY-MM-DD", "style": "contact:xxx"（明信片）, "items": [{"item": "minecraft:cake", "count": 3}]（包裹/红包）, "text": "祝${player}生日快乐！"（明信片/红包） }`
-> **两种形态**：`player` + `date` 都有 = 独立信（按自己的日期发给写好的收件人）；**两个都不写 = 模板信**（自己不排期，只由日历里 `letter` 指向它的节日投递，见第 22 节）。只写一个 = 配置错误，整封跳过。
-> `trigger` 缺省为 `date`（收件人/日期写在文件里）；`birthday` 的收件人与日期来自日历，见第 21 节。
+> 实现：`contact/LetterLibrary`（目录重读 + 首启生成示例 + 按内容缓存 + 网页读写 `list/find/save/delete`）、`contact/FestivalLetter`（JSON 解析 / 占位符）、`contact/LetterStateData`（主世界 SavedData `tothesky_letters`，记每条排期的下次投递日）、`contact/LetterScheduler`（每 60s 检查到期的信，转发给 `ContactMail` 三个入口）、`command/ToTheSkyCommands`（`/tothesky reloadletters`）、`contact/http/LetterApiHandler`（REST，管理页的信件编辑器用）。
+> **信件只描述「送什么」**——文件里没有 `trigger`/`player`/`date` 这类字段，写给谁、什么时候发一律由日历决定（两条路径）：
+> **① 节日绑定**：节日活动的 `letter` 填信件文件名去 `.json`（见第 22 节）→ 节日当天发给**全服每位玩家**；
+> **② 生日**：日历里 `type=birthday` 的活动当天，收件人（活动名 = 玩家昵称）收到 `birthday.json`——**文件名固定**，一封生日信服务全服（见第 21 节）。
+> 没有任何节日绑定、又不是 `birthday.json` 的信当前不会投递，日志每封信只提醒一次（「没有任何节日绑定它，也不会被生日调用」）。
+> **配置何时生效**：目录在**服务器启动后的首轮检查**、**`/tothesky reloadletters`**、以及**网页保存/删除信件之后**（只重读定义，不重发今天的信）读取；平时每 60 秒只检查「到期没」、不碰磁盘。所以手写改完 json 要跑一次 `/tothesky reloadletters`（权限等级 2），该命令顺带会立刻投一轮——当天该发的信不用再等下一次检查。**日历里的节日绑定改动后同样要重载才生效。**
+> 格式（一个 `*.json` = 一封信；未列出的字段一律忽略，手写的 `_comment` 之类会保留）：
+> `{ "enabled": true, "type": "postcard|parcel|red_packet", "style": "contact:xxx"（明信片必填）, "items": [{"item": "minecraft:cake", "count": 3}]（包裹/红包必填）, "text": "祝${player}生日快乐！"（明信片/红包可选） }`
 > 占位符（只在 `text` 里）：`${player}` 收件人、`${date}` 投递当天日期（yyyy-MM-dd）、`${item}` 内容物清单（**仅红包有效**，明信片/包裹里原样保留）；`${day}` 已取消，写它会原样出现在信里。
-> 日期：`MM-DD` 每年循环（2 月 29 日在平年顺延到 2 月 28 日）、`YYYY-MM-DD` 只投一次；都在当天 00:00 后 1 分钟内投递。
+> 投递时机：由日历活动的月-日决定，逐年循环（农历日期按农历年换算），都在当天 00:00 后 1 分钟内投递。
 
 - [ ] **首启生成**：删掉 `config/tothesky/letters` 后启动 → 目录、三份示例（`example_postcard/parcel/red_packet.json`）与 `birthday.json` 出现；三份示例均 `enabled: false`，不会误发任何人
 - [ ] **不重复生成**：目录已存在时不重建；单删某个示例文件重启后不会复活（`birthday.json` 例外——它是启用中的配置，删了会自动补回，见第 21 节）
 - [ ] **命令可用**：`/tothesky reloadletters` 正常输出「重载完成：启用 N 封」；权限 <2 的玩家执行会看到「未知命令」（与 `/reload` 同级）；`/tothesky` 单独执行提示不完整命令而非报错
-- [ ] **重载才生效**：服务器运行中改一封信的 `date`/`enabled`（或丢入新 `*.json`）→ **不跑命令时什么都没发生**（等 2 分钟以上也不会投、日志无该文件任何动静）；跑一次 `/tothesky reloadletters` 后立刻按新配置生效（新增文件被识别、改日期的按新日期重排）
-- [ ] **重载即投**：某封信 `date` = 今天但还没到下一轮检查 → 跑命令后立刻投出（输出「已投递 N 封」），不必等 60 秒
-- [ ] **重载重发今天的信**：某封今天的信已投过（`next_due` 已推进到明年）→ 再跑一次 `/tothesky reloadletters` → **收件人再收到一份**；连跑两次就有两份（命令专属行为）。对照：不跑命令、纯等 60 秒检查 → 不会重发
-- [ ] **只有今天的重发**：目录里放一封 `date` 是过去的信（循环 `MM-DD` 已过、或一次性 `YYYY-MM-DD` 已投）→ 跑命令**不会**把它翻出来重发；生日/节日绑定信同理（不是今天的寿星/节日不受影响）
-- [ ] **当天投递**：把示例改成 `enabled: true`、`date` 改成今天 → 跑 `/tothesky reloadletters`（或等下一轮检查）后收件人邮箱出现该信；日志有「[节日信] xxx 已投递」
-- [ ] **次日投递**：`date` 改成明天 → 当天不投（命令输出「当前没有到期的信」）；把系统日期调到明天后 1 分钟内自动投递（或等到次日 00:00）
-- [ ] **每年循环**：`MM-DD` 的信投递一次后，`data/tothesky_letters.dat` 里该信 `next_due` 推进到明年同一天
-- [ ] **只投一次**：`YYYY-MM-DD` 的信投递后不再触发（`next_due` 变成极大值），改系统日期到之后也不重投
-- [ ] **停机补投**：`date` 设成昨天 → 排期后关服、今天开机 → 首轮检查（1 分钟内）补投
-- [ ] **删文件清状态**：删掉某封信 + 跑一次重载 → `data/tothesky_letters.dat` 里该 id 消失；同名放回再重载则按新信从头算
-- [ ] **占位符**：`${player}` → 收件人昵称（示例「祝${player}生日快乐！」送给 liziluyu → 明信片上「祝liziluyu生日快乐！」）；`${date}` → 投递当天日期；`${item}` → 红包里替换成 `物品显示名×数量`（多项用「、」连接），明信片里原样保留
+- [ ] **重载才生效**：服务器运行中改一封信的内容（或丢入新 `*.json`）→ **不跑命令时投递行为不变**；跑一次 `/tothesky reloadletters` 后立刻按新配置生效（新增文件被识别）
+- [ ] **重载即投**：某封信今天该发但还没到下一轮检查 → 跑命令后立刻投出（输出「已投递 N 封」），不必等 60 秒
+- [ ] **重载重发今天的信**：某封今天该发的信已投过（`next_due` 已推进到明年）→ 再跑一次 `/tothesky reloadletters` → **收件人再收到一份**；连跑两次就有两份（命令专属行为）。对照：不跑命令、纯等 60 秒检查 → 不会重发
+- [ ] **只有今天的重发**：不是今天该发的（节日不在今天、不是今天的寿星）→ 跑命令**不会**把它翻出来重发
+- [ ] **无调用者不投递**：目录里放一封新信但日历里没有任何节日绑定它 → 日志 WARN「没有任何节日绑定它，也不会被生日调用，当前不会投递」（每封信只报一次），不会发出去
+- [ ] **删文件清状态**：删掉某封信 + 跑一次重载 → `data/tothesky_letters.dat` 里该 id 的排期消失；同名放回再重载则从头算（下次该发时才发）
+- [ ] **旧格式自动迁移**：手写一份带 `trigger`/`player`/`date` 的旧格式信 → 在网页里编辑并保存 → 盘上文件里这三个字段**被清掉**，`_comment` 与内容保留；列表不再提示「已废弃」
+- [ ] **旧字段被忽略**：手写一份带 `trigger`/`player`/`date` 的旧格式信 → 内容照常载入、能投递，日志对每个字段提醒一次「已废弃…已忽略」，不会因为不认识就跳过整封
+- [ ] **占位符**：`${player}` → 收件人昵称（「祝${player}生日快乐！」→ 明信片上「祝liziluyu生日快乐！」）；`${date}` → 投递当天日期；`${item}` → 红包里替换成 `物品显示名×数量`（多项用「、」连接），明信片里原样保留
 - [ ] **`${day}` 不再替换**：信里写 `${day}` 会原样出现在收到的明信片上
 - [ ] **`${item}` 用物品显示名**：红包内容物 `minecraft:diamond` → 祝福语里是该项的名字（客户端整合服为「钻石」，专用服务器无语言包时为「Diamond」）；带自定义名的物品显示其自定义名
 - [ ] **包裹无正文**：`type: parcel` 里写 `text` → 日志告警「包裹没有正文，text 已忽略」，包裹仍正常投递
-- [ ] **坏配置不崩服**：坏 JSON / 未知 `type` / 未知 `trigger` / 非法昵称 / 非法日期（`13-45`）/ 未知物品 / 包裹超 4 件 / 红包超 1 件 → 该文件被跳过并 WARN，其余信件照常投递；**同内容反复重载只报一次**（改文件后重载才再报）
-- [ ] **模板信解析**：只写 `type`/`style`/`items`/`text`、**不写 `player`/`date`** 的信能正常载入（不报错）；`player`、`date` 只写其中一个 → 该文件被跳过并 WARN（提示「模板信请把 player 和 date 都去掉」）
-- [ ] **Contact 缺失**：移走 `Contact-forge-1.2.3.jar` → 目录、示例与 `birthday.json` 照常生成；命令输出「未安装 Contact，本次未投递（排期保留）」，信件不投递也不消费排期（装回后补投）；**绑定写错的告警仍会出现**（配置诊断与 Contact 无关）
+- [ ] **坏配置不崩服**：坏 JSON / 未知 `type` / 未知物品 / 包裹超 4 件 / 红包超 1 件 / 明信片缺 style → 该文件被跳过并 WARN，其余信件照常投递；**同内容反复重载只报一次**（改文件后重载才再报）
+- [ ] **Contact 缺失**：移走 `Contact-forge-1.2.3.jar` → 目录、示例与 `birthday.json` 照常生成；命令输出「未安装 Contact，本次未投递（排期保留）」，信件不投递也不消费排期（装回后补投）；**绑定写错、无人调用的告警仍会出现**（配置诊断与 Contact 无关）
 
 | | | 20. 节日信 | | |
 
 ---
 
+### 20b. 网页信件编辑器（`http://127.0.0.1:39000/` 下半页）
+
+> 实现：`web/WebApiServer`（本机 HTTP 宿主，挂 `/api/calendar`、`/api/letters`、管理页三块）、`web/WebHttp`（JSON/CORS/服务器线程提交等公共管道）、`contact/http/LetterApiHandler`（信件 REST）、`contact/LetterLibrary.list/find/save/delete`（读写 `config/tothesky/letters`）、`web/calendar_admin.html` 的「信件」区。
+> REST：`GET /api/letters`（列表 + 编辑器元数据 types/styles/容量/Contact 在场与否/生日信 id）、`GET /api/letters/{id}`、`PUT /api/letters/{id}`（body = 信件 JSON 本体，创建或整体替换）、`DELETE /api/letters/{id}`。id = 文件名去掉 `.json`（中文名可用）。
+> 语义：**保存即生效**——写盘后立刻只重读定义（不重发今天已投过的信；要重发在游戏里跑 `/tothesky reloadletters`）。编辑器以**文件原文**为准（`raw`），所以手写的 `_comment` 等字段不会被网页抹掉。
+
+- [ ] **列表**：页面下半页列出目录里全部 `*.json`，每行有 id、状态（启用/停用/无效）、类型、内容摘要、**谁调用它**（生日 / 绑定的节日名 / 「没有节日绑定，不会投递」）；示例与 `birthday.json` 都在，表单里**没有**触发方式/收件人/日期字段
+- [ ] **新建**：填 id + 类型（明信片/包裹/红包）+ 款式或内容物（+ 正文）→ 保存后 `config/tothesky/letters/<id>.json` 出现，内容为美化后的规范 JSON（中文不转义）
+- [ ] **编辑回填**：点「编辑」→ 各字段按文件回填；改款式/正文/内容物后保存 → 盘上文件同步变化
+- [ ] **保留手写字段**：手工往 json 里加 `"_comment": "..."` → 在网页里改别的字段并保存 → 注释仍在（保存是**合并**而非重写）
+- [ ] **切换类型**：明信片 → 包裹时款式输入框收起、出现内容物行；反向切换时内容物收起、出现款式与正文；包裹**不动**文件里原有的 `text`（留着只多一条「text 已忽略」提醒，不无声丢内容）
+- [ ] **调用者提示**：表单下方随 id 变化——`birthday` 显示「这是生日信（文件名固定）…」；被节日绑定的显示「被节日绑定：<节日名>」；谁都没绑定的显示「还没有任何节日绑定它，当前不会投递」；空 id 时说明「在日历里给某个节日填「绑定信件」= 它的文件名」
+- [ ] **生日信**：`birthday` 行显示「生日信」徽标、调用者列显示「生日 · 当天每人一份」；其余行不显示
+- [ ] **停用**：不勾「启用」保存 → 列表显示「停用」，`enabled: false` 落盘；**停用的信也能被编辑**（表单仍回填其内容），且停用状态下保存**仍做完整校验**（缺 style / 未知物品照样 400，避免存进「启用就投不出去」的配置）
+- [ ] **校验拒绝**：id 为空 / 以 `.json` 结尾 / 含 `/`、`\`、`|`、控制字符 → 400 且不落盘；未知物品 id → 400「未知物品」；物品超容量（包裹 4 / 红包 1）→ 400；明信片 style 为空 → 400
+- [ ] **坏文件兜底**：手工写坏一个 json（缺逗号 / 根本不是 JSON）→ 列表显示「无效」并给出错因，点「编辑」切到「原始 JSON」文本框，改好保存后自动转回结构化表单
+- [ ] **原文模式的前端检查**：在「原始 JSON」里故意写坏语法 → 保存时浏览器先报「JSON 语法错：…」，不发请求
+- [ ] **删除**：点「删除」有确认框；**被节日绑定的信**额外提示「它正被这些节日绑定：…」；删除后该文件消失、日历里指向它的节日不再投递（日志有 WARN）
+- [ ] **联动跳转**：日历表格里点「绑定信件」列的信件 id → 滚到信件区并打开编辑；id 在目录里不存在 → 预填该 id 到「新建」表单并提示「还没有「xxx」这封信」
+- [ ] **保存即生效**：改完保存（不跑任何命令）→ 1 分钟内到期的信按新内容投递；**今天的信不会被重发**（对照：跑 `/tothesky reloadletters` 才重发）
+- [ ] **元数据随数据包**：明信片款式输入框的候选来自 Contact 的 `data/*/postcards/*.json`；未装 Contact 时页面顶部提示「信件会照常保存，但暂时投递不出去」
+- [ ] **`/api/letters` 与 `/api/letters/{id}` 都可达**：裸路径返回列表（不是 404）；`/api/lettersX` 之类形近路径不落到该 handler
+
+| | | 20b. 网页信件编辑器 | | |
+
+---
+
 ## 21. 生日信（birthday.json + 日历生日）
 
-> 实现：`contact/LetterLibrary.ensureDefaultFiles`（首启生成 `config/tothesky/letters/birthday.json`，缺失即补回）、`contact/FestivalLetter`（`trigger=birthday` 的信不收 `player`/`date`，都由日历提供；${player} 按投递时的收件人渲染）、`contact/LetterScheduler`（每轮检查读日历 `type=birthday` 的活动，按「信件|收件人|生日」逐人独立排期）、`command/ToTheSkyCommands`（`/tothesky reloadletters`）。
+> 实现：`contact/LetterLibrary.ensureDefaultFiles`（首启生成 `config/tothesky/letters/birthday.json`，缺失即补回；id 固定为 `LetterLibrary.BIRTHDAY_ID`）、`contact/FestivalLetter`（信件只描述内容；${player} 按投递时的收件人渲染）、`contact/LetterScheduler`（每轮检查读日历 `type=birthday` 的活动，按「信件|收件人|生日」逐人独立排期）、`command/ToTheSkyCommands`（`/tothesky reloadletters`）。
+> **文件名固定**：`birthday.json` 是唯一「按文件名认领」的信件——日历里每条 `type=birthday` 的活动当天都调用它；其余信件只能由节日活动的 `letter` 绑定（见第 22 节）。
 > 数据源：日历活动（`/api/calendar/events` 或游戏内日历 GUI 里 `type=birthday` 的条目，其 `name` 就是玩家昵称）。
 > 语义：**一个生日信文件服务全服**——当天过生日的每位玩家各收一份，逐年循环；改 `birthday.json` 即换生日礼物，不必碰日历。
 
-- [ ] **首启生成**：新实例首次启动 → `config/tothesky/letters/birthday.json` 出现，内容为默认明信片（`trigger: birthday`、`style: contact:spring_day`、`enabled: true`），日志有「已生成默认生日信」
+- [ ] **首启生成**：新实例首次启动 → `config/tothesky/letters/birthday.json` 出现，内容为默认明信片（`style: contact:spring_day`、`enabled: true`，**无任何触发字段**），日志有「已生成默认生日信」
 - [ ] **删掉会补回**：删掉 `birthday.json` → 跑一次 `/tothesky reloadletters`（或重启服务器）后补回默认内容；**停用要改 `enabled: false`**（改完再重载，不再投递，文件保留）
 - [ ] **改文件不覆盖**：把 `style` 改成别的款式 → 重载后仍是改过的款式（不会被打回默认）
 - [ ] **改动需重载**：改 `style`/`enabled` 后不跑命令 → 投递行为不变；跑一次重载后按新内容投递
@@ -351,17 +385,18 @@
 - [ ] **非当天不投**：生日设成明天 → 今天不投（重载输出「当前没有到期的信」）；改系统日期到那天后 1 分钟内投递
 - [ ] **多人同一天**：日历里放两条同月同日的生日（不同昵称）→ 两人各收一份，互不串（`tothesky_letters.dat` 里两条键 `birthday|<A>|MM-DD`、`birthday|<B>|MM-DD`）
 - [ ] **逐年循环**：投递一次后该玩家 `next_due` 推进到明年同一天；改系统日期到明年该日再次投递
-- [ ] **停机补投**：生日当天服务器没开（或当晚停机、次日才开）→ 次日开机后 1 分钟内补投；反之，**首次**见到一个今年已过的生日不会补发（直接排到明年）——与日期信同一套规则
+- [ ] **停机补投**：生日当天服务器没开（或当晚停机、次日才开）→ 次日开机后 1 分钟内补投；反之，**首次**见到一个今年已过的生日不会补发（直接排到明年）——与节日绑定信同一套规则
 - [ ] **改生日即重排**：把某人的生日从今天改到下月 → 该玩家当天不再投；键变成 `birthday|<昵称>|MM-DD`（新日期），旧键在下次检查时从 `.dat` 里消失
 - [ ] **删生日即清状态**：日历里删掉该生日 → 下次检查后 `.dat` 里对应键消失
 - [ ] **换礼物**：把 `birthday.json` 的 `type` 改成 `parcel` + `items`（≤4 件）→ 重载后生日当天收到包裹；改成 `red_packet` + `items`（≤1 件）+ `text` 含 `${item}` → 收到红包且祝福语里是内容物清单
 - [ ] **占位符按人渲染**：同一天过生日的两人收到的 `${player}` 各自是自己的昵称（不是文件里写死的）
-- [ ] **`player`/`date` 被忽略**：在 `birthday.json` 里手写 `player`/`date` → 日志 WARN「…来自日历，player 已忽略」/「…date 已忽略」，但**信照常按日历投递**（不是跳过）
+- [ ] **旧字段不影响生日信**：`birthday.json` 里手写 `trigger`/`player`/`date`（旧版本遗留）→ 日志 WARN「…已废弃…已忽略」，但**信照常按日历投递**（不是跳过）
 - [ ] **名字非法**：日历里放一条 `type=birthday`、`name=小明的生日`（含非法字符）→ 日志 WARN「名字不是合法玩家昵称，无法投递」，其余生日不受影响，不崩服
 - [ ] **日期非法**：手改 `calendar_events.json` 造出 `month=13`/`day=45` 的生日条目 → 启动后日志 WARN「月 13 / 日 45 不是合法日期」，跳过该条，不崩服
 - [ ] **闰日生日**：2 月 29 日的生日 → 平年在 2 月 28 日投递（不隔三年才发），闰年在 2 月 29 日
 - [ ] **收件人未进过服**：给一个还没进过服的昵称设生日（今天）→ 当天投递失败并 WARN「收件人…暂不可解析」，该玩家首次进服后自动补投（排期不被消费）
-- [ ] **与日期信共存**：目录里同时放 `birthday.json` 与一封 `trigger=date` 的信 → 各按各的规则投递，互不影响；日志与 `.dat` 里两类键并存
+- [ ] **与节日绑定信共存**：目录里同时放 `birthday.json` 与一封被节日绑定的信 → 各按各的规则投递，互不影响；日志与 `.dat` 里两类键并存
+- [ ] **同一封信两条路径**：把某个节日也绑定到 `birthday.json` → 生日当天寿星收一份（生日路径），节日当天全服各收一份（节日路径），互不干扰
 - [ ] **日历实时生效**：服务器运行中通过 REST/GUI 加一条今天是生日的活动 → 1 分钟内投递（无需重启）
 
 ### 21b. 农历生日（`/tothesky setbirthday`）
@@ -378,7 +413,7 @@
 - [ ] **日历上按当年摆放**：农历生日在 GUI 里落在**换算后的公历格子**（农历八月初六 2026 年 → 9-16 格），翻到 2027 年改落 9-06 格；tooltip 名字后带「（农历八月初六）」
 - [ ] **跨年农历**：农历腊月二十 → 落在公历次年 1-2 月（2026-02-07 / 2027-01-27），不会出现在公历 12 月格
 - [ ] **农历/公历不撞键**：同一天的公历生日与农历生日各发各的（`tothesky_letters.dat` 里 `birthday|<名>|08-06` 与 `birthday|<名>|农历08-06` 并存）
-- [ ] **管理页**：编辑表单勾「生日按农历算」→ 日期上限自动变 30；表格日期列显示「农历 8 月 6 日」；勾了农历却选节日会被后端 400 拒
+- [ ] **管理页**：编辑表单勾「日期按农历算」→ 日期上限自动变 30（取消勾选回到 31）；表格日期列显示「农历 8 月 6 日」；农历勾选对节日与生日都可用（见 22b）
 - [ ] **旧存档兼容**：升级后已有的公历生日照旧（缺 `lunar` 字段按公历读），不误判成农历
 
 | | | 21b. 农历生日 | | |
@@ -390,7 +425,7 @@
 ## 22. 节日绑定信件（日历 letter 字段）
 
 > 实现：`calendar/CalendarEvent.letter`（可选字段，仅 `type=festival` 有效；NBT 键 `letter`，镜像与 REST 同名）、`calendar/http/CalendarApiJson.validateLetter`（校验格式）、`contact/LetterScheduler.deliverFestivalLetter`（节日当天发给全服每位玩家）、`contact/LetterScheduler.recipientNames/readUsercache`（名单 = 当前在线 ∪ `usercache.json`）。
-> 用法：在某封信里**不写** `player`/`date`（模板信），或在日历里给节日填 `letter` = 该信的文件名去 `.json`；节日当天这封信发给**全服每位玩家**，`${player}` 逐人渲染。
+> 用法：在日历里给节日填 `letter` = 某封信的文件名去 `.json`；节日当天这封信发给**全服每位玩家**，`${player}` 逐人渲染。信件本身不写收件人与日期（见第 20 节）。
 > 数据源：日历活动（REST `POST/PUT /api/calendar/events` 的 `letter` 字段，或管理页 `http://127.0.0.1:39000/` 的「绑定信件」输入框）。
 > **改动要重载**：日历里的绑定改动后，跑一次 `/tothesky reloadletters` 才生效（与信件目录同一条规则）。
 > 绑定的信一律**不按自身 trigger 投递**（避免发两遍）；节日当天第一次执行后按「信件\|收件人\|月-日」逐年循环。
@@ -398,7 +433,7 @@
 - [ ] **REST 字段可用**：`POST /events` 带 `"letter":"chunjie"` → 201 且返回体含 `letter`；`GET /events` 里能看到该字段；不带 `letter` 的旧客户端请求仍正常（向后兼容）
 - [ ] **校验**：生日活动带 `letter` → 400「letter is only for festival events」；`"letter":"chunjie.json"` → 400（提示去掉 .json）；含 `/`、`\`、`|` 等字符 → 400；中文文件名（如 `中秋礼包`）→ 通过；`PUT` 传 `"letter":""` → 解绑成功
 - [ ] **管理页**：`http://127.0.0.1:39000/` 表单出现「绑定信件」输入框，表格新增「绑定信件」列；把类型切到「生日」时输入框被禁用并清空；编辑已有事件时正确回填
-- [ ] **当天投递**：给某节日填 `letter` = 模板信，月/日 = 今天 → 跑一次重载后，**每位玩家**（在线 + 曾进过服）各收到一份；日志逐人一行「[节日信] 节日信 <信件> 已投递：服务器 → <昵称>」
+- [ ] **当天投递**：给某节日填 `letter` = 某封新信，月/日 = 今天 → 跑一次重载后，**每位玩家**（在线 + 曾进过服）各收到一份；日志逐人一行「[节日信] 节日信 <信件> 已投递：服务器 → <昵称>」
 - [ ] **逐人渲染**：同一天两位玩家收到的 `${player}` 各自是自己的昵称；红包 `${item}` 是内容物清单
 - [ ] **逐年循环**：投出后该玩家 `tothesky_letters.dat` 键为 `<信件>|<昵称>|MM-DD`、`next_due` 推进到明年同一天；改系统日期到明年同日再次投递
 - [ ] **离线收件**：玩家离线时到点投递 → 邮件进其邮箱，上线后可取
@@ -406,13 +441,33 @@
 - [ ] **首次见到已过的节日**：节日日期设成今年已过去的某天 → 不补投，直接排到明年（与生日信规则一致）
 - [ ] **同一天两个节日绑同一封信**：只发一次（排期键相同，天然去重）
 - [ ] **多个节日绑同一封信**：各按自己的日子发（如春节 1-1 与元宵 1-15 共用一个红包模板）
-- [ ] **绑定的信自身设置被忽略**：给一封写了 `player`/`date` 的信也填上 `letter` → 日志 WARN「其自身 player/date 不生效」，且**只按节日发一次**，不会按自身日期再发一遍
-- [ ] **模板信无人绑定**：写一封没 `player`/`date` 的信、日历里没人绑它 → 日志 WARN「是模板信…但没有节日绑定它，不会投递」，不崩服
+- [ ] **旧格式信也能被绑定**：给一封带 `trigger`/`player`/`date` 的旧格式信填上 `letter` → 日志只提醒这些字段已废弃，信按节日发（不会按自身日期再发一遍）
+- [ ] **无人绑定的信**：写一封新信、日历里没人绑它 → 日志 WARN「没有任何节日绑定它，也不会被生日调用，当前不会投递」，不崩服、不投递
 - [ ] **绑定指向不存在的信**：给节日填 `letter` = 目录里没有的名字 → 日志 WARN「绑定的信件 xxx 不存在…该绑定不会投递」，其余信件照常；同一绑定反复重载只报一次
 - [ ] **崩溃恢复**：加回绑定后强杀服务器 → `world/calendar_events.json` 镜像里含 `letter`；重启后 `GET /events` 仍能看到该绑定
 - [ ] **旧存档兼容**：用没有 `letter` 字段的旧 `tothesky_calendar.dat` / `calendar_events.json` 启动 → 事件正常载入，`letter` 为空（未绑定），不报错
 
 | | | 22. 节日绑定信件 | | |
+
+---
+
+### 22b. 农历节日（`lunar` 对节日解禁）
+
+> 实现：`calendar/CalendarEvent`（`lunar` 与类型解耦，构造函数不再按 `type` 清零）、`calendar/http/CalendarApiJson`（去掉 POST/PUT 的「lunar 仅生日」校验）、`calendar/CalendarData.on(LocalDate)`（按公历日命中，REST `/today` 也走它）、`web/calendar_admin.html`（农历勾选常驻，只切日期上限）。
+> 语义：节日与生日共用同一套农历换算（`LunarCalendar`）——标了农历的节日存「农历月-日」，逐年换算成公历日展示与投递；春节/中秋/端午这类节日从此不必每年手改日期。
+> 展示与排期同源：GUI 的 `occurrenceIn` 与投递的 `nextOccurrenceOn` 都走农历分支，不会各算各的。
+
+- [ ] **REST 接受农历节日**：`POST /events` 带 `{"type":"festival","lunar":true,"month":8,"day":15,"letter":"zhongqiu"}` → 201 且返回体 `"lunar":true`（旧行为是 400「lunar is only for birthday events」）
+- [ ] **PUT 可切换**：对已有节日 `PUT {"lunar":true}` → 200 且 `"lunar":true`（**不再静默吞掉**）；`PUT {"day":31}` 在 `lunar` 已为真时 → 400「day must be 1-30 for a lunar date」
+- [ ] **合并后校验**：把公历节日的 `day` 改成 30 再把 `lunar` 置 true → 按农历 30 天规则放行；`month=13`/`day=45` 仍 400
+- [ ] **管理页**：表单农历勾选在「节日」类型下**可选**（不再禁用/清空），勾选后日期上限变 30，标签为「日期按农历算（春节/中秋等）」；新增与编辑回填都正确；取消勾选上限回到 31
+- [ ] **游戏内 GUI 摆放**：给一条农历节日（如农历八月十五）→ GUI 里落在**换算后的公历格子**（2026 年 → 9-25 格），tooltip 图标为 🎉、名字后带「（农历八月十五）」；翻到 2027 年改落 9-15 格
+- [ ] **当页「今日活动」**：`GET /today` 在农历节日换算出的公历当天命中该节日（管理页页头显示其名称）；非当天不显示
+- [ ] **节日绑定信按农历投递**：把某封信绑到农历节日（`letter`），农历日期换算出的公历日当天 → 重载后全服各收一份；`tothesky_letters.dat` 键为 `<信件>|<昵称>|农历08-15`（与公历节日的 `<信件>|<昵称>|08-15` 键并存，互补顶掉）
+- [ ] **逐年跟随**：农历节日投出一次后 `next_due` 推进到**下一个农历年**对应的公历日（逐年漂移，不是固定公历日）；改系统日期到次年该公历日再次投递
+- [ ] **旧存档兼容**：升级前存下的节日（无 `lunar` 字段）照旧按公历读；节日带 `"lunar":true` 的旧脏数据（曾被构造器清零）不会突然变农历——镜像/SavedData 里的值就是最终值
+
+| | | 22b. 农历节日 | | |
 
 ---
 
@@ -437,9 +492,12 @@
 | | | 14. 配方抽测 | | |
 | | | 15. 资源渲染 | | |
 | | | 16. 模组兼容 | | |
+| | | 16b. Crystal Clear 移植 | | |
 | | | 18. 锁链物流策略 | | |
 | | | 19. 往来邮件转接 | | |
 | | | 20. 节日信 | | |
+| | | 20b. 网页信件编辑器 | | |
 | | | 21. 生日信 | | |
 | | | 21b. 农历生日 | | |
 | | | 22. 节日绑定信件 | | |
+| | | 22b. 农历节日 | | |

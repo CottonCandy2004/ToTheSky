@@ -49,6 +49,13 @@ Gradle 9.2.1 wrapper——POSIX 用 `./gradlew`，Windows 用 `gradlew.bat`。
 - `gradlew publish` — 发布到本地 `repo/` maven 目录（已配置 maven-publish）
 - `gradlew --refresh-dependencies` — 刷新 Gradle 缓存；`gradlew clean` — 重置构建输出
 
+## 工作流偏好：改完即打包并部署
+每次完成改动后 MUST 立即打包并拷进客户端实例——用户在 RiaFST 4 里手动测试，未拷贝等于改动不可见：
+1. `gradlew.bat build`（Windows）。产物由 `jar` 写出、`reobfJar` 原地覆写为 `build/libs/tothesky-<mod_version>.jar`（`base.archivesName = mod_id` + `version = mod_version`，当前即 `tothesky-1.0.0.jar`）。
+   **必须确认 build 成功**：`reobfJar` 失败（如构建产物被别的进程占用）时，留在 `build/libs/` 的是未 reobf 的开发 jar，拷进实例会静默坏掉（引用的原版成员没有 SRG 化）。
+2. 拷贝该 jar 到 `D:\curseforge\minecraft\Instances\RiaFST 4\mods\`，覆盖同名旧 jar，拷完核对大小或 md5。
+3. 告知用户重启客户端——运行中的游戏不会热加载新 jar。
+
 ## 代码约定与常见模式
 - 模组 ID 常量：`public static final String MODID = "tothesky";` — 一律引用 `ToTheSky.MODID`，不要硬编码字符串。
 - 日志：`public static final Logger LOGGER = LogUtils.getLogger();`（来自 `com.mojang.logging.LogUtils` 的 Mojang slf4j）；使用 `ToTheSky.LOGGER`。
