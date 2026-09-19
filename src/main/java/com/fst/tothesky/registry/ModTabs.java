@@ -18,6 +18,10 @@ public final class ModTabs {
                     .icon(() -> new ItemStack(ModItems.SUNSHINE_COD.get()))
                     .displayItems((parameters, output) -> {
                         ModItems.ITEMS.getEntries().forEach(holder -> output.accept(holder.get()));
+                        // Create: Crystal Clear 移植内容里可放置的部分：玻璃机壳与玻璃脚手架
+                        // （包裹传动杆/齿轮没有物品形态，与上游一致，只能由装壳得到）
+                        com.fst.tothesky.crystalclear.CrystalClearBlocks.creativeTabItems()
+                                .forEach(holder -> output.accept(holder.get()));
                         // 流体桶单独注册在 ModFluids.BUCKETS，加入主创造栏
                         output.accept(ModFluids.NETHERITE_LIQUAR_BUCKET.get());
                         output.accept(ModFluids.UNSTABLE_NETHERITE_LIQUAR_BUCKET.get());

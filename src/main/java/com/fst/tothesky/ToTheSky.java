@@ -31,6 +31,10 @@ public class ToTheSky {
 
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        // Create: Crystal Clear 的移植内容（方块自带 BlockItem，故两个注册表都要挂）
+        com.fst.tothesky.crystalclear.CrystalClearBlocks.BLOCKS.register(modEventBus);
+        com.fst.tothesky.crystalclear.CrystalClearBlocks.ITEMS.register(modEventBus);
+        com.fst.tothesky.crystalclear.CrystalClearBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         // kaleidoscope_cookery 带 mixin，userdev 里不加载；仅在其存在时注册镰刀
         if (ModList.get().isLoaded("kaleidoscope_cookery")) {
             ModKcItems.KC_ITEMS.register(modEventBus);

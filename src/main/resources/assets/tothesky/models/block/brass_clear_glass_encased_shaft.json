@@ -1,0 +1,8 @@
+{
+  "render_type": "cutout",
+  "parent": "tothesky:block/glass_encased_shaft/block",
+  "textures": {
+    "casing": "tothesky:block/brass_clear_glass_casing",
+    "opening": "create:block/brass_gearbox"
+  }
+}

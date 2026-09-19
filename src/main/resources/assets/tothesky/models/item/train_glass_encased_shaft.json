@@ -1,0 +1,7 @@
+{
+  "parent": "tothesky:block/glass_encased_shaft/block",
+  "textures": {
+    "casing": "tothesky:block/train_glass_casing",
+    "opening": "tothesky:block/train_gearbox"
+  }
+}

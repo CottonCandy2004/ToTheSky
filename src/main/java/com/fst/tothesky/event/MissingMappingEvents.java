@@ -13,20 +13,28 @@ import net.minecraftforge.registries.MissingMappingsEvent;
 import java.util.List;
 
 /**
- * 旧 KubeJS 存档无缝迁移（kubejs: → tothesky:）。
+ * 旧存档无缝迁移（kubejs: / crystal_clear: / create_crystal_clear: → tothesky:）。
  * <p>
- * KubeJS 卸载后，存档中的 kubejs:* 条目在注册表里消失；本处理器在
- * {@link MissingMappingsEvent}（Forge 总线，注册表注入快照阶段触发）中把它们
- * 全部 remap 到同名的 tothesky: 条目上。名字两侧一致（迁移时刻意保持同名），
- * 所以映射表就是一张"迁移过的 kjs 注册名"清单。
+ * 两批来源：
+ * <ul>
+ *   <li><b>KubeJS</b>：KubeJS 卸载后，存档中的 kubejs:* 条目在注册表里消失；映射表
+ *       （{@link #MIGRATED_BLOCKS} 等）就是一张“迁移过的 kjs 注册名”清单——
+ *       迁移时刻意保持同名，所以名字两侧一致。</li>
+ *   <li><b>Create: Crystal Clear</b>：该 mod 已不再兼容当前 Create 版本
+ *       （合并在本 mod 里的 32 个方块与上游逐字同名），因此凡是在
+ *       {@code crystal_clear} / {@code create_crystal_clear} 命名空间下、且本 mod
+ *       确实注册了同名条目的缺失映射，一律 remap 过来。用“本 mod 是否存在同名条目”
+ *       而不是硬编码清单，是因为这两个命名空间里的东西全都是我们的。</li>
+ * </ul>
+ * 本处理器在 {@link MissingMappingsEvent}（Forge 总线，注册表注入快照阶段触发）中完成上述映射。
  * <p>
- * 覆盖注册表：方块、物品（含 kjs 方块自动注册的 BlockItem 与流体桶）、流体、状态效果、音效。
+ * 覆盖注册表：方块、物品（含方块自带 BlockItem 与流体桶）、流体、状态效果、音效。
  * <p>
  * 方块实体类型<b>不</b>在此处理：该注册表在 Forge 侧 {@code disableSaving()}，从不写进存档快照，
- * 永远不会产生缺失映射事件；它的 kjs→tothesky 映射走 {@link KjsRegistryAliasEvents} 的注册表别名。
+ * 永远不会产生缺失映射事件；它的映射走 {@link RegistryAliasEvents} 的注册表别名。
  * <p>
- * 未迁移的 kjs 条目（如 seat、fps 活动物品、delta 产线中间品等）不在表内，
- * 会按 Forge 默认策略 FAIL 提示——存档若包含这些条目，玩家需自行处理。
+ * 未迁移的条目（kjs 的 seat、fps 活动物品、delta 产线中间品；Crystal Clear 已删掉的 steel_* 三类）
+ * 不在映射内，会按 Forge 默认策略 FAIL 提示——存档若包含这些条目，玩家需自行处理。
  */
 @Mod.EventBusSubscriber(modid = ToTheSky.MODID)
 public final class MissingMappingEvents {
@@ -112,6 +120,9 @@ public final class MissingMappingEvents {
     /** kubejs: 命名空间 */
     private static final String KJS = "kubejs";
 
+    /** Create: Crystal Clear 的历史命名空间（0.5.1 时代为 create_crystal_clear，2.x 改名 crystal_clear） */
+    private static final List<String> CRYSTAL_CLEAR_NAMESPACES = List.of("crystal_clear", "create_crystal_clear");
+
     private MissingMappingEvents() {
     }
 
@@ -122,6 +133,34 @@ public final class MissingMappingEvents {
         remapFluids(event);
         remapEffects(event);
         remapSounds(event);
+        remapCrystalClear(event);
+    }
+
+    /**
+     * Create: Crystal Clear 的方块与物品 → 本 mod 同名条目。
+     * <p>
+     * 这里不列清单：该 mod 的内容整体并入本 mod 且逐字同名，凡是本 mod 注册了的同名条目就应当接住，
+     * 剩下没接住的（steel_* 那三类，上游自己也在 2.1 删掉了）按 Forge 默认策略报警。
+     * 用 {@code containsKey} 而不是判空：Forge 的方块/物品注册表有默认值（空气），
+     * {@code getValue} 对不存在的名字返回的是空气而不是 {@code null}。
+     */
+    private static void remapCrystalClear(MissingMappingsEvent event) {
+        for (String namespace : CRYSTAL_CLEAR_NAMESPACES) {
+            for (MissingMappingsEvent.Mapping<Block> mapping : event.getMappings(Registries.BLOCK, namespace)) {
+                ResourceLocation target = ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, mapping.getKey().getPath());
+                if (ForgeRegistries.BLOCKS.containsKey(target)) {
+                    mapping.remap(ForgeRegistries.BLOCKS.getValue(target));
+                    ToTheSky.LOGGER.info("方块映射 {}:{} -> {}", namespace, mapping.getKey().getPath(), target);
+                }
+            }
+            for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(Registries.ITEM, namespace)) {
+                ResourceLocation target = ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, mapping.getKey().getPath());
+                if (ForgeRegistries.ITEMS.containsKey(target)) {
+                    mapping.remap(ForgeRegistries.ITEMS.getValue(target));
+                    ToTheSky.LOGGER.info("物品映射 {}:{} -> {}", namespace, mapping.getKey().getPath(), target);
+                }
+            }
+        }
     }
 
     private static void remapBlocks(MissingMappingsEvent event) {

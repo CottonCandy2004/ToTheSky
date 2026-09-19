@@ -1,0 +1,11 @@
+{
+  "render_type": "cutout",
+  "parent": "tothesky:block/scaffold/block",
+  "textures": {
+    "casing": "tothesky:block/andesite_glass_casing",
+    "inside": "create:block/scaffold/andesite_scaffold_inside",
+    "particle": "create:block/scaffold/andesite_scaffold",
+    "side": "create:block/scaffold/andesite_scaffold",
+    "top": "create:block/funnel/andesite_funnel_frame"
+  }
+}

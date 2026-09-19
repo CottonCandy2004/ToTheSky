@@ -34,9 +34,9 @@ description='''
 
 [[dependencies.${mod_id}]]
     modId="create"
-    mandatory=false
+    mandatory=true
     versionRange="[6.0,6.1)"
-    ordering="NONE"
+    ordering="AFTER"
     side="BOTH"
 
 [[dependencies.${mod_id}]]

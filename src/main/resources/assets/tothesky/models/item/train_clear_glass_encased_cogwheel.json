@@ -1,0 +1,9 @@
+{
+  "parent": "tothesky:block/encased_cogwheel/item",
+  "textures": {
+    "backing": "tothesky:block/train_backing",
+    "casing": "tothesky:block/train_clear_glass_casing",
+    "opening": "tothesky:block/train_gearbox",
+    "siding": "tothesky:block/encased_cogwheels/train_encased_cogwheel_side"
+  }
+}

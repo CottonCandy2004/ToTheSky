@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "tothesky:copper_glass_scaffolding"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "tothesky:blocks/copper_glass_scaffolding"
+}

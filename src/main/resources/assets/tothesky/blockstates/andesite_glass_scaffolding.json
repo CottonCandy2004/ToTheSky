@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "bottom=false": {
+      "model": "tothesky:block/andesite_glass_scaffolding"
+    },
+    "bottom=true": {
+      "model": "tothesky:block/andesite_glass_scaffolding_horizontal"
+    }
+  }
+}

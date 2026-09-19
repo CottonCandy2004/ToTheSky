@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "tothesky:andesite_clear_glass_scaffolding",
+    "tothesky:andesite_glass_scaffolding",
+    "tothesky:brass_clear_glass_scaffolding",
+    "tothesky:brass_glass_scaffolding",
+    "tothesky:copper_clear_glass_scaffolding",
+    "tothesky:copper_glass_scaffolding"
+  ]
+}

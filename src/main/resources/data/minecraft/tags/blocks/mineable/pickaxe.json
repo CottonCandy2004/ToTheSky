@@ -1,7 +1,19 @@
 {
   "replace": false,
   "values": [
+    "tothesky:andesite_clear_glass_encased_shaft",
+    "tothesky:andesite_clear_glass_scaffolding",
+    "tothesky:andesite_glass_encased_shaft",
+    "tothesky:andesite_glass_scaffolding",
+    "tothesky:brass_clear_glass_encased_shaft",
+    "tothesky:brass_clear_glass_scaffolding",
+    "tothesky:brass_glass_encased_shaft",
+    "tothesky:brass_glass_scaffolding",
+    "tothesky:copper_clear_glass_scaffolding",
+    "tothesky:copper_glass_scaffolding",
+    "tothesky:he_graphite_block",
     "tothesky:mechanical_chisel_table",
-    "tothesky:he_graphite_block"
+    "tothesky:train_clear_glass_encased_shaft",
+    "tothesky:train_glass_encased_shaft"
   ]
 }

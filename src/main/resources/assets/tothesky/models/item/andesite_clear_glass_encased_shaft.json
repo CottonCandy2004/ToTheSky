@@ -1,0 +1,7 @@
+{
+  "parent": "tothesky:block/glass_encased_shaft/block",
+  "textures": {
+    "casing": "tothesky:block/andesite_clear_glass_casing",
+    "opening": "create:block/gearbox"
+  }
+}

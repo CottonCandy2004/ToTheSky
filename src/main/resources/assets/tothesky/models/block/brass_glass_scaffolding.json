@@ -1,0 +1,11 @@
+{
+  "render_type": "cutout",
+  "parent": "tothesky:block/scaffold/block",
+  "textures": {
+    "casing": "tothesky:block/brass_glass_casing",
+    "inside": "create:block/scaffold/brass_scaffold_inside",
+    "particle": "create:block/scaffold/brass_scaffold",
+    "side": "create:block/scaffold/brass_scaffold",
+    "top": "create:block/funnel/brass_funnel_frame"
+  }
+}

@@ -16,7 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * 完全一致——每份馅料与厨师名存在 {@code data.filling} / {@code data.author} 下。
  * 因此：
  * <ul>
- *   <li>旧存档里的方块实体数据经 {@code MissingMappingEvents} 把 BE 类型 remap 到
+ *   <li>旧存档里的方块实体数据类型不变，{@code kubejs:cooked_dumpling_plate} 经
+ *       {@link com.fst.tothesky.event.RegistryAliasEvents} 的注册表别名落到
  *       {@code tothesky:dumpling_plate} 后，直接 {@link #load} 进 {@link #data()}，不丢一份馅料；</li>
  *   <li>仍在使用中的 v4Update 脚本（{@code dumpling_making.js} 按 {@code block.entityData.data.*}
  *       读写馅料/厨师名）无需改动。</li>

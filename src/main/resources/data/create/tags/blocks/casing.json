@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "tothesky:andesite_clear_glass_casing",
+    "tothesky:andesite_glass_casing",
+    "tothesky:brass_clear_glass_casing",
+    "tothesky:brass_glass_casing",
+    "tothesky:copper_clear_glass_casing",
+    "tothesky:copper_glass_casing",
+    "tothesky:train_clear_glass_casing",
+    "tothesky:train_glass_casing"
+  ]
+}

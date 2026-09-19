@@ -1,0 +1,10 @@
+{
+  "parent": "tothesky:block/scaffold/block",
+  "textures": {
+    "casing": "tothesky:block/copper_clear_glass_casing",
+    "inside": "create:block/scaffold/copper_scaffold_inside",
+    "particle": "create:block/scaffold/copper_scaffold",
+    "side": "create:block/scaffold/copper_scaffold",
+    "top": "tothesky:block/copper_clear_glass_casing"
+  }
+}
