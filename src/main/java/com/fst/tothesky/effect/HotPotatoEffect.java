@@ -20,7 +20,8 @@ import java.util.Optional;
  * - 饮用危险派对：给饮用者加 hot_potato（duration = 1200 tick / 60s）。
  * - 持有者被攻击：见 {@code ModGameEvents.onPlayerHurt}，把效果传给攻击者。
  * - 每 200 tick（10s）广播一次剩余秒数。
- * - 效果到期（剩余时长即将耗尽）：击杀持有者，本场结束。
+ * - 效果到期（剩余时长即将耗尽）：对持有者结算 {@link #EXPIRE_DAMAGE} 点普通伤害，
+ *   本场结束。用伤害而非 {@code kill()}：见 {@link #EXPIRE_DAMAGE} 的说明。
  *
  * 1.20.1 适配：applyEffectTick 返回 void（1.21 返回 boolean）；
  * getEffect(MobEffect) 直接按注册表身份匹配实例，无需 Holder 包装。
@@ -30,6 +31,16 @@ public class HotPotatoEffect extends MobEffect {
     public static final int DURATION = 1200;
     /** 剩余秒数广播间隔（tick）：每 10 秒报一次 */
     private static final int ANNOUNCE_EVERY = 200;
+    /**
+     * 到期结算的伤害量。必须走 {@code hurt()} 而不是 {@code kill()}：
+     * {@code LivingEntity.kill()} 用 {@code generic_kill} 伤害源（属
+     * {@code bypasses_invulnerability} 标签），不死图腾（{@code checkTotemDeathProtection}
+     * 开头就因该标签直接返回 false）、死亡回溯等免死手段一律无效。
+     * 这里用 200 点 {@code generic} 伤害：正常走伤害管线，图腾等可规避；
+     * 它属 {@code bypasses_armor}（护甲不减免），只被抗性/保护附魔削减，
+     * 因此 200 点对正常玩家仍是致命伤。
+     */
+    public static final float EXPIRE_DAMAGE = 200.0F;
 
     public HotPotatoEffect() {
         super(MobEffectCategory.HARMFUL, 0xFF6D37);
@@ -52,19 +63,19 @@ public class HotPotatoEffect extends MobEffect {
                 player.server.getPlayerList().broadcastSystemMessage(
                         Component.literal(name + "身上的击鼓传花还剩余" + remainSec + "秒"), false);
             }
-            // 最后一 tick（剩余 1 时即将被移除）：击杀持有者，本场结束
+            // 最后一 tick（剩余 1 时即将被移除）：重伤持有者，本场结束
             if (remaining <= 1) {
                 String name = player.getGameProfile().getName();
                 player.server.getPlayerList().broadcastSystemMessage(
                         Component.literal(name + "没能及时把好运传给下一个人"), false);
-                player.kill();
+                player.hurt(player.damageSources().generic(), EXPIRE_DAMAGE);
             }
         }
     }
 
     @Override
     public boolean isDurationEffectTick(int duration, int amplifier) {
-        // 每 tick 都进来检查到期，才能捕捉"最后一 tick"击杀持有者
+        // 每 tick 都进来检查到期，才能捕捉"最后一 tick"的伤害结算
         return true;
     }
 }
