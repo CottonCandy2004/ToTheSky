@@ -4,56 +4,40 @@ import com.fst.tothesky.ToTheSky;
 import com.fst.tothesky.calendar.CalendarData;
 import com.fst.tothesky.calendar.CalendarEvent;
 import com.fst.tothesky.network.ModNetwork;
-import com.google.gson.Gson;
+import com.fst.tothesky.web.WebHttp;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
- * 日历 REST API：JDK 内置 HttpServer，外部（网页等）增删查改活动。
+ * 日历 REST API：外部（网页等）增删查改活动；由 {@code web.WebApiServer} 挂在 {@code /api/calendar/}。
  *
- * <p>路由（前缀 {@code /api/calendar/}）：
+ * <p>路由：
  * <ul>
  *   <li>{@code GET  /events} — 全部（可 {@code ?month=N} 过滤）</li>
  *   <li>{@code GET  /events/{id}} — 单个（404）</li>
  *   <li>{@code POST /events} — 创建（校验字段，返回完整对象）</li>
  *   <li>{@code PUT  /events/{id}} — 部分更新（null 字段保留）</li>
  *   <li>{@code DELETE /events/{id}} — 删除</li>
- *   <li>{@code GET  /today} — 今天日期 + 当日活动</li>
+ *   <li>{@code GET  /today} — 今天日期 + 当日活动（农历活动按换算后的公历日命中）</li>
  * </ul>
  *
- * <p>约定：JSON、CORS 全开（含 OPTIONS 预检 204）；读写经 {@code server.execute()}
- * 到服务器线程（5s 超时 → 503）；变更后广播刷新打开中的 GUI。
- * {@code iconType} 为 item/block 时校验 registry id 存在。
+ * <p>约定：JSON 与 CORS 头由 {@link WebHttp} 统一出；<b>读写一律提交回服务器线程</b>
+ * （{@link WebHttp#submitOnServer}，SavedData 归主线程独占），超时 → 503；
+ * 变更后广播刷新打开中的 GUI。{@code iconType} 为 item/block 时校验 registry id 存在。
  */
 public final class CalendarApiHandler {
-
-    private static final Gson GSON = new Gson();
-    private static final long SERVER_EXECUTE_TIMEOUT_SECONDS = 5;
 
     /** PUT 的结果：{@code error} 非空 = 400，{@code event} 为 null = 404 */
     private record Update(CalendarEvent event, String error) {
     }
 
     private final MinecraftServer server;
-
-    /** 服务器停机中：拒绝新请求（生命周期事件置位） */
-    public volatile boolean shuttingDown = false;
 
     public CalendarApiHandler(MinecraftServer server) {
         this.server = server;
@@ -74,8 +58,7 @@ public final class CalendarApiHandler {
                 path = "/";
             }
             if ("OPTIONS".equals(method)) {
-                exchange.getResponseHeaders().set("Allow", "GET, POST, PUT, DELETE, OPTIONS");
-                respond(exchange, 204, "");
+                WebHttp.respondOptions(exchange);
                 return;
             }
             if ("/today".equals(path) && "GET".equals(method)) {
@@ -97,32 +80,32 @@ public final class CalendarApiHandler {
                         if (idPart.isEmpty()) {
                             handleCreate(exchange);
                         } else {
-                            respond(exchange, 405, errorJson("POST to /events only"));
+                            WebHttp.respond(exchange, 405, WebHttp.errorJson("POST to /events only"));
                         }
                     }
                     case "PUT" -> {
                         if (!idPart.isEmpty()) {
                             handleUpdate(exchange, idPart);
                         } else {
-                            respond(exchange, 405, errorJson("PUT to /events/{id} only"));
+                            WebHttp.respond(exchange, 405, WebHttp.errorJson("PUT to /events/{id} only"));
                         }
                     }
                     case "DELETE" -> {
                         if (!idPart.isEmpty()) {
                             handleDelete(exchange, idPart);
                         } else {
-                            respond(exchange, 405, errorJson("DELETE to /events/{id} only"));
+                            WebHttp.respond(exchange, 405, WebHttp.errorJson("DELETE to /events/{id} only"));
                         }
                     }
-                    default -> respond(exchange, 405, errorJson("unsupported method " + method));
+                    default -> WebHttp.respond(exchange, 405, WebHttp.errorJson("unsupported method " + method));
                 }
                 return;
             }
-            respond(exchange, 404, errorJson("not found: " + path));
+            WebHttp.respond(exchange, 404, WebHttp.errorJson("not found: " + path));
         } catch (Exception e) {
             ToTheSky.LOGGER.error("[日历API] 处理请求失败", e);
             try {
-                respond(exchange, 500, errorJson("internal error"));
+                WebHttp.respond(exchange, 500, WebHttp.errorJson("internal error"));
             } catch (IOException ignored) {
             }
         } finally {
@@ -134,17 +117,18 @@ public final class CalendarApiHandler {
 
     private void handleToday(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
         LocalDate today = LocalDate.now();
-        CalendarData data = CalendarData.get(server);
-        JsonObject root = new JsonObject();
-        root.addProperty("date", today.toString());
-        root.add("events", CalendarApiJson.eventsArray(data.byDay(today.getMonthValue(), today.getDayOfMonth())));
-        respond(exchange, 200, GSON.toJson(root));
+        String json = WebHttp.submitOnServer(server, () -> {
+            JsonObject root = new JsonObject();
+            root.addProperty("date", today.toString());
+            root.add("events", CalendarApiJson.eventsArray(CalendarData.get(server).on(today)));
+            return WebHttp.toJson(root);
+        });
+        WebHttp.respond(exchange, json == null ? 503 : 200,
+                json == null ? WebHttp.errorJson("server busy") : json);
     }
 
     private void handleList(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
         String query = exchange.getRequestURI().getQuery();
-        CalendarData data = CalendarData.get(server);
-        List<CalendarEvent> events = data.all();
         Integer monthFilter = null;
         if (query != null) {
             for (String pair : query.split("&")) {
@@ -153,20 +137,25 @@ public final class CalendarApiHandler {
                     try {
                         monthFilter = Integer.parseInt(kv[1]);
                         if (monthFilter < 1 || monthFilter > 12) {
-                            respond(exchange, 400, errorJson("month must be 1-12"));
+                            WebHttp.respond(exchange, 400, WebHttp.errorJson("month must be 1-12"));
                             return;
                         }
                     } catch (NumberFormatException e) {
-                        respond(exchange, 400, errorJson("month must be a number"));
+                        WebHttp.respond(exchange, 400, WebHttp.errorJson("month must be a number"));
                         return;
                     }
                 }
             }
         }
         final Integer filter = monthFilter;
-        List<CalendarEvent> result = filter == null ? events
-                : events.stream().filter(e -> e.month == filter).toList();
-        respond(exchange, 200, GSON.toJson(CalendarApiJson.eventsArray(result)));
+        String json = WebHttp.submitOnServer(server, () -> {
+            List<CalendarEvent> events = CalendarData.get(server).all();
+            List<CalendarEvent> result = filter == null ? events
+                    : events.stream().filter(e -> e.month == filter).toList();
+            return WebHttp.toJson(CalendarApiJson.eventsArray(result));
+        });
+        WebHttp.respond(exchange, json == null ? 503 : 200,
+                json == null ? WebHttp.errorJson("server busy") : json);
     }
 
     private void handleGet(com.sun.net.httpserver.HttpExchange exchange, String idPart) throws IOException {
@@ -174,25 +163,31 @@ public final class CalendarApiHandler {
         if (id == null) {
             return;
         }
-        CalendarEvent event = CalendarData.get(server).find(id);
-        if (event == null) {
-            respond(exchange, 404, errorJson("event not found"));
+        // 用 Optional 区分「超时」与「没有这条」（submitOnServer 超时也返回 null）
+        Optional<CalendarEvent> found = WebHttp.submitOnServer(server,
+                () -> Optional.ofNullable(CalendarData.get(server).find(id)));
+        if (found == null) {
+            WebHttp.respond(exchange, 503, WebHttp.errorJson("server busy"));
             return;
         }
-        respond(exchange, 200, GSON.toJson(CalendarApiJson.eventObject(event)));
+        if (found.isEmpty()) {
+            WebHttp.respond(exchange, 404, WebHttp.errorJson("event not found"));
+            return;
+        }
+        WebHttp.respond(exchange, 200, WebHttp.toJson(CalendarApiJson.eventObject(found.get())));
     }
 
     private void handleCreate(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
-        JsonObject body = readJsonBody(exchange);
+        JsonObject body = WebHttp.readJsonBody(exchange);
         if (body == null) {
             return; // readJsonBody 已响应错误
         }
         CalendarApiJson.Validated v = CalendarApiJson.validateCreate(body);
         if (v.error != null) {
-            respond(exchange, 400, errorJson(v.error));
+            WebHttp.respond(exchange, 400, WebHttp.errorJson(v.error));
             return;
         }
-        CalendarEvent created = submitOnServer(() -> {
+        CalendarEvent created = WebHttp.submitOnServer(server, () -> {
             CalendarData data = CalendarData.get(server);
             CalendarEvent event = CalendarEvent.create(UUID.randomUUID(), v.name, v.type,
                     v.month, v.day, v.iconType, v.iconId, v.description, v.letter, v.lunar);
@@ -201,10 +196,10 @@ public final class CalendarApiHandler {
             return event;
         });
         if (created == null) {
-            respond(exchange, 503, errorJson("server busy"));
+            WebHttp.respond(exchange, 503, WebHttp.errorJson("server busy"));
             return;
         }
-        respond(exchange, 201, GSON.toJson(CalendarApiJson.eventObject(created)));
+        WebHttp.respond(exchange, 201, WebHttp.toJson(CalendarApiJson.eventObject(created)));
     }
 
     private void handleUpdate(com.sun.net.httpserver.HttpExchange exchange, String idPart) throws IOException {
@@ -212,16 +207,16 @@ public final class CalendarApiHandler {
         if (id == null) {
             return;
         }
-        JsonObject body = readJsonBody(exchange);
+        JsonObject body = WebHttp.readJsonBody(exchange);
         if (body == null) {
             return;
         }
         CalendarApiJson.Patch patch = CalendarApiJson.validatePatch(body);
         if (patch.error != null) {
-            respond(exchange, 400, errorJson(patch.error));
+            WebHttp.respond(exchange, 400, WebHttp.errorJson(patch.error));
             return;
         }
-        Update result = submitOnServer(() -> {
+        Update result = WebHttp.submitOnServer(server, () -> {
             CalendarData data = CalendarData.get(server);
             CalendarEvent existing = data.find(id);
             if (existing == null) {
@@ -240,18 +235,18 @@ public final class CalendarApiHandler {
             return new Update(merged, null);
         });
         if (result == null) {
-            respond(exchange, 503, errorJson("server busy"));
+            WebHttp.respond(exchange, 503, WebHttp.errorJson("server busy"));
             return;
         }
         if (result.error() != null) {
-            respond(exchange, 400, errorJson(result.error()));
+            WebHttp.respond(exchange, 400, WebHttp.errorJson(result.error()));
             return;
         }
         if (result.event() == null) {
-            respond(exchange, 404, errorJson("event not found"));
+            WebHttp.respond(exchange, 404, WebHttp.errorJson("event not found"));
             return;
         }
-        respond(exchange, 200, GSON.toJson(CalendarApiJson.eventObject(result.event())));
+        WebHttp.respond(exchange, 200, WebHttp.toJson(CalendarApiJson.eventObject(result.event())));
     }
 
     private void handleDelete(com.sun.net.httpserver.HttpExchange exchange, String idPart) throws IOException {
@@ -259,7 +254,7 @@ public final class CalendarApiHandler {
         if (id == null) {
             return;
         }
-        Boolean removed = submitOnServer(() -> {
+        Boolean removed = WebHttp.submitOnServer(server, () -> {
             boolean ok = CalendarData.get(server).remove(id);
             if (ok) {
                 broadcast();
@@ -267,34 +262,14 @@ public final class CalendarApiHandler {
             return ok;
         });
         if (removed == null) {
-            respond(exchange, 503, errorJson("server busy"));
+            WebHttp.respond(exchange, 503, WebHttp.errorJson("server busy"));
             return;
         }
-        respond(exchange, removed ? 200 : 404,
-                GSON.toJson(CalendarApiJson.statusObject(removed ? "deleted" : "event not found")));
+        WebHttp.respond(exchange, removed ? 200 : 404,
+                WebHttp.toJson(CalendarApiJson.statusObject(removed ? "deleted" : "event not found")));
     }
 
     // ---- 工具 ----
-
-    /** server.execute() 提交到服务器线程，5s 超时返回 null（503） */
-    private <T> T submitOnServer(java.util.function.Supplier<T> action) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        server.execute(() -> {
-            try {
-                future.complete(action.get());
-            } catch (Throwable t) {
-                future.completeExceptionally(t);
-            }
-        });
-        try {
-            return future.get(SERVER_EXECUTE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            return null;
-        } catch (Exception e) {
-            ToTheSky.LOGGER.error("[日历API] 服务器线程执行失败", e);
-            return null;
-        }
-    }
 
     /** 变更后广播（在服务器线程内调用） */
     private void broadcast() {
@@ -305,47 +280,8 @@ public final class CalendarApiHandler {
         try {
             return UUID.fromString(idPart);
         } catch (IllegalArgumentException e) {
-            respond(exchange, 400, errorJson("invalid uuid: " + idPart));
+            WebHttp.respond(exchange, 400, WebHttp.errorJson("invalid uuid: " + idPart));
             return null;
         }
-    }
-
-    /** 读请求体 JSON；解析失败已响应 400 并返回 null */
-    private JsonObject readJsonBody(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
-        String text = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        if (text.isBlank()) {
-            respond(exchange, 400, errorJson("empty body"));
-            return null;
-        }
-        try {
-            return JsonParser.parseString(text).getAsJsonObject();
-        } catch (Exception e) {
-            respond(exchange, 400, errorJson("invalid JSON: " + e.getMessage()));
-            return null;
-        }
-    }
-
-    private void respond(com.sun.net.httpserver.HttpExchange exchange, int status, String json)
-            throws IOException {
-        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-        var headers = exchange.getResponseHeaders();
-        headers.set("Content-Type", "application/json; charset=utf-8");
-        headers.set("Access-Control-Allow-Origin", "*");
-        headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        headers.set("Access-Control-Allow-Headers", "Content-Type");
-        if (status == 204) {
-            exchange.sendResponseHeaders(204, -1);
-            return;
-        }
-        exchange.sendResponseHeaders(status, bytes.length);
-        try (OutputStream out = exchange.getResponseBody()) {
-            out.write(bytes);
-        }
-    }
-
-    private String errorJson(String message) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("error", message);
-        return GSON.toJson(obj);
     }
 }

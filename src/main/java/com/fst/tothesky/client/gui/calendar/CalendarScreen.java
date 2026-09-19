@@ -19,8 +19,8 @@ import java.util.List;
 /**
  * 日历主屏幕：底图 + 日期格 + 图标轮播 + tooltip + 翻月按钮。
  * 只读（编辑走 REST API 或 {@code /tothesky setbirthday}）；「今天」高亮；事件数据来自 S2C 包全量，本地翻月。
- * <p>格子是公历的，农历生日要按**当前显示的那一年**换算成公历日才摆得上（见 {@link #monthIndex}）——
- * 所以同一个农历生日翻到不同年份会落在不同的格子，这正是它该有的样子。
+ * <p>格子是公历的，农历日期（生日和春节这类农历节日）要按**当前显示的那一年**换算成公历日才摆得上
+ * （见 {@link #monthIndex}）——所以同一个农历日期翻到不同年份会落在不同的格子，这正是它该有的样子。
  */
 public final class CalendarScreen extends Screen {
     private static final ResourceLocation BACKGROUND =
@@ -117,7 +117,7 @@ public final class CalendarScreen extends Screen {
         }
         int days = yearMonth.lengthOfMonth();
         boolean isCurrentMonth = shownYear == packet.year && shownMonth == packet.month;
-        // 农历生日要换算成公历日：每帧只算一次，别在 31 个格子上重复换算
+        // 农历日期要换算成公历日：每帧只算一次，别在 31 个格子上重复换算
         List<List<CalendarEvent>> byDay = monthIndex(yearMonth);
 
         List<Component> hoveredTooltip = null;
@@ -213,7 +213,7 @@ public final class CalendarScreen extends Screen {
         List<Component> lines = new ArrayList<>();
         for (CalendarEvent event : events) {
             String mark = CalendarEvent.TYPE_BIRTHDAY.equals(event.type) ? "🎂 " : "🎉 ";
-            // 农历生日摆在公历格子上，顺手把农历日期报出来，免得玩家以为是公历的那天
+            // 农历日期摆在公历格子上，顺手把农历日期报出来，免得玩家以为是公历的那天
             String suffix = event.lunar ? "（" + event.dateText() + "）" : "";
             lines.add(Component.literal(mark + event.displayTitle() + suffix));
             if (!event.description.isEmpty()) {

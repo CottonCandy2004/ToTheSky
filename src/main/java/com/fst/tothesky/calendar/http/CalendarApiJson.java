@@ -14,13 +14,13 @@ import java.util.List;
 /**
  * REST API 的 JSON DTO 与校验。
  * 字段：id / name / type(festival|birthday) / month(1-12) / day(按月校验，2 月允许 29) /
- * iconType(none|item|block|player) / iconId / description / letter(仅 festival) / lunar(仅 birthday)。
+ * iconType(none|item|block|player) / iconId / description / letter(仅 festival) / lunar。
  * item/block 时 iconId 必须能从 ForgeRegistries 解析。
  * letter 是绑定信件 id（{@code config/tothesky/letters} 里的文件名去 {@code .json}），
  * 空 = 未绑定；是否真有这封信由 {@code contact.LetterScheduler} 在投递时判定
  * （信件目录可以独立于日历变动，这里不做存在性校验）。
- * lunar 是生日的农历标记：为 true 时 month/day 按农历解释（农历月最多 30 天），
- * 逐年换算成公历日子展示与投递（见 {@code calendar.LunarCalendar}）。
+ * lunar 是农历标记，节日与生日都可用：为 true 时 month/day 按农历解释（农历月最多 30 天，
+ * 且与公历月份号无关），逐年换算成公历日子展示与投递（见 {@code calendar.LunarCalendar}）。
  */
 final class CalendarApiJson {
 
@@ -104,10 +104,6 @@ final class CalendarApiJson {
             return v;
         }
         v.lunar = optBool(body, "lunar");
-        if (v.lunar && !CalendarEvent.TYPE_BIRTHDAY.equals(v.type)) {
-            v.error = "lunar is only for birthday events";
-            return v;
-        }
         v.month = optInt(body, "month", -1);
         if (v.month < 1 || v.month > 12) {
             v.error = "month must be 1-12";
@@ -117,7 +113,7 @@ final class CalendarApiJson {
         int maxDay = v.lunar ? LUNAR_MAX_DAY : YearMonth.of(2000, v.month).lengthOfMonth();
         if (v.day < 1 || v.day > maxDay) {
             v.error = v.lunar
-                    ? "day must be 1-" + LUNAR_MAX_DAY + " for a lunar birthday"
+                    ? "day must be 1-" + LUNAR_MAX_DAY + " for a lunar date"
                     : "day invalid for month " + v.month;
             return v;
         }
@@ -174,10 +170,6 @@ final class CalendarApiJson {
         }
         if (body.has("lunar")) {
             p.lunar = optBool(body, "lunar");
-            if (p.lunar && CalendarEvent.TYPE_FESTIVAL.equals(p.type)) {
-                p.error = "lunar is only for birthday events";
-                return p;
-            }
         }
         if (body.has("day")) {
             int day = optInt(body, "day", -1);
@@ -185,7 +177,7 @@ final class CalendarApiJson {
             // 合法性最终由合并后的 CalendarEvent.hasValidDate() 校验（见 CalendarApiHandler）
             if (day < 1 || day > maxDay) {
                 p.error = Boolean.TRUE.equals(p.lunar)
-                        ? "day must be 1-" + LUNAR_MAX_DAY + " for a lunar birthday"
+                        ? "day must be 1-" + LUNAR_MAX_DAY + " for a lunar date"
                         : "day must be 1-31 (checked against month after merge)";
                 return p;
             }

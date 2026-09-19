@@ -19,9 +19,10 @@ import java.util.UUID;
  * id（文件名去掉 {@code .json}），该节日当天就把这封信发给**全服每位玩家**（见
  * {@code contact.LetterScheduler}）。为空 = 不绑定。生日活动不参与绑定（名字已经是收件人）。
  *
- * <p>{@link #lunar} 是生日可选的**农历标记**：{@code true} 时 {@link #month}/{@link #day} 是农历
+ * <p>{@link #lunar} 是可选的**农历标记**：{@code true} 时 {@link #month}/{@code day} 是农历
  * 月-日，逐年按 {@link LunarCalendar} 换算成公历（每年落在不同的公历日）；{@code false} 为公历。
- * 与 {@code letter} 对称：节日活动不收该字段（构造器会清掉）。
+ * 节日与生日都可标（春节、中秋、端午这类农历节日必须标，否则每年要手工改日期；
+ * 公历固定日期的节日如国庆则保持 {@code false}）。
  * <p>日历 GUI 只认公历格子，故展示时用 {@link #occurrenceIn} 取「该公历月里落在哪天」；
  * 邮件排期用 {@link #nextOccurrenceOn} 取「不早于某日的下一次」。两者同源，不会各算各的。
  * <p><b>为什么按月而不是按年问</b>：农历年长 353-385 天，一个农历日子在某个公历**年**里可能
@@ -65,7 +66,7 @@ public final class CalendarEvent {
     public final String description;
     /** 绑定的信件 id（{@code config/tothesky/letters} 里的文件名去 {@code .json}）；{@code ""} = 未绑定 */
     public final String letter;
-    /** 月-日是否为农历（仅生日有意义）；见类注释 */
+    /** 月-日是否为农历（节日/生日通用，见类注释） */
     public final boolean lunar;
 
     private CalendarEvent(UUID id, String name, String type, int month, int day,
@@ -81,8 +82,8 @@ public final class CalendarEvent {
         this.description = description;
         // 只有节日能被绑定：生日活动的名字就是收件人，不需要再指向一封信
         this.letter = TYPE_FESTIVAL.equals(type) && letter != null ? letter : "";
-        // 反过来只有生日谈得上农历：节日都是公历节日（春节/中秋若要用农历，得先有农历节日需求）
-        this.lunar = TYPE_BIRTHDAY.equals(type) && lunar;
+        // 农历与类型无关：生日按农历过、春节/中秋本身就是农历日期，两类都要能标
+        this.lunar = lunar;
     }
 
     /** 创建新事件（id 由调用方生成） */
@@ -96,7 +97,7 @@ public final class CalendarEvent {
                 letter, lunar);
     }
 
-    /** 部分更新：null 字段保留原值（改类型时绑定/农历标记会自动清掉，见构造器） */
+    /** 部分更新：null 字段保留原值（改类型时绑定会自动清掉，见构造器） */
     public CalendarEvent with(String name, String type, Integer month, Integer day,
                               String iconType, String iconId, String description, String letter,
                               Boolean lunar) {

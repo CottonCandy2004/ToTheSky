@@ -7,8 +7,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -91,10 +92,20 @@ public final class CalendarData extends SavedData {
         return all;
     }
 
-    /** 某日事件（可为空列表） */
-    public List<CalendarEvent> byDay(int month, int day) {
-        List<CalendarEvent> events = byMonthDay.get(key(month, day));
-        return events == null ? Collections.emptyList() : Collections.unmodifiableList(events);
+    /**
+     * 某天的事件（按公历日问，可为空列表）：既含公历当天的活动，也含「农历换算后落在当天」的活动。
+     * <p>不能按 {@code month*100+day} 查表：农历活动的 {@code month}/{@code day} 是农历月-日，
+     * 与公历格子无关（见 {@link CalendarEvent#occurrenceIn}）。
+     */
+    public List<CalendarEvent> on(LocalDate date) {
+        YearMonth month = YearMonth.from(date);
+        List<CalendarEvent> events = new ArrayList<>();
+        for (CalendarEvent event : all()) {
+            if (date.equals(event.occurrenceIn(month))) {
+                events.add(event);
+            }
+        }
+        return events;
     }
 
     /** 按 id 查找，找不到返回 null */
