@@ -69,6 +69,18 @@ repositories {
     // 以下仓库对本地 jar/ Forge 组件解析不是必须的，且会触发被 reset 的请求
     // maven { url = "https://maven.ithundxr.dev/mirror" }
     // maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        // forRepositories(fg.repository) // Uncomment when using ForgeGradle
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 configurations.all {
@@ -92,49 +104,49 @@ dependencies {
 
     // 其他从 RiaFST 4 拉取的本地 mod（flatDir 按 artifactId-version.jar 解析）
     implementation fg.deobf("com.voxelutopia:ultramarine-1.20.1:0.5.1")
-    implementation fg.deobf("com.github.ysbbbbbb.kaleidoscopecookery:kaleidoscopecookery:1.2.0")
-    implementation fg.deobf("vectorwing:FarmersDelight-1.20.1:1.2.4")
-    implementation fg.deobf("io.github.tt432:kitchenkarrot-1.20.1:0.6.4b")
-    implementation fg.deobf("culturaldelights:culturaldelights:0.16.1")
+    implementation "maven.modrinth:v17FatAc:WrRGy5Ni" //Kaleidoscope Cookery 1.2.0
+    implementation "maven.modrinth:R2OftAxM:AxgOboGq" //Farmer's Delight 1.2.4 - 1.20.1
+    implementation "maven.modrinth:Xqu7vgqw:gio097V4" //Kitchen Karrot 0.6.4b
+    implementation "maven.modrinth:YttyNOFA:nqWWS4zW" //Cultural Delights 0.16.1
     // 镇守府：RiaFST 4 的 chinjufumod-[1.20.1]7.0.1.jar 已改名为 chinjufumod-7.0.1.jar（flatDir 不能解析方括号）
     // TerraBlender 是 chinjufumod 的硬依赖，缺了 runClient 加载会失败
     implementation fg.deobf("chinjufumod:chinjufumod:7.0.1")
-    implementation fg.deobf("com.github.glitchfiend:TerraBlender-forge-${minecraft_version}:3.0.1.6")
+    implementation "maven.modrinth:kkmrDlKT:oCGyhKcY" //TerraBlender 3.0.1.6
     // Create Confectionery：RiaFST 4 的 create-confectionery1.20.1_v1.1.3.jar 已改名为 create_confectionery-1.1.3.jar
-    implementation fg.deobf("create_confectionery:create_confectionery:1.1.3")
+    implementation "maven.modrinth:WPE5gRs9:3AaYpdLZ" //Create Confectionery 1.1.3
     // Create Big Cannons：RiaFST 4 的 createbigcannons-5.11.1-mc.1.20.1-forge.jar 已改名为 createbigcannons-5.11.1.jar
     // Ritchie's Projectile Lib 是 CBC 的硬依赖，缺了 runClient 加载会失败
-    implementation fg.deobf("createbigcannons:createbigcannons:5.11.1")
-    implementation fg.deobf("ritchiesprojectilelib:ritchiesprojectilelib:2.1.1")
+    implementation "maven.modrinth:GWp4jCJj:7R7VwQnl" //Create Big Cannons 5.11.1
+    implementation "maven.modrinth:B3pb093D:PdGBsNte" //Ritchie's Projectile Library 2.1.1
     // Nether's Delight：RiaFST 4 的 nethersdelight-1.20.1-4.0.jar（依赖 farmersdelight，已接入）
-    implementation fg.deobf("nethersdelight:nethersdelight-1.20.1:4.0")
+    implementation "maven.modrinth:Vv0RM7WN:MTDQhZd2" //Nether's Delight 4.0
     // Create Crafts & Additions：RiaFST 4 的 createaddition-1.20.1-1.3.3.jar（依赖 create，已接入）
-    implementation fg.deobf("createaddition:createaddition-1.20.1:1.3.3")
+    implementation "maven.modrinth:kU1G12Nn:9LgyB6Yb" //createaddition-forge-1.20.1-1.3.3
     // Contact（往来）：RiaFST 4 的 Contact-forge-1.2.3.jar，硬依赖 oelib（0.1.3+）
-    implementation fg.deobf("contact:contact:1.2.3")
+    implementation "maven.modrinth:1Oyfrkxg:bGdlDxEX" //Contact 1.2.3
     // OELib：Contact 的库 mod（json5-java/lunar 以 jarjar 内嵌，无额外外部依赖）
-    implementation fg.deobf("oelib:oelib:0.2.4.1")
+    implementation "maven.modrinth:7ODqOXka:3ZN7sdQJ" //OELib 0.2.4.1
     // AE2：补偿功能需要它的官方存储 API（StorageCells/AEItemKey）。
     // compileOnly + runtimeOnly：只在编译期与开发运行期需要，不打进本模组 jar；
     // 生产环境由 mods/ 里的 AE2 提供，mods.toml 声明为 mandatory=false 软依赖。
-    compileOnly fg.deobf("appliedenergistics2:appliedenergistics2:15.2.11")
-    runtimeOnly fg.deobf("appliedenergistics2:appliedenergistics2:15.2.11")
+    compileOnly "maven.modrinth:XxWD5pD3:kF3whRqC" //Applied Energistics 2 15.2.11
+    runtimeOnly "maven.modrinth:XxWD5pD3:kF3whRqC" //Applied Energistics 2 15.2.11
     // SophisticatedBackpacks / Core：补偿功能要把物品直接写回背包内容（其内容存在全局
     // SavedData 里、按 contentsUuid 索引）。同样只编译期与开发运行期需要，不打进 jar；
     // mods.toml 里 declared 为 mandatory=false 软依赖。
-    compileOnly fg.deobf("sophisticatedbackpacks:sophisticatedbackpacks:3.24.13.1433")
-    runtimeOnly fg.deobf("sophisticatedbackpacks:sophisticatedbackpacks:3.24.13.1433")
-    compileOnly fg.deobf("sophisticatedcore:sophisticatedcore:1.2.109.1271")
-    runtimeOnly fg.deobf("sophisticatedcore:sophisticatedcore:1.2.109.1271")
+    compileOnly "maven.modrinth:TyCTlI4b:VHspHq6R" //SophisticatedBackpacks 3.24.13.1433
+    runtimeOnly "maven.modrinth:TyCTlI4b:VHspHq6R" //SophisticatedBackpacks 3.24.13.1433
+    compileOnly "maven.modrinth:nmoqTijg:gQBUUjar" //SophisticatedCore 1.2.109.1271
+    runtimeOnly "maven.modrinth:nmoqTijg:gQBUUjar" //SophisticatedCore 1.2.109.1271
 
 
 
 
 
     // JEI / AppleSkin / Jade：仅 runClient 调试用，不进 compileClasspath，也不声明 mods.toml 依赖
-    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:15.20.0.127")
-    runtimeOnly fg.deobf("squeek.appleskin:appleskin-forge-mc${minecraft_version}:2.5.1")
-    runtimeOnly fg.deobf("snownee.jade:Jade-${minecraft_version}-Forge:11.13.3")
+    runtimeOnly "maven.modrinth:u6dRKJwZ:ruHSy16N" //JEI-1.20.1-15.20.0.127
+    runtimeOnly "maven.modrinth:EsAfCjCV:XdXDExVF" //appleskin-forge-mc1.20.1-2.5.1
+    runtimeOnly "maven.modrinth:nvQzSEkH:xJQHCmWJ" //Jade-1.20.1-11.13.3
 
 
 
