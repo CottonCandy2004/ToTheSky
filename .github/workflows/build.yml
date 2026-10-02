@@ -28,9 +28,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: libs
-          key: ${{ runner.os }}-libs-${{ hashFiles('**/libs/*') }}
-          restore-keys: |
-            ${{ runner.os }}-libs-
+          key: ${{ runner.os }}-libs
 
       - name: Download RIA Host mods
         if: steps.CachedLibs.outputs.cache-hit != 'true'
@@ -67,7 +65,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: libs
-          key: ${{ runner.os }}-libs-${{ hashFiles('**/libs/*') }}
+          key: ${{ runner.os }}-libs
 
       # This is needed to be able to run ./gradlew below
       # You can run `git update-index --chmod +x gradlew` then remove this step.
