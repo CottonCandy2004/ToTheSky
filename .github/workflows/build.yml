@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,6 +22,50 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore libs
+        id: CachedLibs
+        uses: actions/cache/restore@v5
+        with:
+          path: libs
+          key: ${{ runner.os }}-libs
+
+      - name: Download RIA Host mods
+        if: steps.CachedLibs.outputs.cache-hit != 'true'
+        run: |
+          items=(
+          "chinjufumod-7.0.1.jar,https://assets.ria.red/fst-client/mods/chinjufumod-%5b1.20.1%5d7.0.1.jar"
+          "ultramarine-1.20.1-0.5.1.jar,https://assets.ria.red/fst-client/mods/ultramarine-1.20.1-0.5.1.jar"
+          "create-1.20.1-6.0.8-slim.jar,https://assets.ria.red/fst-client/mods/create-1.20.1-6.0.8-slim.jar"
+          "flywheel-forge-1.20.1-1.0.5.jar,https://assets.ria.red/fst-client/mods/flywheel-forge-1.20.1-1.0.5.jar"
+          "mixinextras-forge-0.4.1.jar,https://assets.ria.red/fst-client/mods/mixinextras-forge-0.4.1.jar"
+          "Ponder-Forge-1.20.1-1.0.91.jar,https://assets.ria.red/fst-client/mods/Ponder-Forge-1.20.1-1.0.91.jar"
+          "Registrate-MC1.20-1.3.3.jar,https://assets.ria.red/fst-client/mods/Registrate-MC1.20-1.3.3.jar"
+          )
+          mkdir -p libs
+          for item in "${items[@]}"; do
+            filename="${item%%,*}"
+            url="${item#*,}"
+            if [ -z "$url" ]; then
+              echo "Skipped (no URL): $filename"
+              continue
+            fi
+            echo "Downloading: $filename  <-  $url"
+            err=$(curl -fsL --retry 3 -o "libs/$filename" "$url" 2>&1)
+            if [ $? -eq 0 ]; then
+              echo "Download Successful: $filename"
+            else
+              echo "Download Failed: $filename"
+              echo "  Error: $err"
+              exit 1
+            fi
+          done
+
+      - name: Cache libs
+        uses: actions/cache/save@v5
+        with:
+          path: libs
+          key: ${{ runner.os }}-libs
 
       # This is needed to be able to run ./gradlew below
       # You can run `git update-index --chmod +x gradlew` then remove this step.
