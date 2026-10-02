@@ -57,10 +57,16 @@ sourceSets.main.resources {
     exclude 'src/generated/**/.cache'
 }
 
+def isCI = System.getenv("CI") == "true"
 repositories {
-    // BMCLAPI 国内镜像，加速/恢复 Forge/Mojang/Maven Central 相关下载
-    maven { url = "https://bmclapi2.bangbang93.com/maven/" }
-    maven { url = "https://bmclapi2.bangbang93.com/libraries/" }
+    if (!isCI) {
+        // BMCLAPI 国内镜像，加速/恢复 Forge/Mojang/Maven Central 相关下载
+        maven { url = "https://bmclapi2.bangbang93.com/maven/" }
+        maven { url = "https://bmclapi2.bangbang93.com/libraries/" }
+    }else{
+        maven { url = "https://maven.minecraftforge.net/" }
+        maven { url = "https://libraries.minecraft.net/" }
+    }
     flatDir {
         dirs 'libs'
     }
