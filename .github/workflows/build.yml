@@ -50,10 +50,12 @@ jobs:
               continue
             fi
             echo "Downloading: $filename  <-  $url"
-            if curl -fsL --retry 3 -o "libs/$filename" "$url"; then
+            err=$(curl -fsL --retry 3 -o "libs/$filename" "$url" 2>&1)
+            if [ $? -eq 0 ]; then
               echo "Download Successful: $filename"
             else
               echo "Download Failed: $filename"
+              echo "  Error: $err"
               exit 1
             fi
           done
