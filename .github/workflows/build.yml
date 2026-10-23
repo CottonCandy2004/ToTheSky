@@ -74,3 +74,28 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Locate output jar file
+        id: locate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find ./build/libs -maxdepth 1 -type f -name 'tothesky*.jar' -printf '%P\n' | sort)
+          if [[ "${#files[@]}" -eq 0 ]]; then
+            echo "::error::No jar files found in the build/libs directory. Make sure your build step created one."
+            exit 1
+          fi
+          if [[ "${#files[@]}" -gt 1 ]]; then
+            echo "::error::Multiple jar files detected: ${files[*]}."
+            echo "::error::This workflow currently supports exactly one jar artifact."
+            exit 1
+          fi
+          jar_file="${files[0]}"
+          echo "path=$jar_file" >> "$GITHUB_OUTPUT"
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: ./build/libs/${{ steps.locate.outputs.path }}
+          if-no-files-found: error
+          archive: false
