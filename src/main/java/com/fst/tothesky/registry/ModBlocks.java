@@ -141,7 +141,7 @@ public final class ModBlocks {
             BLOCKS.register("wine_crafting_table", () -> new com.fst.tothesky.block.WineCraftingTableBlock(BlockBehaviour.Properties.of()
                     .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
     public static final RegistryObject<Block> LABLE_PRINTER =
-            BLOCKS.register("lable_printer", () -> new com.fst.tothesky.block.FacingBlock(BlockBehaviour.Properties.of()
+            BLOCKS.register("lable_printer", () -> new com.fst.tothesky.block.LabelPrinterBlock(BlockBehaviour.Properties.of()
                     .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
 
     // ---------------- 装饰 ----------------

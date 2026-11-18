@@ -36,6 +36,9 @@ public final class ModNbt {
     /** 玩家死亡回溯记录点（存于 player.getPersistentData()） */
     public static final String REWIND_POS = "rewind_pos";
 
+    /** 标签打印机已贴标标记（物品根标签） */
+    public static final String LABEL_PRINTED = "tothesky_label_printed";
+
     private ModNbt() {
     }
 
