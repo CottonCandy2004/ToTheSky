@@ -268,5 +268,10 @@
   "block.tothesky.brass_glass_scaffolding": "黄铜玻璃脚手架",
   "block.tothesky.brass_clear_glass_scaffolding": "黄铜透明玻璃脚手架",
   "block.tothesky.copper_glass_scaffolding": "铜玻璃脚手架",
-  "block.tothesky.copper_clear_glass_scaffolding": "铜透明玻璃脚手架"
+  "block.tothesky.copper_clear_glass_scaffolding": "铜透明玻璃脚手架",
+
+  "arcade.buildersaddition.game.tothesky_tetris": "Tetris",
+  "arcade.buildersaddition.game.tothesky_minesweeper": "Minesweeper",
+  "arcade.buildersaddition.game.tothesky_2048": "2048",
+  "arcade.buildersaddition.game.tothesky_pacman": "Pac-Man"
 }

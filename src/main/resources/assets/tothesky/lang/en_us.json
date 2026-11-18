@@ -268,5 +268,10 @@
   "block.tothesky.brass_glass_scaffolding": "Brass Glass Scaffolding",
   "block.tothesky.brass_clear_glass_scaffolding": "Brass Clear Glass Scaffolding",
   "block.tothesky.copper_glass_scaffolding": "Copper Glass Scaffolding",
-  "block.tothesky.copper_clear_glass_scaffolding": "Copper Clear Glass Scaffolding"
+  "block.tothesky.copper_clear_glass_scaffolding": "Copper Clear Glass Scaffolding",
+
+  "arcade.buildersaddition.game.tothesky_tetris": "Tetris",
+  "arcade.buildersaddition.game.tothesky_minesweeper": "Minesweeper",
+  "arcade.buildersaddition.game.tothesky_2048": "2048",
+  "arcade.buildersaddition.game.tothesky_pacman": "Pac-Man"
 }
