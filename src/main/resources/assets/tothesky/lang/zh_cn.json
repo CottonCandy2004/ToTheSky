@@ -1,4 +1,11 @@
 {
+  "block.tothesky.rolling_stone": "滚石",
+  "block.tothesky.rolling_stone.desc": "The Rolling Stones - Gimme Shelter",
+  "entity.tothesky.rolling_stone": "滚石",
+  "tooltip.tothesky.rolling_stone.0": "占据 2×2×2 空间，外观与普通石头一致。",
+  "tooltip.tothesky.rolling_stone.1": "检测放置时身后的方向。",
+  "tooltip.tothesky.rolling_stone.2": "不会攻击主人，但是其他朋友就没那么好运了...",
+  "tooltip.tothesky.rolling_stone.record": "似乎能放进什么方块里...",
   "itemGroup.tothesky": "翱翔天际",
   "item.tothesky.pasta_with_chocolate": "巧克力意面",
   "item.tothesky.caramel_cod_soup": "焦糖鳕鱼羹",

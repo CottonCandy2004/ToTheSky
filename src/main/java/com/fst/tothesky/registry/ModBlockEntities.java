@@ -13,6 +13,11 @@ public final class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ToTheSky.MODID);
 
+    public static final RegistryObject<BlockEntityType<com.fst.tothesky.rollingstone.RollingStoneBlockEntity>> ROLLING_STONE =
+            BLOCK_ENTITIES.register("rolling_stone", () -> BlockEntityType.Builder
+                    .of(com.fst.tothesky.rollingstone.RollingStoneBlockEntity::new, ModBlocks.ROLLING_STONE.get())
+                    .build(null));
+
     /** 一盘熟饺子：内容物（8 份馅料 + 厨师名）以 NBT 原样透传，见 DumplingPlateBlockEntity */
     public static final RegistryObject<BlockEntityType<DumplingPlateBlockEntity>> DUMPLING_PLATE =
             BLOCK_ENTITIES.register("dumpling_plate", () -> BlockEntityType.Builder

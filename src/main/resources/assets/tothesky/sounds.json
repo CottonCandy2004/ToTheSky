@@ -1,4 +1,12 @@
 {
+    "music.gimme_shelter": {
+        "sounds": [
+            {
+                "name": "tothesky:gimme_shelter",
+                "stream": true
+            }
+        ]
+    },
     "guitar_sound": {
         "sounds": [
             {

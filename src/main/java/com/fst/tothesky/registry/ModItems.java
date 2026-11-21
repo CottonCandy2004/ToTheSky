@@ -325,6 +325,9 @@ public final class ModItems {
             ITEMS.register("aging_container", () -> new BlockItem(ModBlocks.AGING_CONTAINER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> WINE_CRAFTING_TABLE_ITEM =
             ITEMS.register("wine_crafting_table", () -> new BlockItem(ModBlocks.WINE_CRAFTING_TABLE.get(), new Item.Properties()));
+    public static final RegistryObject<com.fst.tothesky.item.RollingStoneRecordItem> ROLLING_STONE =
+            ITEMS.register("rolling_stone", com.fst.tothesky.item.RollingStoneRecordItem::new);
+
     public static final RegistryObject<TooltipBlockItem> LABLE_PRINTER_ITEM =
             ITEMS.register("lable_printer", () -> new TooltipBlockItem(ModBlocks.LABLE_PRINTER.get(), new Item.Properties(), "lable_printer", 4));
     /** 你不该拿到的酒（酿酒逻辑未迁移，仅占位） */

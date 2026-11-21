@@ -30,6 +30,7 @@ public class ToTheSky {
         context.registerConfig(ModConfig.Type.COMMON, ToTheSkyConfig.SPEC);
 
         ModBlocks.BLOCKS.register(modEventBus);
+        com.fst.tothesky.registry.ModEntities.ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         // Create: Crystal Clear 的移植内容（方块自带 BlockItem，故两个注册表都要挂）
         com.fst.tothesky.crystalclear.CrystalClearBlocks.BLOCKS.register(modEventBus);

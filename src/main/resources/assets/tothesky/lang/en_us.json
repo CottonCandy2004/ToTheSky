@@ -1,4 +1,11 @@
 {
+  "block.tothesky.rolling_stone": "Rolling Stone",
+  "block.tothesky.rolling_stone.desc": "The Rolling Stones - Gimme Shelter",
+  "entity.tothesky.rolling_stone": "Rolling Stone",
+  "tooltip.tothesky.rolling_stone.0": "Occupies 2x2x2 blocks and blends in with ordinary stone.",
+  "tooltip.tothesky.rolling_stone.1": "Watches the terrain 10 blocks behind your placement direction and rolls toward other players.",
+  "tooltip.tothesky.rolling_stone.2": "Harmless to its owner. Rearms when stopped, or drops if there is no room.",
+  "tooltip.tothesky.rolling_stone.record": "Can also play Gimme Shelter in a jukebox.",
   "itemGroup.tothesky": "To The Sky",
   "item.tothesky.pasta_with_chocolate": "巧克力意面",
   "item.tothesky.caramel_cod_soup": "焦糖鳕鱼羹",

@@ -12,6 +12,10 @@ public final class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUNDS =
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ToTheSky.MODID);
 
+    public static final RegistryObject<SoundEvent> MUSIC_GIMME_SHELTER =
+            SOUNDS.register("music.gimme_shelter", () -> SoundEvent.createVariableRangeEvent(
+                    ResourceLocation.fromNamespaceAndPath(ToTheSky.MODID, "music.gimme_shelter")));
+
     /** 吉他弹奏音（assets/tothesky/sounds/guitar_sound.ogg） */
     public static final RegistryObject<SoundEvent> GUITAR_SOUND =
             SOUNDS.register("guitar_sound", () -> SoundEvent.createVariableRangeEvent(

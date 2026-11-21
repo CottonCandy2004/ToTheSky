@@ -28,6 +28,9 @@ public final class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, ToTheSky.MODID);
 
+    public static final RegistryObject<com.fst.tothesky.rollingstone.RollingStoneBlock> ROLLING_STONE =
+            BLOCKS.register("rolling_stone", com.fst.tothesky.rollingstone.RollingStoneBlock::new);
+
     private static final BlockBehaviour.Properties FOOD_BLOCK_PROPS =
             BlockBehaviour.Properties.of().sound(SoundType.WOOL).strength(1.0f).noOcclusion();
 

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["SSS", "SRS", "SSS"],
+  "key": {
+    "S": { "item": "minecraft:stone" },
+    "R": { "item": "minecraft:redstone" }
+  },
+  "result": { "item": "tothesky:rolling_stone" }
+}
