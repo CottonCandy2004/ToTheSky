@@ -1,7 +1,7 @@
 # 服务器测试清单（ToTheSky 1.20.1 全量注册回归）
 
 > 生成日期：2026-09-09。逐项核对 `src/main/java/com/fst/tothesky/` 当前源码（ModItems / ModBlocks / ModFluids / ModEffects / 全部事件与方块实体），覆盖模组新增/注册的**全部物品、方块、状态效果、流体与逻辑**。
-> **入口指令**：`gradlew runClient`（或把 `build/libs/tothesky-1.0.0.jar` 放进 RiaFST 4 实例 `mods/` → 启动）。Forge 1.20.1 / Java 17 / Create 6.0.8。
+> **入口指令**：`gradlew runClient`（或把 `build/libs/tothesky-1.0.1.jar` 放进 RiaFST 4 实例 `mods/` → 启动）。Forge 1.20.1 / Java 17 / Create 6.0.8。
 > 游戏内测试由用户手动进行——按下列分组逐项打勾。**本清单为验收参考，阈值/文案以源码注释为准。**
 
 ---
