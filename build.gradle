@@ -134,7 +134,7 @@ dependencies {
     implementation fg.deobf("maven.modrinth:7ODqOXka:3ZN7sdQJ") //OELib 0.2.4.1
     // Builders Crafts & Additions（buildersaddition）：RiaFST 3 的 buildersaddition-1.20.1-20230928a.jar，
     // 沿用原名（flatDir 按 artifactId-version.jar 解析，artifactId 含 -1.20.1）。无内嵌 jarjar 依赖。
-    implementation fg.deobf("com.mrh0:buildersaddition-1.20.1:20230928a") //Builders Crafts & Additions 20230928a
+    implementation fg.deobf("maven.modrinth:jA6GVA7Y:CUekg1Bv") //Builders Crafts & Additions 20230928a
     // AE2：补偿功能需要它的官方存储 API（StorageCells/AEItemKey）。
     // compileOnly + runtimeOnly：只在编译期与开发运行期需要，不打进本模组 jar；
     // 生产环境由 mods/ 里的 AE2 提供，mods.toml 声明为 mandatory=false 软依赖。
