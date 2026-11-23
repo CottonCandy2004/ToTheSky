@@ -15,8 +15,9 @@ ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模�
 - **构建工具**：ForgeGradle 6.0.54 + Gradle 8.4 wrapper；Java 编译目标为 17（`options.release = 17`），使用官方 Mojang 映射。CI 使用 Temurin 21 构建，产物仍面向 Java 17。
 - **依赖来源**：多数模组依赖通过 Modrinth Maven 解析；部分依赖由 `libs/` 下的本地 jar 提供。`libs/` 被 git 忽略，本地依赖的文件名须符合 `build.gradle` 中的坐标；准备方式可参考 `.github/workflows/build.yml`。
 - **Create 依赖**：使用去掉 `META-INF/jarjar/` 的 `create-1.20.1-6.0.8-slim.jar`，并单独提供 Ponder、Flywheel、Registrate、MixinExtras。依赖版本与声明见构建文件。
-- **其他本地依赖**：包括 `ultramarine-1.20.1-0.5.1.jar`、`chinjufumod-7.0.1.jar`、`buildersaddition-1.20.1-20230928a.jar`。注意 flatDir 文件命名，例如镇守府 jar 需使用不含方括号的文件名。
-- **开发运行依赖**：JEI、AppleSkin、Jade 仅通过 `runtimeOnly` 加入开发运行环境，不进入编译依赖，也不声明为模组运行必需依赖。
+- **其他本地依赖**：包括 `ultramarine-1.20.1-0.5.1.jar`、`chinjufumod-7.0.1.jar`。注意 flatDir 文件命名，例如镇守府 jar 需使用不含方括号的文件名。Builders Crafts & Additions 通过 Modrinth Maven 解析。
+- **JEI 集成**：JEI 通过 `compileOnly` 提供客户端集成 API，并通过 `runtimeOnly` 加入开发运行环境，不打入本模组 jar。
+- **开发运行依赖**：AppleSkin、Jade 仅通过 `runtimeOnly` 加入开发运行环境，不进入编译依赖，也不声明为模组运行必需依赖。
 - **可选集成**：编译依赖与正式运行依赖不是同一概念；运行时依赖关系以 `src/main/resources/META-INF/mods.toml` 为准。新增集成应正确处理目标模组未安装的情况。
 
 ## 架构与数据流
