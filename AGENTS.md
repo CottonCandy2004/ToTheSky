@@ -1,96 +1,79 @@
 # 仓库指南（Repository Guidelines）
 
-## 工作区隔离
-本目录是 **Forge 1.20.1** 专用工作区：`E:\forgeMod\ToTheSky-1.20.1`，固定分支 `1.20.1`。
-1.21.1（NeoForge）在 `E:\forgeMod\ToTheSky-1.21.1`（分支 `main`）。两者是同一仓库的 git worktree，**禁止在本目录 `git switch`/`checkout` 到 main**——去另一个文件夹工作。`E:\forgeMod\ToTheSky`（无版本号）已废弃。
+## 分支与工作区
+- 本文档适用于 **Forge 1.20.1** 分支 `1.20.1`；NeoForge 1.21.1 版本在 `main` 分支维护。
+- 在对应版本的工作区内修改代码，不要在 Forge 工作区切换到 `main`。需要处理另一版本时，使用对应工作区。
+- 下文文件路径均相对于仓库根目录。
 
 ## 项目概述
-ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模组，基于 Minecraft 1.21.1 的 NeoForge（NeoForge 21.1.248，Java 21）——「一点点混沌，很多的乐趣」。正在将旧版 KubeJS 脚本迁移为原生 NeoForge 实现，已迁移鸡尾酒、饺子、食物配方、下界合金产线/魔女因子链、售货机/扭蛋机等。许可证：保留所有权利（`TEMPLATE_LICENSE.txt` 中的 MIT 许可证仅覆盖 NeoForged MDK 模板本身，不适用于模组本体）。
+ToTheSky（`tothesky`）是作者 RiaAED 为 RiaFST 服务器开发的核心模组——「一点点混沌，很多的乐趣」。本分支基于 Minecraft 1.20.1 和 Forge，包含自定义物品、方块、配方、交互功能及其他模组的集成。
 
-**当前阶段最重要的工作：把现有 KubeJS 逻辑与注册迁移到本 mod。** 参考源位于 `D:\Minecraft\Client\.minecraft\versions\RIAFst 3\kubejs`（注意路径含空格），迁移和开发时应优先从该路径寻找参考。详见下文「当前开发重点」。
+许可证：保留所有权利（`TEMPLATE_LICENSE.txt` 中的 MIT 许可证仅覆盖 NeoForged MDK 模板本身，不适用于模组本体）。
 
-## 1.20.1 Forge 分支（分支名：`1.20.1`）
-本分支是主分支（NeoForge 1.21.1）的 **Forge 1.20.1 移植版**，面向 RiaFST 4 客户端实例（`D:\curseforge\minecraft\Instances\RiaFST 4`，Forge 47.4.10，Create 6.0.8；旧参考 RIAFst 3 的 KubeJS 脚本与之几乎一致，仍可作行为参考）。与 main 的关键差异：
-- **构建**：ForgeGradle 6 + Gradle 8.4 wrapper（FG 不支持 Gradle 9）、官方映射、Java 17。`mods.toml` 为静态文件（`src/main/resources/META-INF/mods.toml`），`${}` 占位符由 `processResources` 展开，无 `src/main/templates`。
-- **依赖**：编译期依赖放 `libs/`（git 忽略）：从 RiaFST 4 mods 目录复制 `ultramarine-1.20.1-0.5.1.jar`、`kaleidoscopecookery-1.2.0-forge+mc1.20.1.jar`（改名为 `kaleidoscopecookery-1.2.0.jar`）、`FarmersDelight-1.20.1-1.2.4.jar`、`kitchenkarrot-1.20.1-0.6.4b.jar`、`culturaldelights-0.16.1.jar`、`chinjufumod-[1.20.1]7.0.1.jar`（改名为 `chinjufumod-7.0.1.jar`，flatDir 不能解析方括号）、`TerraBlender-forge-1.20.1-3.0.1.6.jar`（镇守府硬依赖）、`create-confectionery1.20.1_v1.1.3.jar`（改名为 `create_confectionery-1.1.3.jar`）、`createbigcannons-5.11.1-mc.1.20.1-forge.jar`（改名为 `createbigcannons-5.11.1.jar`）、`ritchiesprojectilelib-2.1.1-mc.1.20.1-forge.jar`（改名为 `ritchiesprojectilelib-2.1.1.jar`，CBC 硬依赖）、`nethersdelight-1.20.1-4.0.jar`、`createaddition-1.20.1-1.3.3.jar`、`Contact-forge-1.2.3.jar`（改名为 `contact-1.2.3.jar`）、`OELib-forge-1.20.1-0.2.4.1.jar`（改名为 `oelib-0.2.4.1.jar`，Contact 硬依赖）、`buildersaddition-1.20.1-20230928a.jar`（Builders Crafts & Additions，来自 RiaFST 3 的 mods 目录，沿用原名）。JEI（`jei-1.20.1-forge-15.20.0.127.jar`）、AppleSkin（`appleskin-forge-mc1.20.1-2.5.1.jar`）和 Jade（`Jade-1.20.1-Forge-11.13.3.jar`）仅 `runtimeOnly` 进 `runClient` 调试，不进编译、不声明 mods.toml 依赖。**Create 系**走 `com.simibubi.create:create-1.20.1:6.0.8:slim`：`create-1.20.1-6.0.8.jar` 去掉 `META-INF/jarjar/` 后另存为 `create-1.20.1-6.0.8-slim.jar`，该目录下的四个内嵌 jar 按原名解包进 `libs/` 并由 build.gradle 显式声明——`Ponder-Forge-1.20.1-1.0.91.jar`（catnip 类 `TriState`/`AnimationTickHolder` 所在）、`flywheel-forge-1.20.1-1.0.5.jar`、`Registrate-MC1.20-1.3.3.jar`、`mixinextras-forge-0.4.1.jar`。`gradle.properties` 内置 `systemProp.*.proxyPort=7890` 本地代理。
-- **API 形态**：无数据组件/AttachmentType → 一律物品 NBT（`registry/ModNbt` 工具类与玩家 `persistentData`）；kk 1.20.1 鸡尾酒是 NBT 驱动 + 数据驱动（`CocktailItem.getCocktail/setCocktail`，效果在配方 JSON `content.effect`，模型/创造栏由 kk 自动扫 `assets/<ns>/cocktail/list.json`）——故无 ModCocktails 注册类；方块交互是单一 `use()`；`MobEffect.applyEffectTick` 返回 void；Create 6 的 `CustomUseEffectsItem.shouldTriggerUseEffects` 返回 catnip `TriState`，`AnimationTickHolder` 在 `net.createmod.catnip.animation`。
-- **资源**：`data/<ns>/recipes|loot_tables`（复数）、shaped result 用 `"item"`、tag 前缀 `forge:`、Create 配方字段 `heatRequirement`/`transitionalItem`（驼峰）、流体 ingredient 为扁平 `{fluid, amount}`（Create 6 与 0.5.1 相同，已实测 6.0.8 内置配方验证）。
-
-## 当前开发重点：KubeJS 迁移
-- 参考源：`D:\Minecraft\Client\.minecraft\versions\RIAFst 3\kubejs`（路径含空格，脚本/命令中请加引号或转义）。此目录是旧版客户端 KubeJS 脚本集，其中大量内容（注册、配方、功能、资源）将被迁移进 ToTheSky，以原生 NeoForge 方式实现。
-- 目录结构速览（迁移时逐项对照）：
-  - `startup_scripts/` — 注册类逻辑：`registry.js`（15 KB 主注册表）、`drink_block_registry.js`、`seat_entity_registry.js` 等物品/方块/实体注册。
-  - `server_scripts/` — 服务端逻辑：`recipes/`、`feature/`、`bugfix/`、`server_only/`、`general_functions.js`。
-  - `client_scripts/` — 客户端逻辑：`tooltips.js`、`jeiModify.js`、`ponder.js`、`brewing_barrel_render.js` 等。
-  - `assets/`、`data/` — 各模组（fstwines、kaleidoscope_cookery 等）的自定义资源与数据包。
-- 约定：编写 ToTheSky 新代码时，凡 KubeJS 已有实现的，优先阅读该目录下的对应脚本作为需求与行为参考，再以 Java（注册表、事件、mixin、datagen）原生实现，而不是照搬脚本语法。
+## 构建与依赖
+- **版本**：Minecraft 1.20.1、Forge 47.4.10、Create 6.0.8；具体配置以 `gradle.properties` 与 `build.gradle` 为准。
+- **构建工具**：ForgeGradle 6.0.54 + Gradle 8.4 wrapper；Java 编译目标为 17（`options.release = 17`），使用官方 Mojang 映射。CI 使用 Temurin 21 构建，产物仍面向 Java 17。
+- **依赖来源**：多数模组依赖通过 Modrinth Maven 解析；部分依赖由 `libs/` 下的本地 jar 提供。`libs/` 被 git 忽略，本地依赖的文件名须符合 `build.gradle` 中的坐标；准备方式可参考 `.github/workflows/build.yml`。
+- **Create 依赖**：使用去掉 `META-INF/jarjar/` 的 `create-1.20.1-6.0.8-slim.jar`，并单独提供 Ponder、Flywheel、Registrate、MixinExtras。依赖版本与声明见构建文件。
+- **其他本地依赖**：包括 `ultramarine-1.20.1-0.5.1.jar`、`chinjufumod-7.0.1.jar`、`buildersaddition-1.20.1-20230928a.jar`。注意 flatDir 文件命名，例如镇守府 jar 需使用不含方括号的文件名。
+- **开发运行依赖**：JEI、AppleSkin、Jade 仅通过 `runtimeOnly` 加入开发运行环境，不进入编译依赖，也不声明为模组运行必需依赖。
+- **可选集成**：编译依赖与正式运行依赖不是同一概念；运行时依赖关系以 `src/main/resources/META-INF/mods.toml` 为准。新增集成应正确处理目标模组未安装的情况。
 
 ## 架构与数据流
-- 单模块 NeoForge 模组。入口点：`@Mod` 类 `ToTheSky`，位于 `src/main/java/com/fst/tothesky/ToTheSky.java`。
-- 元数据流：`gradle.properties` 的值 → `src/main/templates/META-INF/neoforge.mods.toml` 中的 `${...}` 占位符 → 由 `generateModMetadata` 任务展开到 `build/generated/sources/modMetadata`。始终编辑模板，绝不动生成产物。
-- 数据生成流：`data` run 写入 `src/generated/resources/`，该目录已挂入 `sourceSets.main.resources`（排除 `src/generated/**/.cache`），生成内容随模组资源一起打包。
-- `MODID = "tothesky"` 是唯一事实来源：它同时驱动 `@Mod` 注解、mixin 配置文件名（`tothesky.mixins.json`）、mods.toml 的 `modId` 和游戏测试命名空间。
-- 事件流：构造函数接收 `IEventBus`（mod 总线）与 `ModContainer`；目前为空——没有事件订阅，也没有 `DeferredRegister`。
+- 单模块 Forge 模组。入口点是 `src/main/java/com/fst/tothesky/ToTheSky.java` 中的 `@Mod` 类 `ToTheSky`。
+- 构造函数通过 `FMLJavaModLoadingContext` 获取 mod 事件总线，注册配置、各类 `DeferredRegister` 与网络消息。
+- 元数据流：`gradle.properties` 的值 → `processResources` 展开 `src/main/resources/META-INF/mods.toml` 和 `pack.mcmeta` 中的 `${...}` 占位符。编辑源文件，不修改 `build/` 下的生成产物；本分支不使用 `src/main/templates/`。
+- 数据生成流：`runData` 写入 `src/generated/resources/`，该目录已挂入主资源集，生成内容随模组资源一起打包。
+- Mixin 注解处理器生成 `build/mixin/tothesky.refmap.json`，由资源处理任务打包。Mixin 配置通过开发目录和正式 jar 的清单 `MixinConfigs` 加载。
+- `jar` 任务完成后执行 `reobfJar`，将产物转换为正式运行环境使用的 SRG 名称。正式使用构建产物前应确认整个构建成功，不能使用重混淆失败后留下的开发 jar。
 
-## 关键目录
-- `src/main/java/` — 模组代码，位于 `com.fst.tothesky` 包下；mixin 必须放在 `com.fst.tothesky.mixin` 包（mixins.json 的 `package` 字段强制）。
-- `src/main/resources/` — 静态资源；包含 `tothesky.mixins.json`。
-- `src/main/templates/` — 含 `${...}` 占位符的元数据模板；`neoforge.mods.toml` 在这里。
-- `src/generated/resources/` — 数据生成输出；执行 `runData` 之前不存在。
-- `run/` — 已被 git 忽略的运行时目录，由客户端/服务端 run 生成。
+## 关键目录与文件
+- `src/main/java/com/fst/tothesky/` — 模组代码；`registry/` 为注册表，`mixin/` 为 Mixin 类。
+- `src/main/resources/` — 静态资源、配方、标签、战利品表及 Mixin 配置。
+- `src/main/resources/META-INF/mods.toml` — 模组元数据与运行依赖声明。
+- `src/main/resources/tothesky.mixins.json` — 通用 Mixin 配置。
+- `src/main/resources/tothesky.oelib.mixins.json` — OELib 集成的 Mixin 配置。
+- `src/generated/resources/` — 数据生成输出。
+- `libs/` — 本地依赖 jar，不纳入版本控制。
+- `run/` — 开发运行目录，不纳入版本控制。
+- `build.gradle` — ForgeGradle、依赖、开发运行配置、资源处理和打包配置。
+- `gradle.properties` — 版本与模组身份属性。
+- `.github/workflows/build.yml` — CI 依赖准备、构建和产物上传。
+- `docs/serverTest_todo.md` — 游戏内测试清单。
 
 ## 开发命令
-Gradle 9.2.1 wrapper——POSIX 用 `./gradlew`，Windows 用 `gradlew.bat`。
-- `gradlew runClient` — 启动客户端
-- `gradlew runServer` — 启动服务端（`--nogui`）
-- `gradlew runGameTestServer` — 运行游戏测试（命名空间 `tothesky`）
-- `gradlew runData` — 运行数据生成，写入 `src/generated/resources/`
-- `gradlew build` — 编译 + 打包 + 空的 test 任务；CI 执行的就是这个
-- `gradlew publish` — 发布到本地 `repo/` maven 目录（已配置 maven-publish）
-- `gradlew --refresh-dependencies` — 刷新 Gradle 缓存；`gradlew clean` — 重置构建输出
+使用仓库自带的 Gradle 8.4 wrapper。以下命令以 POSIX 为例；Windows PowerShell 下将 `./gradlew` 替换为 `.\gradlew.bat`。
 
-## 工作流偏好：改完即打包并部署
-每次完成改动后 MUST 立即打包并拷进客户端实例——用户在 RiaFST 4 里手动测试，未拷贝等于改动不可见：
-1. `gradlew.bat build`（Windows）。产物由 `jar` 写出、`reobfJar` 原地覆写为 `build/libs/tothesky-<mod_version>.jar`（`base.archivesName = mod_id` + `version = mod_version`，当前即 `tothesky-1.0.0.jar`）。
-   **必须确认 build 成功**：`reobfJar` 失败（如构建产物被别的进程占用）时，留在 `build/libs/` 的是未 reobf 的开发 jar，拷进实例会静默坏掉（引用的原版成员没有 SRG 化）。
-2. 拷贝该 jar 到 `D:\curseforge\minecraft\Instances\RiaFST 4\mods\`，覆盖同名旧 jar，拷完核对大小或 md5。
-3. 告知用户重启客户端——运行中的游戏不会热加载新 jar。
+- `./gradlew build` — 编译、资源处理、打包与重混淆，产物为 `build/libs/tothesky-<mod_version>.jar`。
+- `./gradlew runClient` — 启动开发客户端。
+- `./gradlew runServer` — 启动开发服务端（`--nogui`）。
+- `./gradlew runData` — 执行数据生成。
+- `./gradlew publish` — 发布到仓库内的 `repo/` Maven 目录。
+- `./gradlew --refresh-dependencies build` — 刷新依赖并构建。
+- `./gradlew clean` — 清理构建输出。
 
-## 代码约定与常见模式
-- 模组 ID 常量：`public static final String MODID = "tothesky";` — 一律引用 `ToTheSky.MODID`，不要硬编码字符串。
-- 日志：`public static final Logger LOGGER = LogUtils.getLogger();`（来自 `com.mojang.logging.LogUtils` 的 Mojang slf4j）；使用 `ToTheSky.LOGGER`。
-- Java 21，官方 Mojang 映射 + Parchment（1.21.1 / 2024.11.17）参数名。
-- Mixin 约定（由 `tothesky.mixins.json` 规定）：类必须位于 `com.fst.tothesky.mixin` 包且声明在 `mixins` 数组中；`defaultRequire: 1` — 每个注入器必须至少匹配 1 个目标方法，否则游戏加载失败；`overwrites.requireAnnotations: true` — 禁止匿名覆盖。
-- 注册表：目前没有；新增时应使用 mod 总线上的 `DeferredRegister`（NeoForge 惯例）。
-- 访问转换器：当前禁用（mods.toml 模板中为注释块——启用时取消注释即可）。
-- 所有 `JavaCompile` 任务强制 UTF-8 编码。
+## 代码约定与 API
+- 模组 ID 使用 `ToTheSky.MODID`；日志使用 `ToTheSky.LOGGER`。
+- 注册表使用 Forge 的 `DeferredRegister`，挂载到 mod 事件总线。
+- Java 源码和编译编码使用 UTF-8，使用 Java 17 支持的语法与 API。
+- Forge 1.20.1 无数据组件和 `AttachmentType`；物品数据使用 NBT，玩家持久化数据使用 `persistentData`。物品 NBT 工具位于 `registry/ModNbt`。
+- 方块交互使用 `use()`；`MobEffect.applyEffectTick` 返回 `void`。
+- Kitchen Karrot 1.20.1 的鸡尾酒使用 NBT 和数据资源：`CocktailItem.getCocktail/setCocktail`、配方 JSON 的 `content.effect`、`assets/<ns>/cocktail/list.json`。
+- Create 6 的 `CustomUseEffectsItem.shouldTriggerUseEffects` 返回 catnip `TriState`；`AnimationTickHolder` 位于 `net.createmod.catnip.animation`。
+- Mixin 类放入对应配置声明的包，并添加到相应列表。通用配置的 `defaultRequire: 1` 要求注入匹配目标；`overwrites.requireAnnotations: true` 要求覆盖方法带注解。
 
-## 重要文件
-- `src/main/java/com/fst/tothesky/ToTheSky.java` — 模组入口点
-- `src/main/templates/META-INF/neoforge.mods.toml` — 模组元数据模板（ID、依赖、许可证、作者）
-- `src/main/resources/tothesky.mixins.json` — mixin 配置
-- `build.gradle` — `net.neoforged.moddev` 2.0.144；runs（client/server/gameTestServer/data）；数据生成与元数据生成接线
-- `gradle.properties` — 所有版本与模组身份属性
-- `.github/workflows/build.yml` — CI（JDK 21 temurin，`./gradlew build`）
+## 资源格式
+- 数据目录使用 `data/<ns>/recipes/`、`data/<ns>/loot_tables/` 等复数名称。
+- 有序合成配方结果使用 `"item"` 字段，通用标签使用 `forge:` 命名空间。
+- Create 配方字段使用 `heatRequirement`、`transitionalItem`（驼峰）；流体 ingredient 使用扁平对象 `{ "fluid": "<namespace:id>", "amount": <数量> }`。
 
-## 运行时/工具偏好
-- 需要 JDK 21（toolchain 21；foojay resolver 缺 JDK 时自动下载）。IntelliJ 项目已锁定 JDK 21。
-- NeoForge 21.1.248，经 `net.neoforged.moddev` 2.0.144 引入。`repositories {}` 与 `dependencies {}` 已接入 Create、Farmers Delight、KitchenKarrot、AE2、CEI 等生活/工业模组依赖（详见 `gradle.properties`）。
-- `runtimeClasspath.extendsFrom localRuntime` — 可选的仅运行时模组放入 `localRuntime` 配置。
-- Gradle daemon、并行构建、构建缓存、配置缓存均已启用（`gradle.properties`）；1 GB 堆内存。
-- CI：Ubuntu + Temurin 21；push 和 PR 时触发。
-- 仓库已有 `.git` 目录，远端 `origin` 指向 `https://github.com/RIA-AED/ToTheSky`；可正常使用 git 命令。
-- IDE：已启用源码与 Javadoc 下载；默认代码风格。
-
-## 测试与 QA
-- 无单元测试：没有 `src/test` 源码，也没有 JUnit 依赖——Gradle 的 `test` 任务是空操作。
-- NeoForge 游戏测试：`client`、`server`、gameTestServer 三个 run 均启用了 `tothesky` 命名空间（`neoforge.enabledGameTestNamespaces`）。
-- **游戏内测试由用户手动进行**——助手只确保 `gradlew build` 编译通过。测试清单维护在 `docs/serverTest_todo.md`。
-- 用 `gradlew runGameTestServer` 可运行游戏测试，但非必需（用户进游戏手测为准）。
-- CI 只执行 `./gradlew build`；没有独立的测试任务或覆盖率门槛。
+## 测试与验证
+- CI 执行 `./gradlew build`。
+- 当前没有 `src/test` 源码与 JUnit 依赖，Gradle 的 `test` 任务不提供功能验证。
+- 当前构建未配置 `gameTestServer` run；不要将其作为已有验证命令。
+- 游戏内交互、渲染和模组兼容性需在对应运行环境中验证，可参考 `docs/serverTest_todo.md`。报告验证结果时区分构建通过与实际游戏验证。
 
 ## Git 提交规范
-- 提交标题**必须**以 `feat:`/`fix:`/`refactor:`/`docs:`/`chore:`/`style:`/`test:`/`build:` 等 [Conventional Commits](https://www.conventionalcommits.org/) 前缀开头。
-  - 示例：`feat: 移植售货机与扭蛋机`、`fix: 修正模组名编码`、`docs: 更新测试待办`。
-- 标题用中文描述，简洁清晰。
-- 远端：`origin` → `https://github.com/RIA-AED/ToTheSky`。
+- 提交标题以 `feat:`、`fix:`、`refactor:`、`docs:`、`chore:`、`style:`、`test:`、`build:` 等 Conventional Commits 前缀开头。
+- 标题用中文描述，简洁清晰，例如 `fix: 修正模组名编码`、`docs: 更新测试待办`。
+- 远端 `origin` 指向 `https://github.com/RIA-AED/ToTheSky`。
