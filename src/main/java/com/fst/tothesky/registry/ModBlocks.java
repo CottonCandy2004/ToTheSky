@@ -147,6 +147,11 @@ public final class ModBlocks {
             BLOCKS.register("lable_printer", () -> new com.fst.tothesky.block.LabelPrinterBlock(BlockBehaviour.Properties.of()
                     .sound(SoundType.METAL).strength(2.0f).noOcclusion()));
 
+    public static final RegistryObject<Block> STREETLIGHT =
+            BLOCKS.register("streetlight", () -> new com.fst.tothesky.block.StreetlightBlock(
+                    BlockBehaviour.Properties.of().sound(SoundType.METAL).strength(2.0f)
+                            .requiresCorrectToolForDrops().noOcclusion().lightLevel(state -> 15)));
+
     // ---------------- 装饰 ----------------
     public static final RegistryObject<Block> CANDLE_STICK =
             BLOCKS.register("candle_stick", () -> new com.fst.tothesky.block.SimpleShapeBlock(

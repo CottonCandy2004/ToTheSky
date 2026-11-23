@@ -337,6 +337,10 @@ public final class ModItems {
     public static final RegistryObject<Item> INCOMPLETE_WINE_BOTTLE = ITEMS.register("incomplete_wine_bottle",
             () -> new Item(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<TooltipBlockItem> STREETLIGHT_ITEM =
+            ITEMS.register("streetlight", () -> new TooltipBlockItem(ModBlocks.STREETLIGHT.get(),
+                    new Item.Properties(), "streetlight", 1));
+
     // ---------------- 装饰方块物品 ----------------
     public static final RegistryObject<BlockItem> CANDLE_STICK_ITEM =
             ITEMS.register("candle_stick", () -> new BlockItem(ModBlocks.CANDLE_STICK.get(), new Item.Properties()));

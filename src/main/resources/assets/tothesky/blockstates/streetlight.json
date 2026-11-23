@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,wall_mounted=false": {
+      "model": "tothesky:block/streetlight",
+      "y": 270
+    },
+    "facing=north,wall_mounted=true": {
+      "model": "tothesky:block/streetlight_wall",
+      "y": 270
+    },
+    "facing=east,wall_mounted=false": {
+      "model": "tothesky:block/streetlight",
+      "y": 0
+    },
+    "facing=east,wall_mounted=true": {
+      "model": "tothesky:block/streetlight_wall",
+      "y": 0
+    },
+    "facing=south,wall_mounted=false": {
+      "model": "tothesky:block/streetlight",
+      "y": 90
+    },
+    "facing=south,wall_mounted=true": {
+      "model": "tothesky:block/streetlight_wall",
+      "y": 90
+    },
+    "facing=west,wall_mounted=false": {
+      "model": "tothesky:block/streetlight",
+      "y": 180
+    },
+    "facing=west,wall_mounted=true": {
+      "model": "tothesky:block/streetlight_wall",
+      "y": 180
+    }
+  }
+}

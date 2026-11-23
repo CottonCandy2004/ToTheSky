@@ -1,4 +1,6 @@
 {
+  "block.tothesky.streetlight": "路灯",
+  "tooltip.tothesky.streetlight.0": "作者：Centurion",
   "block.tothesky.rolling_stone": "滚石",
   "block.tothesky.rolling_stone.desc": "The Rolling Stones - Gimme Shelter",
   "entity.tothesky.rolling_stone": "滚石",
